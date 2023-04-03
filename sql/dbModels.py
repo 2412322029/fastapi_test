@@ -1,3 +1,5 @@
+import asyncio
+
 from sqlalchemy import Column, String, Integer, DateTime, func
 
 from .database import Base, engine
@@ -33,6 +35,9 @@ class User(Base):
 # class Post(Base):
 #     __tablename__ = 'tb_post'
 #     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
-Base.metadata.create_all(engine)
+asyncio.run(create_tables())

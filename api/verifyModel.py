@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -47,7 +47,7 @@ class RegisterSuccess(BaseModel):
 
 class UpdateSuccess(RegisterSuccess):
     @classmethod
-    def from_User(cls, user: User, detail: str):
+    def from_User(cls, user: Type[User], detail: str):
         return cls(
             detail=detail, data=UserOut(
                 id=user.id,
@@ -75,3 +75,10 @@ class TokenData(BaseModel):
 class AdminTokenData(BaseModel):
     username: str
     id: int
+
+
+class UploadSuccess(BaseModel):
+    filename: str
+    content_type: str
+    detail: str
+

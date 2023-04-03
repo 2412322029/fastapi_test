@@ -1,2 +1,4 @@
 /test/
 /.venv/
+uploads/*
+log/*

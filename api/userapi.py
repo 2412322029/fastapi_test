@@ -1,20 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+import hashlib
+import os
+
+import aiofiles
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic.schema import timedelta
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import Request
 
 from config import Config
 from sql import crud
 from sql.database import get_session
+from .adminapi import get_is_Allow_register, limiter
 from .token import authenticate_user, create_access_token, get_current_user
-from .verifyModel import UserCreate, RegisterSuccess, UserOut, Token, TokenData, Userbase, UpdateSuccess, PubUserInfo
+from .verifyModel import UserCreate, RegisterSuccess, UserOut, Token, TokenData, Userbase, UpdateSuccess, PubUserInfo, \
+    UploadSuccess
 
 userapp = APIRouter()
 
 
 @userapp.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
-                                 session: Session = Depends(get_session)):
+@limiter.limit(limit_value="5/minute")
+async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends(),
+                                 session: AsyncSession = Depends(get_session)):
     user = await authenticate_user(session=session, username=form_data.username, password=form_data.password)
     if not user:
         raise HTTPException(
@@ -31,16 +39,22 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 @userapp.post("/register", description='用户注册', response_model=RegisterSuccess)
-async def register(user_in: UserCreate, session: Session = Depends(get_session)):
-    await crud.create_user(session, user_in)
-    u = crud.findUser_by_name(session, user_in.username)
-    return RegisterSuccess.from_userOut(userout=u, detail="注册成功", )
+@limiter.limit(limit_value="5/minute")
+async def register(request: Request, user_in: UserCreate, session: AsyncSession = Depends(get_session)):
+    if get_is_Allow_register():
+        await crud.create_user(session, user_in)
+        u = await crud.findUser_by_name(session, user_in.username)
+        return RegisterSuccess.from_userOut(userout=u, detail="注册成功", )
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='不允许注册')
 
 
 @userapp.get("/pubInfo", response_model=PubUserInfo)
+@limiter.limit(limit_value="10/minute")
 async def publish_user_info(
+        request: Request,
         username: str = Query(default=..., max_length=30),
-        session: Session = Depends(get_session)
+        session: AsyncSession = Depends(get_session)
 ):
     user = await crud.findPubUser_by_name(session, username)
     if user is not None:
@@ -50,7 +64,7 @@ async def publish_user_info(
 
 
 @userapp.get("/info", response_model=UserOut)
-async def userinfo(session: Session = Depends(get_session), current_user: TokenData = Depends(get_current_user)):
+async def userinfo(session: AsyncSession = Depends(get_session), current_user: TokenData = Depends(get_current_user)):
     user = await crud.findUser_by_name(session, current_user.username)
     if user is not None:
         return user
@@ -60,26 +74,57 @@ async def userinfo(session: Session = Depends(get_session), current_user: TokenD
 
 @userapp.put("/update_username", response_model=UpdateSuccess)
 async def update_username(old_password: str, username_new: str,
-                          session: Session = Depends(get_session),
+                          session: AsyncSession = Depends(get_session),
                           current_user: TokenData = Depends(get_current_user)):
-    r = await crud.change_user_name(session,
-                                    user_old=Userbase(username=current_user.username, password=old_password),
-                                    username_new=username_new)
+    try:
+        user_old = Userbase(username=current_user.username, password=old_password)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=str(e))
+    r = await crud.change_user_name(session, user_old=user_old, username_new=username_new)
     return r
 
 
 @userapp.put("/update_password", response_model=UpdateSuccess)
 async def update_password(old_password: str, password_new: str,
-                          session: Session = Depends(get_session),
+                          session: AsyncSession = Depends(get_session),
                           current_user: TokenData = Depends(get_current_user)):
-    r = await crud.change_user_passwd(session,
-                                      user_old=Userbase(username=current_user.username, password=old_password),
-                                      password_new=password_new)
+    try:
+        user_old = Userbase(username=current_user.username, password=old_password)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=str(e))
+    r = await crud.change_user_passwd(session, user_old=user_old, password_new=password_new)
     return r
 
 
-@userapp.put("/update_avatar", response_model=UpdateSuccess)
-async def update_username(avatar_new: str, session: Session = Depends(get_session),
+@userapp.put("/update_avatar", response_model=UploadSuccess)
+@limiter.limit(limit_value="5/minute")
+async def update_username(request: Request, avatar_new: UploadFile, session: AsyncSession = Depends(get_session),
                           current_user: TokenData = Depends(get_current_user)):
-    r = await crud.change_user_avatar(session, username=current_user.username, new_avatar=avatar_new)
+    fileinfo = await upload(avatar_new)
+    r = await crud.change_user_avatar(session, username=current_user.username, fileinfo=fileinfo)
     return r
+
+
+@userapp.post("/upload_file/", response_model=UploadSuccess, dependencies=[Depends(get_current_user)])
+@limiter.limit(limit_value="5/minute")
+async def create_upload_file(request: Request, file: UploadFile):
+    return await upload(file)
+
+
+async def upload(file: UploadFile):
+    ext = os.path.splitext(file.filename)[1]
+    if ext not in {".jpg", ".jpeg", ".png", ".gif"}:
+        raise HTTPException(status_code=400, detail="Invalid file extension.")
+
+    data = await file.read()
+    if len(data) > Config['MAX_FILE_SIZE_MB'] * 1048576:
+        raise HTTPException(status_code=400, detail=f"File size = {round(len(data) / 1048576, 2)}MB exceeds the limit.")
+
+    md5 = hashlib.md5(data).hexdigest()
+    filename = f"{md5}{ext}"
+    file_path = os.path.join(os.path.dirname(__file__), "..", "uploads", filename)
+    if os.path.exists(file_path):
+        return UploadSuccess(filename=filename, content_type=file.content_type, detail="文件已存在")
+    async with aiofiles.open(file_path, "wb") as buffer:
+        await buffer.write(data)
+    return UploadSuccess(filename=filename + ext, content_type=file.content_type, detail="上传成功")

@@ -1,6 +1,7 @@
 /test/
 /.venv/
 uploads/*
+!./uploads/default.jpg
 log/*
 .venv
 .idea

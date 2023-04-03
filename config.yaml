@@ -1,5 +1,15 @@
 # 开发模式输出更多信息
 Development: true
+#Development: false
+
+# 跨域规则
+allow_origins:
+    - '*'
+    - 'http://127.0.0.0:8000'
+
+# 匹配一个字符串
+allow_origin_regex: 'https://.*\.unrun\.top'
+
 # mysql数据库信息
 databases:
     host: 127.0.0.1
@@ -15,14 +25,18 @@ uvicorn:
     # 使用多个工作进程
     workers: 1
 
+
 # token密钥
 SECRET_KEY: "b7a9563b93f709f4caa6cf63be75e094faa9d288e8d36ca259f6f056c818166"
+
 ALGORITHM: "HS256"
+
 # token过期时间
 ACCESS_TOKEN_EXPIRE_MINUTES: 1440
 
 # 默认管理员
 Default_Administrator: 'admin'
+
 # 默认密码
 Default_Passwd: 'nHYjlSm773RlLq'
 

@@ -2,3 +2,5 @@
 /.venv/
 uploads/*
 log/*
+.venv
+.idea

@@ -19,7 +19,10 @@ from .verifyModel import UserCreate, RegisterSuccess, UserOut, Token, TokenData,
 userapp = APIRouter()
 
 
-@userapp.post("/token", response_model=Token)
+@userapp.post("/token",
+              response_model=Token,
+              summary='登录返回获取token',
+              description='5 pre minute')
 @limiter.limit(limit_value="5/minute")
 async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends(),
                                  session: AsyncSession = Depends(get_session)):
@@ -38,7 +41,7 @@ async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequ
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@userapp.post("/register", description='用户注册', response_model=RegisterSuccess)
+@userapp.post("/register", summary='用户注册', response_model=RegisterSuccess)
 @limiter.limit(limit_value="5/minute")
 async def register(request: Request, user_in: UserCreate, session: AsyncSession = Depends(get_session)):
     if get_is_Allow_register():
@@ -49,7 +52,9 @@ async def register(request: Request, user_in: UserCreate, session: AsyncSession 
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='不允许注册')
 
 
-@userapp.get("/pubInfo", response_model=PubUserInfo)
+@userapp.get("/pubInfo",
+             response_model=PubUserInfo,
+             summary='返回用户公开信息')
 @limiter.limit(limit_value="10/minute")
 async def publish_user_info(
         request: Request,
@@ -63,7 +68,9 @@ async def publish_user_info(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'user:{username} not found')
 
 
-@userapp.get("/info", response_model=UserOut)
+@userapp.get("/info",
+             response_model=UserOut,
+             summary='返回当前登录用户信息')
 async def userinfo(session: AsyncSession = Depends(get_session), current_user: TokenData = Depends(get_current_user)):
     user = await crud.findUser_by_name(session, current_user.username)
     if user is not None:
@@ -72,7 +79,9 @@ async def userinfo(session: AsyncSession = Depends(get_session), current_user: T
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'user:{current_user.username} not found')
 
 
-@userapp.put("/update_username", response_model=UpdateSuccess)
+@userapp.put("/update_username",
+             response_model=UpdateSuccess,
+             summary='更新用户名')
 async def update_username(old_password: str, username_new: str,
                           session: AsyncSession = Depends(get_session),
                           current_user: TokenData = Depends(get_current_user)):
@@ -84,7 +93,9 @@ async def update_username(old_password: str, username_new: str,
     return r
 
 
-@userapp.put("/update_password", response_model=UpdateSuccess)
+@userapp.put("/update_password",
+             response_model=UpdateSuccess,
+             summary='更新密码')
 async def update_password(old_password: str, password_new: str,
                           session: AsyncSession = Depends(get_session),
                           current_user: TokenData = Depends(get_current_user)):
@@ -96,7 +107,9 @@ async def update_password(old_password: str, password_new: str,
     return r
 
 
-@userapp.put("/update_avatar", response_model=UploadSuccess)
+@userapp.put("/update_avatar",
+             response_model=UploadSuccess,
+             summary='更新用户头像')
 @limiter.limit(limit_value="5/minute")
 async def update_username(request: Request, avatar_new: UploadFile, session: AsyncSession = Depends(get_session),
                           current_user: TokenData = Depends(get_current_user)):
@@ -105,7 +118,10 @@ async def update_username(request: Request, avatar_new: UploadFile, session: Asy
     return r
 
 
-@userapp.post("/upload_file/", response_model=UploadSuccess, dependencies=[Depends(get_current_user)])
+@userapp.post("/upload_file/",
+              response_model=UploadSuccess,
+              dependencies=[Depends(get_current_user)],
+             summary='图片文件上传')
 @limiter.limit(limit_value="5/minute")
 async def create_upload_file(request: Request, file: UploadFile):
     return await upload(file)

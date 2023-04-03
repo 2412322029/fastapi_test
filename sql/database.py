@@ -8,12 +8,12 @@ d = Config["databases"]
 DATABASE_URL = f'mysql+aiomysql://{d["username"]}:{d["password"]}@{d["host"]}:{d["port"]}/{d["dbname"]}'
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
     hide_parameters=True,
     connect_args={'charset': 'utf8mb4'}
 )
 engine.echo = 'debug' if Config['Development'] else True
-# engine.echo = False
+engine.echo = False
+
 async_session = async_sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
 Base = declarative_base()
 

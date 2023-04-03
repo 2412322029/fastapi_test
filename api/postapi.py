@@ -9,6 +9,7 @@ from .verifyModel import UserOut, TokenData
 postapp = APIRouter()
 
 
-@postapp.get("/test")
+@postapp.get("/test",
+             summary='测试')
 async def userinfo(session: Session = Depends(get_session), current_user: TokenData = Depends(get_current_user)):
     return current_user

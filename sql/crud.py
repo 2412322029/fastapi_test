@@ -7,7 +7,6 @@ from starlette import status
 
 from api.password import verify_password, hash_password
 from api.verifyModel import UserOut, UserCreate, UserInDB, Userbase, UpdateSuccess, PubUserInfo, UploadSuccess
-from sql.database import get_session
 from sql.dbModels import User
 
 
@@ -73,7 +72,7 @@ async def create_user(session: AsyncSession, usercreate: UserCreate):
         session.add(User(
             username=usercreate.username,
             password=usercreate.password,
-            avatar=usercreate.avatar)
+            avatar='default.jpg')
         )
         await session.commit()
     except IntegrityError as e:

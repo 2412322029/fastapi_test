@@ -1,16 +1,16 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from api.adminapi import adminapp
-from api.postapi import postapp
-from api.userapi import userapp
+from fastapi.routing import APIRoute
+from api.index import api
 from config import Config
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title='api docs',
     version='1.0',
 )
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,12 +19,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(api, prefix='/api')
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-
-app.include_router(userapp, prefix='/api/user', tags=['用户'])
-app.include_router(adminapp, prefix='/api/admin', tags=['管理员'])
-app.include_router(postapp, prefix='/api/post', tags=['post'])
-
+for route in app.routes:
+    if isinstance(route, APIRoute):
+        route.operation_id = route.name 
 
 if __name__ == '__main__':
     print('后台运行: nohup python3 app.py > output.log 2>&1 &\n')

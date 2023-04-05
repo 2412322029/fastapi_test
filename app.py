@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
+from fastapi.responses import RedirectResponse
 from api.index import api
 from config import Config
 from fastapi.staticfiles import StaticFiles
@@ -19,8 +20,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+async def index():
+    return RedirectResponse(url="/index.html")
+
+
+@app.get("/admin")
+async def admin():
+    return RedirectResponse(url="/admin/index.html")
+
 app.include_router(api, prefix='/api')
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/", StaticFiles(directory="static/dist"), name="static")
 
 for route in app.routes:
     if isinstance(route, APIRoute):

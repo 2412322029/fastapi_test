@@ -7,8 +7,8 @@ from sql.dbModels import User
 
 
 class Userbase(BaseModel):
-    username: str = Field(min_length=5, max_length=30)
-    password: str = Field(min_length=8, max_length=200, regex=r'^[a-zA-Z0-9_ -]+$')
+    username: str = Field(min_length=5, max_length=30, regex=r'^[a-zA-Z0-9_ -]+$')
+    password: str = Field(min_length=8, max_length=200)
 
 
 class UserCreate(Userbase):

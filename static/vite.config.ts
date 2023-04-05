@@ -5,14 +5,6 @@ import { resolve } from 'path'
 export default defineConfig({
   base:"./",
   plugins: [vue()],
-  build: {
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html'),
-        admin: resolve(__dirname, 'admin/index.html'),
-      },
-    },
-  },
   resolve: {
     alias: {
       // 别名配置

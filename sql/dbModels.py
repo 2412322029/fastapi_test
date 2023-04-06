@@ -38,6 +38,8 @@ class User(Base):
 
 
 if __name__ == '__main__':
+    import sys
+    sys.path.append('../')
     from sqlalchemy import create_engine
     from config import Config
     d = Config["databases"]

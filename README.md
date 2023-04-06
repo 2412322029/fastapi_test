@@ -12,12 +12,13 @@ pip install -r requirements.txt
 > 修改数据库用户名密码，创建数据库,数据库名填入dbname
 
 4. 创建数据表,创建管理员
-
+打开项目后 
 ```bash
 cd sql
 python dbModels.py
+
 cd config
-python new_admin.py
+python new_admin.py #异步的原因报错，查看数据表，有admin就行
 ```
 
 3. 启动

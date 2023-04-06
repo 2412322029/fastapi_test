@@ -1,8 +1,8 @@
-import asyncio
-
 from sqlalchemy import Column, String, Integer, DateTime, func
+from sqlalchemy.orm import declarative_base
 
-from .database import Base, engine
+
+Base = declarative_base()
 
 
 class User(Base):
@@ -35,9 +35,18 @@ class User(Base):
 # class Post(Base):
 #     __tablename__ = 'tb_post'
 #     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-async def create_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
 
-asyncio.run(create_tables())
+if __name__ == '__main__':
+    from sqlalchemy import create_engine
+    from config import Config
+    d = Config["databases"]
+    engine = create_engine(
+        f'mysql+pymysql://{d["username"]}:{d["password"]}@{d["host"]}:{d["port"]}/{d["dbname"]}',
+        hide_parameters=True,
+        echo=False,
+        connect_args={'charset': 'utf8mb4'}
+    )
+    Base.metadata.create_all(engine)
+
+

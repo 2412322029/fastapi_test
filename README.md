@@ -1,5 +1,7 @@
-
+## 后端
 1. 安装依赖
+
+2. 最好使用虚拟环境
 ```bash
 pip install -r requirements.txt
 ```
@@ -7,6 +9,16 @@ pip install -r requirements.txt
 2. 配置
 
 修改`config.yaml`
+> 修改数据库用户名密码，创建数据库,数据库名填入dbname
+
+4. 创建数据表,创建管理员
+
+```bash
+cd sql
+python dbModels.py
+cd config
+python new_admin.py
+```
 
 3. 启动
 
@@ -15,8 +27,8 @@ python app.py
 ```
 
 ---
-
-`static`
+## 前端
+在 static 目录
 
 1. 安装依赖
 ```bash

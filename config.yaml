@@ -38,7 +38,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES: 1440
 Default_Administrator: 'admin'
 
 # 默认密码
-Default_Passwd: 'nHYjlSm773RlLq'
+Default_Passwd: '12345678'
 
 # 文件上传大小限制
 MAX_FILE_SIZE_MB: 5

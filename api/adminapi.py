@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from sql import crud
@@ -27,13 +27,22 @@ async def get_admin(current_user: TokenData = Depends(get_current_user)):
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='非管理员')
 
+@adminapp.get("/admininfo",
+             response_model=UserOut,
+             summary='管理员信息')
+async def admininfo(session: AsyncSession = Depends(get_session), current_user: TokenData = Depends(get_admin)):
+    user = await crud.findUser_by_name(session, current_user.username)
+    if user is not None and user.group_id==1:
+        return user
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'user:{current_user.username} not found')
 
 @adminapp.get("/alluser",
               response_model=list[UserOut | None],
               dependencies=[Depends(get_admin)],
               summary='查询所有用户信息',
               description='返回用户信息列表')
-async def alluserinfo(session: Session = Depends(get_session)):
+async def alluserinfo(session: AsyncSession = Depends(get_session)):
     userlist: list[UserOut | None] = await crud.get_all_user(session=session)
     return userlist
 
@@ -79,5 +88,5 @@ async def set_limiter(allow: bool):
 @adminapp.delete("/deleteuser",
                 summary = '删除用户',
                 description = '根据用户名')
-async def deleteuser(username, session: Session = Depends(get_session), current_admin=Depends(get_admin)):
+async def deleteuser(username, session: AsyncSession = Depends(get_session), current_admin=Depends(get_admin)):
     return await crud.delete_user(session=session, username=username)

@@ -6,12 +6,8 @@ const routes = [
         component: () => import('@/route/home.vue')
     },
     {
-        path: '/login',
-        component: () => import('@/route/login.vue')
-    },
-    {
-        path: '/register',
-        component: () => import('@/route/register.vue')
+        path: '/admin',
+        component: () => import('@/route/admin.vue')
     },
     {
         path: '/:pathMatch(.*)',

@@ -16,7 +16,8 @@ async def t():
         session.add(User(
             username=username,
             password=password,
-            avatar='default.jpg')
+            avatar='default.jpg'),
+            group_id=1 #0普通用户， 1管理员
         )
         await session.commit()
 

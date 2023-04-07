@@ -32,7 +32,7 @@ app.add_middleware(
 
 app.include_router(api, prefix='/api')
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-# app.mount("/", StaticFiles(directory="static/dist"), name="static")
+app.mount("/", StaticFiles(directory="static/dist"), name="static")
 
 for route in app.routes:
     if isinstance(route, APIRoute):

@@ -60,6 +60,4 @@ jobs:
         with:
           app-name: 'lolik'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FFE877C076324A17A755C10FE9B82ED3 }}
-          
-        
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_071D769064B94C56AD14D13EEF8D03D2 }}

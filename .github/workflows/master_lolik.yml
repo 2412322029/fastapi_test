@@ -65,6 +65,9 @@ jobs:
       - name: pip 安装
         run: pip install -r requirements.txt
       
+      - name: 设置环境变量
+        run: python python .\config\__init__.py
+
       - name: 启动
         run: python app.py
         

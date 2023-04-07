@@ -61,3 +61,10 @@ jobs:
           app-name: 'lolik'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FFE877C076324A17A755C10FE9B82ED3 }}
+          
+      - name: pip 安装
+        run: pip install -r requirements.txt
+      
+      - name: 启动
+        run: python app.py
+        

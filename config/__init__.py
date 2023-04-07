@@ -5,9 +5,14 @@ with open(os.path.join(os.path.dirname(__file__), '..', 'config.yaml'), 'r', enc
     Config = yaml.safe_load(f)
 
 
-if __name__ == '__main__':
+def az():
     Config['databases']['host'] = os.environ['AZURE_MYSQL_HOST']
     Config['databases']['username'] =os.environ['AZURE_MYSQL_USER']
     Config['databases']['password'] =os.environ['AZURE_MYSQL_PASSWORD']
     Config['databases']['dbname'] =os.environ['AZURE_MYSQL_NAME']
+
+az()
+
+if __name__ == '__main__':
+   
     print(Config)

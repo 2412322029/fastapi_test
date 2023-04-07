@@ -12,18 +12,19 @@ export default defineConfig({
     }
   },
   server: {
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8000/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-      '/uploads': {
-        target: 'http://127.0.0.1:8000/uploads',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/uploads/, ''),
-      },
-    },
+    open:true,
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://127.0.0.1:8000/api',
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api/, ''),
+    //   },
+    //   '/uploads': {
+    //     target: 'http://127.0.0.1:8000/uploads',
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/uploads/, ''),
+    //   },
+    // },
   },
 })
 

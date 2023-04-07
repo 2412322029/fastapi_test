@@ -1,6 +1,6 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: '管理' }" />
-    <div v-if="userinfo" class="mx-auto flex max-w-7xl items-center justify-between px-4 top-20 relative">
+    <div v-if="userinfo" class="mx-auto flex max-w-7xl items-center flex-col px-4 top-20 relative">
         <table>
             <tr>
                 <th>id</th>
@@ -23,6 +23,12 @@
                 </tr>
             </tbody>
         </table>
+        <div>
+            用户注册 <input v-model="isr" type="checkbox">  <button @click="tj1">提交</button>
+            <br>
+            接口限制 <input v-model="isl" type="checkbox">  <button @click="tj2">提交</button>
+        </div>
+
     </div>
 </template>
 <script setup lang="ts">
@@ -32,6 +38,8 @@ import cogoToast from 'cogo-toast';
 import Headers from '@/components/header.vue';
 const userinfo = ref<UserOut>()
 
+const isr =ref()
+const isl =ref()
 const alluserinfo = ref<Array<UserOut>>()
 const showalluser = () => {
     Service.alluserinfo().then((us: Array<UserOut>) => {
@@ -48,7 +56,32 @@ onMounted(() => {
     }).catch((e: ApiError) => {
         cogoToast.error(e.message)
     })
+    Service.isAllowRegister().then((b:boolean) => {
+        isr.value=b
+    }).catch((e: ApiError) => {
+        cogoToast.error(e.message)
+    })
+    Service.isLimiter().then((b:boolean) => {
+        isl.value=b
+    }).catch((e: ApiError) => {
+        cogoToast.error(e.message)
+    })
 })
+
+const tj1=()=>{
+    Service.allowRegister(isr.value).then((b:boolean) => {
+        cogoToast.error(b+'允许注册='+isr.value)
+    }).catch((e: ApiError) => {
+        cogoToast.error(e.message)
+    })
+}
+const tj2=()=>{
+    Service.setLimiter(isl.value).then((b:boolean) => {
+        cogoToast.error(b+'限制='+isl.value)
+    }).catch((e: ApiError) => {
+        cogoToast.error(e.message)
+    })
+}
 
 </script>
 

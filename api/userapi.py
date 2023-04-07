@@ -22,8 +22,8 @@ userapp = APIRouter()
 @userapp.post("/token",
               response_model=Token,
               summary='登录返回获取token',
-              description='5 pre minute')
-@limiter.limit(limit_value="5/minute")
+              description='50 pre minute')
+@limiter.limit(limit_value="50/minute")
 async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends(),
                                  session: AsyncSession = Depends(get_session)):
     user = await authenticate_user(session=session, username=form_data.username, password=form_data.password)

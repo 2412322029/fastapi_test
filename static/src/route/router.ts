@@ -6,6 +6,14 @@ const routes = [
         component: () => import('@/route/home.vue')
     },
     {
+        path: '/userhome',
+        component: () => import('@/route/userhome.vue')
+    },
+    {
+        path: '/websocket',
+        component: () => import('@/route/websocket.vue')
+    },
+    {
         path: '/admin',
         component: () => import('@/route/admin.vue')
     },

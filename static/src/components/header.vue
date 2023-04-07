@@ -15,7 +15,7 @@
                             <span class="inline-block w-full h-full overflow-hidden">
                                 <span class="inline-flex justify-center relative w-full h-full">
                                     <img v-if="user?.avatar !== undefined" width="40" height="40"
-                                        class="overflow-hidden object-cover rounded-full" :src="'./uploads/' + user.avatar">
+                                        class="overflow-hidden object-cover rounded-full" :src="OpenAPI.BASE+'/uploads/' + user.avatar">
                                     <img v-else width="40" height="40" class="overflow-hidden object-cover rounded-full"
                                         src="@/assets/user.svg">
                                 </span>
@@ -25,11 +25,11 @@
                 </div>
                 <div id="exclude2" :class="{ 'hidden': !showplan }" class="text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
                                                         shadow-md py-2 text-base mt-1">
-                    <button v-if="user?.avatar !== undefined"
+                    <a v-if="user?.avatar !== undefined" href="/userhome"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         <img width="40" height="40" class="overflow-hidden object-cover rounded-full"
-                            :src="'./uploads/' + user.avatar">
-                        <span class="p-2">{{ user.username }}</span> </button>
+                            :src="OpenAPI.BASE+'/uploads/' + user.avatar">
+                        <span class="p-2">{{ user.username }}</span> </a>
                     <button v-if="user?.avatar === undefined" @click="showLoginForm = true; showRegisterForm = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         登录</button>

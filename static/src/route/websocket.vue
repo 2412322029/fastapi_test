@@ -4,7 +4,7 @@
         <div class=" flex flex-col p-3 w-full border h-5/6">
             <div v-for='x in msgs' class="flex m-2">
                 <div class=" flex">
-                    <img :src="OpenAPI.BASE + '/uploads/' + x.a" alt="" width="40" height="40"
+                    <img :src="imgbase + x.a" alt="" width="40" height="40"
                         class="overflow-hidden object-cover rounded-full">
                     <p> {{ x.username }}</p>
                 </div>
@@ -27,6 +27,7 @@ import { ref, onMounted } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError } from '@/client'
 import cogoToast from 'cogo-toast';
 import Headers from '@/components/header.vue';
+import { imgbase } from '@/main';
 const userinfo = ref<UserOut>()
 
 

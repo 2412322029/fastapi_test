@@ -15,7 +15,7 @@
                             <span class="inline-block w-full h-full overflow-hidden">
                                 <span class="inline-flex justify-center relative w-full h-full">
                                     <img v-if="user?.avatar !== undefined" width="40" height="40"
-                                        class="overflow-hidden object-cover rounded-full" :src="OpenAPI.BASE+'/uploads/' + user.avatar">
+                                        class="overflow-hidden object-cover rounded-full" :src="imgbase + user.avatar">
                                     <img v-else width="40" height="40" class="overflow-hidden object-cover rounded-full"
                                         src="@/assets/user.svg">
                                 </span>
@@ -28,7 +28,7 @@
                     <a v-if="user?.avatar !== undefined" href="/userhome"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         <img width="40" height="40" class="overflow-hidden object-cover rounded-full"
-                            :src="OpenAPI.BASE+'/uploads/' + user.avatar">
+                            :src="imgbase + user.avatar">
                         <span class="p-2">{{ user.username }}</span> </a>
                     <button v-if="user?.avatar === undefined" @click="showLoginForm = true; showRegisterForm = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
@@ -61,6 +61,7 @@ import login from '@/components/login.vue';
 import register from './register.vue';
 import { ref, watch } from 'vue';
 import cogoToast from 'cogo-toast';
+import { imgbase } from '@/main';
 
 
 defineProps<{

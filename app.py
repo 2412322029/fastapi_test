@@ -21,25 +21,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# @app.get("/")
-# async def index():
-#     return RedirectResponse(url="/index.html")
-#
-#
-# @app.get("/admin")
-# async def admin():
-#     return RedirectResponse(url="/admin/index.html")
 
 app.include_router(api, prefix='/api')
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-app.mount("/", StaticFiles(directory="static/dist"), name="static")
+
 
 for route in app.routes:
     if isinstance(route, APIRoute):
         route.operation_id = route.name 
 
 if __name__ == '__main__':
-    print('后台运行: nohup python3 app.py > output.log 2>&1 &\n')
     c = Config["uvicorn"]
     uvicorn.run(app='app:app',
                 host=c["host"],

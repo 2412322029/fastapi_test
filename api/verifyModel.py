@@ -82,3 +82,38 @@ class UploadSuccess(BaseModel):
     content_type: str
     detail: str
 
+
+class ANewTag(BaseModel):
+    name: str = Field(max_length=50)
+
+
+class PostInDB(BaseModel):
+    username: str
+    title: str
+    content: str
+    tag_names: list[Optional[str]]
+
+
+class PostIn(BaseModel):
+    title: str = Field(max_length=50)
+    content: str
+    tag_names: list[Optional[str]]
+
+
+class PostUpdate(BaseModel):
+    pid: int
+    title: str = Field(max_length=50)
+    content: str
+
+
+class PostOut(BaseModel):
+    id: int
+    user_id: int
+    author: str
+    author_img: str
+    title: str
+    content: str
+    tags: list[str]
+    state: int
+    created_at: datetime
+    updated_at: datetime

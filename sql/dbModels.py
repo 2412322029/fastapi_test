@@ -81,10 +81,10 @@ class Comment(Base):
     __tablename__ = 'tb_comments'
     id = Column(Integer, primary_key=True)
     post_id = Column(Integer, ForeignKey('tb_post.id'), nullable=False)
-    name = Column(String(50), nullable=False)
-    avatar_url = Column(String(100), nullable=True)
-    url = Column(String(100), nullable=True)
+    parent_id = Column(Integer, nullable=False)
+    uid = Column(Integer, ForeignKey('tb_user.id'), nullable=False)
     content = Column(Text, nullable=False)
+    state = Column(Integer, nullable=False, comment='状态id', default=1)
     created_at = Column(DateTime, default=func.now(), server_default=func.now(), nullable=False, comment='创建时间')
 
     # under_post = relationship("Post", back_populates="own_comments")  # 所属文章
@@ -121,6 +121,8 @@ def main():
             group_id=1)  # 0 普通用户， 1 管理员
         )
         session.commit()
+
+
     if __name__ == '__main__':
         posts = session.execute(select(Post).offset(0).limit(5))
         post_list = posts.scalars().all()

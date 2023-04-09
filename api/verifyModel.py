@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Type
+from typing import Optional, Type, List
 
 from pydantic import BaseModel, Field
 
@@ -30,6 +30,7 @@ class UserInDB(UserOut):
 
 
 class PubUserInfo(BaseModel):
+    id: str
     username: str
     avatar: str
 
@@ -117,3 +118,27 @@ class PostOut(BaseModel):
     state: int
     created_at: datetime
     updated_at: datetime
+
+
+class CommentIn(BaseModel):
+    post_id: int = Field(gt=0)
+    parent_id: int
+    username: str
+    content: str = Field(max_length=500, min_length=1)
+
+
+class CommentInput(BaseModel):
+    post_id: int = Field(gt=0)
+    parent_id: int
+    content: str = Field(max_length=500, min_length=1)
+
+
+class CommentPostOut(BaseModel):
+    id: int
+    post_id: int
+    post_id: int
+    username: str
+    user_img: str
+    content: str
+    reply: Optional[List['CommentPostOut']]
+    created_at: datetime

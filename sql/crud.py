@@ -1,7 +1,7 @@
 from typing import Optional, List
 
 from fastapi import HTTPException
-from sqlalchemy import func, delete
+from sqlalchemy import func, delete, and_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -9,8 +9,8 @@ from starlette import status
 
 from api.password import verify_password, hash_password
 from api.verifyModel import UserOut, UserCreate, UserInDB, Userbase, UpdateSuccess, PubUserInfo, UploadSuccess, \
-    PostInDB, ANewTag, PostOut
-from sql.dbModels import User, Post, Tag, PostTag
+    PostInDB, ANewTag, PostOut, CommentIn, CommentPostOut
+from sql.dbModels import User, Post, Tag, PostTag, Comment
 
 
 async def findUser_by_name(session: AsyncSession, username: str) -> UserOut | None:
@@ -35,6 +35,7 @@ async def findPubUser_by_name(session: AsyncSession, username: str) -> PubUserIn
     user: User | None = r.scalar_one_or_none()
     if user is not None:
         return PubUserInfo(
+            id=user.id,
             username=user.username,
             avatar=user.avatar,
             state=user.state
@@ -451,6 +452,69 @@ async def get_posts_ByTagPage(session: AsyncSession, tag_name: str, page: int, p
         po.content = str(po.content)[:200]
         post_out_list.append(po)
     return post_out_list
+
+
+async def newComment(session: AsyncSession, cin: CommentIn) -> str:
+    try:
+        user = await findPubUser_by_name(session, cin.username)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户id不存在,无法发表')
+        post = await get_post_ById(session, cin.post_id)
+        if post is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='文章不存在,无法发表')
+        if int(cin.parent_id) != 0:  # 不是顶层评论
+            p_comm = await session.execute(select(Comment).where(Comment.id == cin.parent_id))
+            p_comm = p_comm.scalar_one_or_none()
+            if p_comm is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='回复的评论不存在,无法发表')
+        comm = Comment(
+            post_id=cin.post_id,
+            parent_id=cin.parent_id,
+            uid=user.id,
+            content=cin.content,
+            created_at=func.now(),
+        )
+        session.add(comm)
+        await session.commit()
+        return '发表成功'
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='发表评论失败' + str(e))
+
+
+async def get_post_comm(session: AsyncSession, pid: int) -> List[CommentPostOut]:
+    try:
+        # 查询所有顶级评论
+        result = await session.execute(select(Comment).where(and_(Comment.post_id == pid, Comment.parent_id == 0)))
+        top_comments = result.scalars().all()
+
+        # 递归查询子评论
+        async def get_child_comments(comment):
+            r = await session.execute(select(Comment).where(Comment.parent_id == comment.id))
+            child_comments = r.scalars().all()
+            reply = None
+            if child_comments:
+                reply = [await get_child_comments(child) for child in child_comments]
+            u = await session.execute(select(User).where(User.id == comment.uid))
+            user: User | None = u.scalar_one_or_none()
+            if user is None:
+                user.username = '未知'
+                user.avatar = 'default.jpg'
+            return CommentPostOut(
+                id=comment.id,
+                post_id=comment.post_id,
+                username=user.username,
+                user_img=user.avatar,
+                content=comment.content,
+                reply=reply,
+                created_at=comment.created_at
+            )
+
+        return [await get_child_comments(comment) for comment in top_comments]
+    except Exception as e:
+        await session.rollback()
+        # raise e
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='查询评论失败' + str(e))
 
 
 if __name__ == '__main__':

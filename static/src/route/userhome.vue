@@ -40,7 +40,7 @@ onMounted(() => {
 })
 
 const upl = () => {
-    Service.updateUsername1({'avatar_new': file.value.files[0]}).then((up) => {
+    Service.updateAvatar({'avatar_new': file.value.files[0]}).then((up) => {
         cogoToast.success(up.detail)
     }).catch((e: ApiError) => {
         cogoToast.error(e.message)

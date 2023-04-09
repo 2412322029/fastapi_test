@@ -8,7 +8,7 @@ from sql import crud
 from sql.database import get_session
 from .token import get_current_user
 from .verifyModel import TokenData, AdminTokenData, UserOut
-from utill.monitor import getdisk
+from utill.monitor import getdisk, getcpumsg
 adminapp = APIRouter()
 
 Allow_register: bool = True
@@ -95,3 +95,7 @@ async def deleteuser(username: str, session: AsyncSession = Depends(get_session)
 @adminapp.get("/get_disk", summary = '获取磁盘使用情况')
 async def get_disk(current_admin=Depends(get_admin)):
     return getdisk()
+
+@adminapp.get("/get_cpu", summary = '获取cpu使用情况')
+async def get_cpu(current_admin=Depends(get_admin)):
+    return getcpumsg()

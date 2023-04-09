@@ -1,4 +1,4 @@
-import time
+import time, json
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from jose import jwt, JWTError
@@ -60,7 +60,7 @@ async def cpu_webs(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            time.sleep(1)
-            await manager.broadcast(utill.monitor.getcpumsg().__str__())
+            time.sleep(0.5)
+            await manager.send_personal_message(json.dumps(utill.monitor.getcpumsg()), websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)

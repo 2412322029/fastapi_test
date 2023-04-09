@@ -1,8 +1,11 @@
+import time
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from jose import jwt, JWTError
 from starlette import status
 from websockets import InvalidMessage
 
+import utill.monitor
 from config import Config
 
 webapp = APIRouter()
@@ -50,3 +53,14 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
             print(e)
     except JWTError:
         raise InvalidMessage(status_code=status.WS_1008_POLICY_VIOLATION)
+
+
+@webapp.websocket("/cpu")
+async def cpu_webs(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            time.sleep(1)
+            await manager.broadcast(utill.monitor.getcpumsg().__str__())
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)

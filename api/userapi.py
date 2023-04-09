@@ -11,6 +11,7 @@ from starlette.requests import Request
 from config import Config
 from sql import crud
 from sql.database import get_session
+from utill import gen
 from .adminapi import get_is_Allow_register, limiter
 from .token import authenticate_user, create_access_token, get_current_user
 from .verifyModel import UserCreate, RegisterSuccess, UserOut, Token, TokenData, Userbase, UpdateSuccess, PubUserInfo, \
@@ -43,11 +44,16 @@ async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequ
 
 @userapp.post("/register", summary='用户注册', response_model=RegisterSuccess)
 @limiter.limit(limit_value="5/minute")
-async def register(request: Request, user_in: UserCreate, session: AsyncSession = Depends(get_session)):
+async def register(request: Request, user_in: UserCreate, uuid: str, code: str,
+                   session: AsyncSession = Depends(get_session)):
     if get_is_Allow_register():
-        await crud.create_user(session, user_in)
-        u = await crud.findUser_by_name(session, user_in.username)
-        return RegisterSuccess.from_userOut(userout=u, detail="注册成功", )
+        b, msg = gen.verifyCode(uu=uuid, cc=code)
+        if b:
+            await crud.create_user(session, user_in)
+            u = await crud.findUser_by_name(session, user_in.username)
+            return RegisterSuccess.from_userOut(userout=u, detail=msg+",注册成功")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='不允许注册')
 
@@ -111,8 +117,8 @@ async def update_password(old_password: str, password_new: str,
              response_model=UploadSuccess,
              summary='更新用户头像')
 @limiter.limit(limit_value="5/minute")
-async def update_username(request: Request, avatar_new: UploadFile, session: AsyncSession = Depends(get_session),
-                          current_user: TokenData = Depends(get_current_user)):
+async def update_avatar(request: Request, avatar_new: UploadFile, session: AsyncSession = Depends(get_session),
+                        current_user: TokenData = Depends(get_current_user)):
     fileinfo = await upload(avatar_new)
     r = await crud.change_user_avatar(session, username=current_user.username, fileinfo=fileinfo)
     return r
@@ -144,3 +150,19 @@ async def upload(file: UploadFile):
     async with aiofiles.open(file_path, "wb") as buffer:
         await buffer.write(data)
     return UploadSuccess(filename=filename + ext, content_type=file.content_type, detail="上传成功")
+
+
+@userapp.get("/get_code", summary='获取验证码')
+@limiter.limit(limit_value="10/minute")
+async def get_code(request: Request):
+    base64_img, u = gen.generateCode()
+    return {'uuid': u, 'img': base64_img}
+
+
+@userapp.get("/verify_code", summary='验证')
+async def verify_code(uuid: str, code: str, request: Request):
+    b, msg = gen.verifyCode(uu=uuid, cc=code)
+    if b:
+        return msg
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)

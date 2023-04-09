@@ -19,7 +19,7 @@ async def newPost(post_in: PostIn, session: AsyncSession = Depends(get_session),
 
 
 @postapp.post("/new_tag", summary='新建tag')
-async def del_tag(a_tag: ANewTag, session: AsyncSession = Depends(get_session),
+async def newTag(a_tag: ANewTag, session: AsyncSession = Depends(get_session),
                   current_user: TokenData = Depends(get_current_user)):
     return await crud.new_tag(session=session, a_tag=a_tag)
 
@@ -44,7 +44,7 @@ async def getPostById(pid: int = Query(gt=0), session: AsyncSession = Depends(ge
 
 
 @postapp.get("/get_all_tags", summary='获取所有tag')
-async def getUserAllTags(session: AsyncSession = Depends(get_session)):
+async def getAllTags(session: AsyncSession = Depends(get_session)):
     return await crud.get_all_tags(session)
 
 
@@ -62,9 +62,9 @@ async def getPostsByTagPage(tag_name: str = Query(min_length=1, max_length=50),
     return await crud.get_posts_ByTagPage(session=session, tag_name=tag_name, page=page, pagesize=pagesize)
 
 
-# @postapp.put("/updateTagCount", summary='更新tag计数')
-# async def updateTagCount(session: AsyncSession = Depends(get_session)):
-#     return await crud.updateTagCount(session)
+@postapp.put("/updateTagCount", summary='更新tag计数')
+async def updateTagCount(session: AsyncSession = Depends(get_session)):
+    return await crud.updateTagCount(session)
 
 
 @postapp.put("/update_post", summary='更新文章')
@@ -90,6 +90,6 @@ async def deletePost(pid: int = Query(gt=0), session: AsyncSession = Depends(get
 
 
 @postapp.delete("/del_tag", summary='删除tag')
-async def del_tag(tag_id: int = Query(gt=0), session: AsyncSession = Depends(get_session),
+async def delTag(tag_id: int = Query(gt=0), session: AsyncSession = Depends(get_session),
                   current_user: TokenData = Depends(get_current_user)):
     return await crud.del_tag(session, tag_id=tag_id)

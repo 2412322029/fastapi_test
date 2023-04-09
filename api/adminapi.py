@@ -8,7 +8,7 @@ from sql import crud
 from sql.database import get_session
 from .token import get_current_user
 from .verifyModel import TokenData, AdminTokenData, UserOut
-
+from utill.monitor import getdisk
 adminapp = APIRouter()
 
 Allow_register: bool = True
@@ -88,5 +88,10 @@ async def set_limiter(allow: bool):
 @adminapp.delete("/deleteuser",
                 summary = '删除用户',
                 description = '根据用户名')
-async def deleteuser(username, session: AsyncSession = Depends(get_session), current_admin=Depends(get_admin)):
+async def deleteuser(username: str, session: AsyncSession = Depends(get_session), current_admin=Depends(get_admin)):
     return await crud.delete_user(session=session, username=username)
+
+
+@adminapp.get("/get_disk", summary = '获取磁盘使用情况')
+async def get_disk(current_admin=Depends(get_admin)):
+    return getdisk()

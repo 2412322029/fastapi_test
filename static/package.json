@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "generate-client": "openapi --input http://127.0.0.1:8000/openapi.json --output ./src/client --client axios",
+    "generate-client": "openapi --input http://127.0.0.1:80/openapi.json --output ./src/client --client axios",
     "preview": "vite preview"
   },
   "dependencies": {

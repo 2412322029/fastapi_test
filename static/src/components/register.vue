@@ -12,14 +12,14 @@
                         <input id="name" :class="{ 'focus:ring-red-600': !ck0(), 'focus:ring-green-600': ck0() }"
                             name="username" type="text" required v-model="user.username"
                             class="p-5 h-9 relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            placeholder="Username.length>=5">
+                            placeholder="用户名(至少5位)">
                     </div>
                     <div>
                         <label for="password1" class="sr-only">Password</label>
                         <input id="password1" :class="{ 'focus:ring-red-600': !ck1(), 'focus:ring-green-600': ck1() }"
                             name="password" type="password" autocomplete="current-password" v-model="user.password" required
                             class="p-5 h-9 relative block w-full border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            placeholder="Password.length>=8">
+                            placeholder="密码(至少8位)">
                     </div>
                     <div>
                         <label for="password2" class="sr-only">Password</label>
@@ -27,16 +27,31 @@
                             name="password" type="password" autocomplete="current-password" v-model="password_agine"
                             required
                             class="p-5 h-9 relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none sm:text-sm sm:leading-6"
-                            placeholder="Enter password agine">
+                            placeholder="重复密码">
                     </div>
                 </div>
+                <div class="h-5">
+                    <label for="yz" class="sr-only">验证码</label>
+                    <input id="yz" name="yz" type="text" required v-model="inputcode"
+                        class=" float-left p-5 h-9 w-2/3 relative block rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        placeholder="验证码(区分大小写)">
+                    <div class="h-9 float-right" style="width: 30%;">
+                        <img v-if="code != undefined" :src="'data:image/Jpeg;base64,' + code?.img" alt="" @click="getcode()"
+                            class=" cursor-pointer">
+                        <button v-else @click="getcode()">获取验证码</button>
+                    </div>
 
+
+                </div>
                 <div class="flex items-center justify-between">
                     <div class="text-sm cursor-pointer">
                         <a @click="$emit('gologin')" class="font-medium text-indigo-600 hover:text-indigo-500">返回登录</a>
                     </div>
+                    <div class="text-sm cursor-pointer">
+                        <a @click="user.password = user.username = password_agine = ''"
+                            class="font-medium text-indigo-600 hover:text-indigo-500">清空输入框</a>
+                    </div>
                 </div>
-
                 <div>
                     <button type="button" @click="registerAction(user)"
                         :class="{ 'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600 cursor-pointer': ck0() && ck1() && ck2() }"
@@ -55,13 +70,14 @@
 
 <script async setup lang="ts">
 import { ref } from 'vue'
-import { OpenAPI, Service, type RegisterSuccess, UserCreate, ApiError } from '../client'
+import { OpenAPI, Service, type RegisterSuccess, UserCreate, ApiError, respCode } from '../client'
 import cogoToast from 'cogo-toast';
 const emit = defineEmits(['gologin'])
 defineProps<{
     showForm: boolean
 }>()
-
+const code = ref<respCode>()
+const inputcode = ref('')
 const user = ref<UserCreate>({
     username: "",
     password: ""
@@ -102,11 +118,28 @@ const registerAction = async (user: UserCreate) => {
         cogoToast.error('密码不一致')
         return
     }
-    await Service.register(user).then((r: RegisterSuccess) => {
+    if (code.value === undefined) {
+        cogoToast.error('请获取验证码')
+        return
+    }
+    if (inputcode.value === '') {
+        cogoToast.error('请输入验证码')
+        return
+    }
+    await Service.register(code.value.uuid, inputcode.value, user).then((r: RegisterSuccess) => {
         cogoToast.success(r.detail)
         emit('gologin')
+
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message);
+        cogoToast.error(e.message + e.body?.detail);
+    })
+}
+
+const getcode = () => {
+    Service.getCode().then((rc: respCode) => {
+        code.value = rc
+    }).catch((e: ApiError) => {
+        cogoToast.error(e.message + e.body?.detail);
     })
 }
 

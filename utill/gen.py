@@ -7,10 +7,11 @@ import string
 import time
 import uuid
 
-from .captcha import ImageCaptcha
+from utill.captcha import ImageCaptcha
 
 path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'temp.txt')
-
+with open(path, "w") as f:
+    pass
 
 def verifyCode(uu: str, cc: str) -> (bool, str):
     with open(path, "r") as f:
@@ -18,13 +19,14 @@ def verifyCode(uu: str, cc: str) -> (bool, str):
     try:
         for code in code_list:
             u, c, t = code
-            if uu == u and cc == c:
-                if math.floor(time.time()) - int(t) > 300:
-                    return False, '过期验证码'
+            if uu == u :
+                if cc == c:
+                    if math.floor(time.time()) - int(t) > 300:
+                        return False, '过期验证码'
+                    else:
+                        return True, '验证成功'
                 else:
-                    return True, '验证成功'
-            else:
-                return False, '验证码错误'
+                    return False, '验证码错误'
     finally:
         delcode()
 
@@ -46,7 +48,7 @@ def generateCode() -> (str, str):
     delcode()
     code = ''
     for i in range(5):
-        code += random.choice(string.ascii_letters)
+        code += random.choice(string.ascii_uppercase)
     u = uuid.uuid4().__str__()
     t = math.floor(time.time())
     with open(path, "a+") as f:
@@ -61,6 +63,6 @@ def generateCode() -> (str, str):
 
 
 if __name__ == '__main__':
-    base64_img, u = generateCode()
-    print(base64_img)
-    # print(verifyCode('4a9413ae-ebd4-42bf-8d91-d9e22c193a70', 'PzgCm'))
+    # base64_img, u = generateCode()
+    # print(base64_img)
+    print(verifyCode('8f3b488b-9def-4323-a884-144413d716fd', 'pzxrd'))

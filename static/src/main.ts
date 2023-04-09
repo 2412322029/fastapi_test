@@ -4,7 +4,7 @@ import App from './App.vue'
 import { router } from '@/route/router'
 import { OpenAPI } from './client/core/OpenAPI'
 
-OpenAPI.BASE = 'http://lolik.azurewebsites.net'
+// OpenAPI.BASE = 'http://lolik.azurewebsites.net'
 export const imgbase:string = OpenAPI.BASE+'/uploads/'
 
 const app = createApp(App)

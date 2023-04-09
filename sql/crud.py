@@ -9,7 +9,7 @@ from starlette import status
 
 from api.password import verify_password, hash_password
 from api.verifyModel import UserOut, UserCreate, UserInDB, Userbase, UpdateSuccess, PubUserInfo, UploadSuccess, \
-    PostInDB, ANewTag, PostOut, CommentIn, CommentPostOut
+    PostInDB, ANewTag, PostOut, CommentIn, CommentPostOut, CommentUserOut
 from sql.dbModels import User, Post, Tag, PostTag, Comment
 
 
@@ -168,6 +168,10 @@ async def delete_user(session: AsyncSession, username: str):
                 ))
             )
             await updateTagCount(session)
+            # TODO:先删除相关评论，解除外键约束
+            p_list = (await session.execute(select(Post).where(Post.user_id == user.id))).scalars().all()
+            for p in p_list:
+                await delete_post(session,p.id, username)
             # 删除该用户相关的所有文章
             await session.execute(delete(Post).where(Post.user_id == user.id))
             await session.delete(user)
@@ -366,6 +370,10 @@ async def delete_post(session: AsyncSession, post_id: int, username: str) -> str
         # 删除对应postTag
         await session.execute(delete(PostTag).where(PostTag.post_id == post_id))
         await updateTagCount(session)
+        # TODO: 删除对应评论
+        coms = (await session.execute(select(Comment).where(Comment.post_id == post.id))).scalars().all()
+        for com in coms:
+            await session.delete(com)
         await session.delete(post)
         await session.commit()
         return '删除成功'
@@ -503,6 +511,7 @@ async def get_post_comm(session: AsyncSession, pid: int) -> List[CommentPostOut]
             return CommentPostOut(
                 id=comment.id,
                 post_id=comment.post_id,
+                parent_id=comment.parent_id,
                 username=user.username,
                 user_img=user.avatar,
                 content=comment.content,
@@ -515,6 +524,88 @@ async def get_post_comm(session: AsyncSession, pid: int) -> List[CommentPostOut]
         await session.rollback()
         # raise e
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='查询评论失败' + str(e))
+
+
+async def get_comm_to_user(session: AsyncSession, username: str) -> List[Optional[CommentUserOut]]:
+    try:
+        user = await get_user(session, username)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
+        pid_list = await session.execute(select(Post.id).where(Post.user_id == user.id))
+        pid_list = pid_list.scalars().all()
+        comm_list = []
+        if pid_list is None:
+            return []
+        for pid in pid_list:  # 每篇文章
+            comm = await session.execute(select(Comment).where(Comment.post_id == pid))
+            comm = comm.scalars().fetchall()
+            for c in comm:  # 文章下的评论
+                if comm is not None:
+                    cuser = await session.execute(select(User).where(User.id == c.uid))
+                    cuser = cuser.scalar_one()
+                    comm_list.append(CommentUserOut(
+                        id=c.id,
+                        post_id=c.post_id,
+                        parent_id=c.parent_id,
+                        username=cuser.username,
+                        user_img=cuser.avatar,
+                        content=c.content,
+                        state=c.state,
+                        created_at=c.created_at
+                    ))
+        print(comm_list)
+        return comm_list
+    except Exception as e:
+        await session.rollback()
+        # raise e
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='查询用户失败' + str(e))
+
+
+# async def review_comments(session: AsyncSession, username: str, cid: int):
+#     try:
+#         comm = await session.execute(select(Comment).where(Comment.id == cid))
+#         comm = comm.scalar_one_or_none()
+#         if comm is None:
+#             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='评论不存在')
+#         pid = comm.post_id
+#         post = await get_post_ById(pid)
+#         if username != post.author:
+#             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f'这不是你的文章,author:{post.author}')
+#         if comm.state == 1:
+#             comm.state = 0
+#             await session.commit()
+#             return ''
+#     except Exception as e:
+#         await session.rollback()
+#         # raise e
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='修改失败' + str(e))
+
+
+async def del_comments(session: AsyncSession, username: str, cid: int):
+    try:
+        comm = await session.execute(select(Comment).where(Comment.id == cid))
+        comm = comm.scalar_one_or_none()
+        if comm is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='评论不存在')
+        pid = comm.post_id
+        post = await get_post_ById(session, pid)
+        if username != post.author:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f'这不是你的文章,author:{post.author}')
+
+        # TODO:级联删除
+        async def delete_comment(comid: int):
+            sub_comments = (await session.execute(select(Comment).where(Comment.parent_id == comid))).scalars().all()
+            for sub_comment in sub_comments:
+                await delete_comment(sub_comment.id)  # 递归删除评论的子评论
+            c = (await session.execute(select(Comment).where(Comment.id == comid))).scalar_one()  # 删除当前评论
+            await session.delete(c)
+        await delete_comment(comid=cid)
+        await session.commit()
+        return '删除成功'
+    except Exception as e:
+        await session.rollback()
+        # raise e
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='删除失败' + str(e))
 
 
 if __name__ == '__main__':

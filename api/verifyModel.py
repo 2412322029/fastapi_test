@@ -12,7 +12,7 @@ class Userbase(BaseModel):
 
 
 class UserCreate(Userbase):
-    avatar: Optional[str]
+    avatar: Optional[str] = Field(default='default.jpg')
 
 
 class UserOut(BaseModel):
@@ -136,9 +136,24 @@ class CommentInput(BaseModel):
 class CommentPostOut(BaseModel):
     id: int
     post_id: int
-    post_id: int
+    parent_id: int
     username: str
     user_img: str
     content: str
     reply: Optional[List['CommentPostOut']]
     created_at: datetime
+
+
+class CommentUserOut(BaseModel):
+    id: int
+    post_id: int
+    parent_id: int
+    username: str
+    user_img: str
+    content: str
+    state: int
+    created_at: datetime
+
+class respCode(BaseModel):
+    uuid:str
+    img: str

@@ -15,7 +15,7 @@ from utill import gen
 from .adminapi import get_is_Allow_register, limiter
 from .token import authenticate_user, create_access_token, get_current_user
 from .verifyModel import UserCreate, RegisterSuccess, UserOut, Token, TokenData, Userbase, UpdateSuccess, PubUserInfo, \
-    UploadSuccess
+    UploadSuccess, respCode
 
 userapp = APIRouter()
 
@@ -152,11 +152,11 @@ async def upload(file: UploadFile):
     return UploadSuccess(filename=filename + ext, content_type=file.content_type, detail="上传成功")
 
 
-@userapp.get("/get_code", summary='获取验证码')
+@userapp.get("/get_code", summary='获取验证码', response_model=respCode)
 @limiter.limit(limit_value="10/minute")
 async def get_code(request: Request):
     base64_img, u = gen.generateCode()
-    return {'uuid': u, 'img': base64_img}
+    return respCode(uuid=u,img=base64_img)
 
 
 @userapp.get("/verify_code", summary='验证')

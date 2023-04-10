@@ -33,6 +33,6 @@ dist-ssr
 *.sln
 *.sw?
 
-openapi.json
+
 client
 utill/temp.txt

@@ -11,37 +11,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  job1:
-    build:
-      runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-      steps:
-        - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-        - name: Set up Python version
-          uses: actions/setup-python@v1
-          with:
-            python-version: '3.10'
+      - name: Set up Python version
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.10'
 
-        - name: Create and start virtual environment
-          run: |
-            python -m venv venv
-            source venv/bin/activate
-        
-        - name: Install dependencies
-          run: pip install -r requirements.txt
+      - name: Create and start virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-        # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
-        
-        - name: Upload artifact for deployment jobs
-          uses: actions/upload-artifact@v2
-          with:
-            name: python-app
-            path: |
-              . 
-              !venv/
-  job2:
-    build2:
+      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+      
+      - name: Upload artifact for deployment jobs
+        uses: actions/upload-artifact@v2
+        with:
+          name: python-app
+          path: |
+            . 
+            !venv/
+  build2:
     runs-on: ubuntu-latest
     steps:
 

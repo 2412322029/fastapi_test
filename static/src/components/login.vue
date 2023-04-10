@@ -26,9 +26,6 @@
 
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <input id="remember-me" name="remember-me" type="checkbox" v-model="remember"
-                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                        <label for="remember-me" class="ml-2 block text-sm text-gray-900 select-none">记住我</label>
                     </div>
                     <div class="text-sm cursor-pointer">
                         <a @click="$emit('goregister')" class="font-medium text-indigo-600 hover:text-indigo-500">注册</a>
@@ -52,7 +49,7 @@
 </template>
 
 <script async setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { OpenAPI, Service, type Token, UserCreate, ApiError } from '../client'
 import cogoToast from 'cogo-toast';
 
@@ -60,21 +57,21 @@ defineProps<{
     showForm: boolean
 }>()
 
-const user = ref<UserCreate>({
+const user = reactive<UserCreate>({
     username: "",
     password: ""
 })
-const remember = ref(false)
+const remember = ref(true)
 const ck0 = () => {
     const regex = /^[a-zA-Z0-9_ -]+$/;
-    if (user.value.username.length >= 5 && regex.test(user.value.username)) {
+    if (user.username.length >= 5 && regex.test(user.username)) {
         return true
     } else {
         return false
     }
 }
 const ck1 = () => {
-    if (user.value.password.length >= 8) {
+    if (user.password.length >= 8) {
         return true
     } else {
         return false
@@ -90,9 +87,9 @@ const loginAction = async (user: UserCreate) => {
         cogoToast.success('登录成功')
         localStorage.setItem('token', OpenAPI.TOKEN)
         if (remember.value) {
-            localStorage.setItem('user', JSON.stringify(user))
+            localStorage.setItem('username', user.username)
         } else {
-            localStorage.removeItem('user')
+            localStorage.removeItem('username')
         }
         location.reload()
     }).catch((e: ApiError) => {
@@ -100,9 +97,9 @@ const loginAction = async (user: UserCreate) => {
     })
 }
 onMounted(() => {
-    var a = localStorage.getItem("user")
+    var a = localStorage.getItem("username")
     if (a) {
-        user.value = JSON.parse(a as string)
+        user.username = a as string
     }
 })
 

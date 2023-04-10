@@ -6,11 +6,12 @@
             </div>
             <div class="flex flex-1 justify-end">
                 <div class="flex items-center">
-                    <button id="exclude1" class=" flex items-center w-full hover:bg-hover transition-colors py-1 px-2 rounded-lg ml-1"
+                    <button id="exclude1"
+                        class=" flex items-center w-full hover:bg-hover transition-colors py-1 px-2 rounded-lg ml-1"
                         type="button" aria-label="connector" @click="togoshow">
                         <span
                             class="inline-flex text-zinc-500 flex-shrink-0 items-center justify-center 
-                                                                          font-medium uppercase overflow-hidden text-[0px] rounded-full align-middle"
+                                                                              font-medium uppercase overflow-hidden text-[0px] rounded-full align-middle"
                             style="width: 40px; height: 40px;">
                             <span class="inline-block w-full h-full overflow-hidden">
                                 <span class="inline-flex justify-center relative w-full h-full">
@@ -24,12 +25,12 @@
                     </button>
                 </div>
                 <div id="exclude2" :class="{ 'hidden': !showplan }" class="text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
-                                                        shadow-md py-2 text-base mt-1">
-                    <a v-if="user?.avatar !== undefined" href="/userhome"
+                                                            shadow-md py-2 text-base mt-1">
+                    <router-link v-if="user?.avatar !== undefined" :to="{ name: 'user', params: { username: user.username } }"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         <img width="40" height="40" class="overflow-hidden object-cover rounded-full"
                             :src="imgbase + user.avatar">
-                        <span class="p-2">{{ user.username }}</span> </a>
+                        <span class="p-2">{{ user.username }}</span> </router-link>
                     <button v-if="user?.avatar === undefined" @click="showLoginForm = true; showRegisterForm = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         登录</button>
@@ -85,15 +86,16 @@ const logout = () => {
         return
     }
     localStorage.removeItem('token')
+    localStorage.removeItem('username')
     location.reload()
 }
 document.addEventListener('click', (e) => {
     const exclude1 = document.getElementById('exclude1')
     const exclude2 = document.getElementById('exclude2')
-    if (!exclude1?.contains(e.target as Node) && !exclude2?.contains(e.target as Node)){
-        showplan.value=false
-        
+    if (!exclude1?.contains(e.target as Node) && !exclude2?.contains(e.target as Node)) {
+        showplan.value = false
+
     }
-    
+
 });
 </script>

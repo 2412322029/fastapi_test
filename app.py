@@ -3,15 +3,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 from fastapi.responses import RedirectResponse
+from starlette.staticfiles import StaticFiles
+
 from api.index import api
 from config import Config
-from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title='api docs',
     version='1.0',
+    debug=True
 )
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,10 +26,9 @@ app.add_middleware(
 app.include_router(api, prefix='/api')
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-
 for route in app.routes:
     if isinstance(route, APIRoute):
-        route.operation_id = route.name 
+        route.operation_id = route.name
 
 if __name__ == '__main__':
     c = Config["uvicorn"]

@@ -5,9 +5,10 @@
              <a href="./websocket">聊天室</a>
              <a href="./admin">管理员</a>
              <a href="./userhome">个人中心</a>
-             <cpu/>
+             <!-- <cpu/> -->
+             <new_post/>
         </div>
-        
+       
     </div>
 </template>
 <script setup lang="ts">
@@ -15,7 +16,8 @@ import { ref, onMounted } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError } from '@/client'
 import cogoToast from 'cogo-toast';
 import Headers from '@/components/header.vue';
-import cpu from '@/components/cpu.vue';
+import new_post from '@/components/new_post.vue';
+// import cpu from '@/components/cpu.vue';
 const userinfo = ref<UserOut>()
 
 onMounted(() => {

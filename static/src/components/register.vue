@@ -38,7 +38,7 @@
                     <div class="h-9 float-right" style="width: 30%;">
                         <img v-if="code != undefined" :src="'data:image/Jpeg;base64,' + code?.img" alt="" @click="getcode()"
                             class=" cursor-pointer">
-                        <button v-else @click="getcode()">获取验证码</button>
+                        <button v-if="code == undefined" @click="getcode()" class=" text-sm " type="button">获取验证码</button>
                     </div>
 
 
@@ -69,7 +69,7 @@
 </template>
 
 <script async setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { OpenAPI, Service, type RegisterSuccess, UserCreate, ApiError, respCode } from '../client'
 import cogoToast from 'cogo-toast';
 const emit = defineEmits(['gologin'])
@@ -78,7 +78,7 @@ defineProps<{
 }>()
 const code = ref<respCode>()
 const inputcode = ref('')
-const user = ref<UserCreate>({
+const user = reactive<UserCreate>({
     username: "",
     password: ""
 })
@@ -86,21 +86,21 @@ const user = ref<UserCreate>({
 const password_agine = ref()
 const ck0 = () => {
     const regex = /^[a-zA-Z0-9_ -]+$/;
-    if (user.value.username.length >= 5 && regex.test(user.value.username)) {
+    if (user.username.length >= 5 && regex.test(user.username)) {
         return true
     } else {
         return false
     }
 }
 const ck1 = () => {
-    if (user.value.password.length >= 8) {
+    if (user.password.length >= 8) {
         return true
     } else {
         return false
     }
 }
 const ck2 = () => {
-    if (!ck1() || user.value.password !== password_agine.value) {
+    if (!ck1() || user.password !== password_agine.value) {
         return false
     } else {
         return true

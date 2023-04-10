@@ -1,49 +1,90 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: '个人中心' }" />
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 top-20 relative">
-        <table>
-            <tr>
-                <td>修改头像</td>
-                <td>
-                    <input ref="file" type="file" name="" @change="onChange()" />
-                </td>
-                <td>
-                    <img :src="base64" width="100" alt="">
-                </td>
-                <td>
-                    <button @click="upl()">提交</button>
-                </td>
-            </tr>
-        </table>
-
-
+        <div v-if="isme">
+            <table>
+                <tr>
+                    <td>修改头像</td>
+                    <td>
+                        <input ref="file" type="file" name="" @change="onChange()" />
+                    </td>
+                    <td>
+                        <img :src="base64" width="100" alt="">
+                    </td>
+                    <td>
+                        <button @click="upl()">提交</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div v-if="!isme">
+            <div>
+                <img v-if="pubuserinfo != undefined" :src="imgbase + pubuserinfo.avatar" alt="" class=" w-20">
+                <p v-text="pubuserinfo?.id"></p>
+                <p v-text="pubuserinfo?.username"></p>
+            </div>
+            <div v-for="post in posts">
+                <div class=" border">
+                    <div>
+                        <a :href="'#' + post.id">
+                            <h3 v-text="post.title"></h3>
+                        </a>
+                        <p v-text="post.content"></p>
+                    </div>
+                    <div>
+                        <p v-text="post.created_at"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { OpenAPI, Service, UserOut, ApiError } from '@/client'
+import { useRouter, useRoute } from 'vue-router'
+import { OpenAPI, Service, UserOut, ApiError, PubUserInfo, PostOut } from '@/client'
 import cogoToast from 'cogo-toast';
 import Headers from '@/components/header.vue';
+import { imgbase } from '@/main'
+const router = useRouter()
+const route = useRoute()
 const userinfo = ref<UserOut>()
+const pubuserinfo = ref<PubUserInfo>()
+const isme = ref(false)
 
 const file = ref()
 const fileblob = ref()
 const base64 = ref()
+const page = ref(1)
+const pagesize = ref(5)
+const posts = ref<Array<PostOut>>()
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
-    Service.userinfo().then((u: UserOut) => {
-        userinfo.value = u
-    }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
-    })
-
+    OpenAPI.USERNAME = localStorage.getItem("username") as string
+    if (OpenAPI.USERNAME == route.params.username) {
+        Service.userinfo().then((u: UserOut) => {
+            userinfo.value = u
+            isme.value = true
+        })
+    } else {
+        Service.publishUserInfo(route.params.username as string).then((up: PubUserInfo) => {
+            pubuserinfo.value = up
+        }).catch((e: ApiError) => {
+            cogoToast.error(e.message + e.body.detail)
+        })
+        Service.getUsersPosts(route.params.username as string, page.value, pagesize.value).then((po: Array<PostOut>) => {
+            posts.value = po
+        }).catch((e: ApiError) => {
+            cogoToast.error(e.message + e.body.detail)
+        })
+    }
 })
 
 const upl = () => {
-    Service.updateAvatar({'avatar_new': file.value.files[0]}).then((up) => {
+    Service.updateAvatar({ 'avatar_new': file.value.files[0] }).then((up) => {
         cogoToast.success(up.detail)
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        cogoToast.error(e.message + e.body.detail)
     })
 }
 const onChange = () => {

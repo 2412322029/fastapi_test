@@ -87,15 +87,15 @@ async def create_user(session: AsyncSession, usercreate: UserCreate):
 
 
 async def change_user_name(session: AsyncSession, user_old: Userbase, username_new: str) -> UserOut:
-    if check_passwd(session, user_old.username, user_old.password) is True:
+    if await check_passwd(session, user_old.username, user_old.password) is True:
         try:
             r = await session.execute(select(User).where(User.username == user_old.username))
-            user = r.scalars().first()
+            user = r.scalar_one_or_none()
             if user:
                 user.username = username_new
                 user.updated_at = func.now()
                 await session.commit()
-            u = (await session.execute(select(User).where(User.username == username_new))).first()
+            u = (await session.execute(select(User).where(User.username == username_new))).scalar_one_or_none()
             assert u is not None
             return UpdateSuccess.from_User(u, "更新成功")
         except IntegrityError as e:
@@ -104,25 +104,27 @@ async def change_user_name(session: AsyncSession, user_old: Userbase, username_n
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='该用户名已经存在')
         except Exception as e:
             await session.rollback()
+            # raise e
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="未知错误" + str(e))
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='用户名或密码错误')
 
 
 async def change_user_passwd(session: AsyncSession, user_old: Userbase, password_new: str, ) -> UserOut:
-    if check_passwd(session, user_old.username, user_old.password) is True:
+    if await check_passwd(session, user_old.username, user_old.password) is True:
         try:
             r = await session.execute(select(User).where(User.username == user_old.username))
-            user = r.scalars().first()
+            user = r.scalar_one_or_none()
             if user:
                 user.password = hash_password(password_new)
                 user.updated_at = func.now()
                 await session.commit()
-            u = (await session.execute(select(User).where(User.username == user_old.username))).first()
+            u = (await session.execute(select(User).where(User.username == user_old.username))).scalar_one_or_none()
             assert u is not None
             return UpdateSuccess.from_User(u, "更新成功")
         except Exception as e:
             await session.rollback()
+            # raise e
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="未知错误" + str(e))
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='用户名或密码错误')
@@ -131,7 +133,7 @@ async def change_user_passwd(session: AsyncSession, user_old: Userbase, password
 async def change_user_avatar(session: AsyncSession, username: str, fileinfo: UploadSuccess) -> UploadSuccess:
     try:
         r = await session.execute(select(User).where(User.username == username))
-        user = r.scalars().first()
+        user = r.scalar_one_or_none()
         if user:
             user.avatar = fileinfo.filename
             user.updated_at = func.now()
@@ -159,7 +161,7 @@ async def get_all_user(session: AsyncSession) -> list[UserOut | None]:
 async def delete_user(session: AsyncSession, username: str):
     try:
         r = await session.execute(select(User).where(User.username == username))
-        user = r.scalars().first()
+        user = r.scalar_one_or_none()
         if user is not None:
             # 删除该用户相关的所有文章的PostTag映射
             await session.execute(
@@ -171,7 +173,7 @@ async def delete_user(session: AsyncSession, username: str):
             # TODO:先删除相关评论，解除外键约束
             p_list = (await session.execute(select(Post).where(Post.user_id == user.id))).scalars().all()
             for p in p_list:
-                await delete_post(session,p.id, username)
+                await delete_post(session, p.id, username)
             # 删除该用户相关的所有文章
             await session.execute(delete(Post).where(Post.user_id == user.id))
             await session.delete(user)
@@ -231,6 +233,7 @@ async def new_post(session: AsyncSession, a_post: PostInDB) -> PostOut:
         return await get_post_ById(session, post.id)
     except Exception as e:
         await session.rollback()
+        # raise e
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -342,7 +345,7 @@ async def update_post_authorized(session: AsyncSession, post_id: int, title: str
             raise HTTPException(status_code=404, detail="Post not found")
         uid: int = post.user_id
         author = await session.execute(select(User.username).where(User.id == uid))
-        author = author.first()[0]
+        author = author.scalar_one_or_none()
         if author != username:
             raise HTTPException(status_code=403,
                                 detail=f"You are not authorized to update this post, this post belong to {author}")
@@ -384,12 +387,17 @@ async def delete_post(session: AsyncSession, post_id: int, username: str) -> str
 
 async def new_tag(session: AsyncSession, a_tag: ANewTag):
     try:
-        tag = Tag(name=a_tag.name)
+        tag = await session.execute(select(Tag).where(Tag.name == a_tag.name))
+        tag = tag.first()
+        if tag is not None:
+            raise HTTPException(status_code=400, detail='tag已存在')
+        tag = Tag(name=a_tag.name, reference_count=0)
         session.add(tag)
         await session.commit()
-        return tag
+        return '新建成功'
     except Exception as e:
         await session.rollback()
+        # raise e
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -407,7 +415,7 @@ async def del_tag(session: AsyncSession, tag_id: int):
         return '删除成功'
     except Exception as e:
         await session.rollback()
-        # raise e
+        raise e
         raise HTTPException(status_code=400, detail=str('删除失败'))
 
 
@@ -467,7 +475,8 @@ async def newComment(session: AsyncSession, cin: CommentIn) -> str:
         user = await findPubUser_by_name(session, cin.username)
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户id不存在,无法发表')
-        post = await get_post_ById(session, cin.post_id)
+        post = await session.execute(select(Post).where(Post.id == cin.post_id))
+        post = post.scalar_one_or_none()
         if post is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='文章不存在,无法发表')
         if int(cin.parent_id) != 0:  # 不是顶层评论
@@ -487,6 +496,7 @@ async def newComment(session: AsyncSession, cin: CommentIn) -> str:
         return '发表成功'
     except Exception as e:
         await session.rollback()
+        raise e
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='发表评论失败' + str(e))
 
 
@@ -599,6 +609,7 @@ async def del_comments(session: AsyncSession, username: str, cid: int):
                 await delete_comment(sub_comment.id)  # 递归删除评论的子评论
             c = (await session.execute(select(Comment).where(Comment.id == comid))).scalar_one()  # 删除当前评论
             await session.delete(c)
+
         await delete_comment(comid=cid)
         await session.commit()
         return '删除成功'

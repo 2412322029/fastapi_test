@@ -19,9 +19,9 @@ async def newPost(post_in: PostIn, session: AsyncSession = Depends(get_session),
 
 
 @postapp.post("/new_tag", summary='新建tag')
-async def newTag(a_tag: ANewTag, session: AsyncSession = Depends(get_session),
+async def newTag(atag: ANewTag, session: AsyncSession = Depends(get_session),
                   current_user: TokenData = Depends(get_current_user)):
-    return await crud.new_tag(session=session, a_tag=a_tag)
+    return await crud.new_tag(session=session, a_tag=atag)
 
 
 @postapp.get("/get_all_posts_ByPage", summary='所有文章分页', response_model=list[PostOut])

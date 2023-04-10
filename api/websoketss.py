@@ -60,7 +60,7 @@ async def cpu_webs(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            time.sleep(0.5)
+            time.sleep(1)
             await manager.send_personal_message(json.dumps(utill.monitor.getcpumsg()), websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)

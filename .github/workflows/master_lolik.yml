@@ -30,15 +30,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 安装依赖
-      - name: install
-        run: npm install
-
-      - name: generate client
-        run: npm run generate-client
-      # 打包构建
-      - name: build
-        run: npm run build
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       
       - name: Upload artifact for deployment jobs
@@ -48,6 +39,20 @@ jobs:
           path: |
             . 
             !venv/
+            
+      - name: cd static
+        run: cd static
+
+      # 安装依赖
+      - name: install
+        run: npm install
+
+      - name: generate client
+        run: npm run generate-client
+      # 打包构建
+      - name: build
+        run: npm run build
+      
 
   deploy:
     runs-on: ubuntu-latest

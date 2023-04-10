@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(api, prefix='/api')
-app.mount("/", StaticFiles(directory="static/dist", html=True), name="dist")
+# app.mount("/", StaticFiles(directory="static/dist", html=True), name="dist")
 
 
 for route in app.routes:

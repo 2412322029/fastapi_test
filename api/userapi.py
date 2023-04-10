@@ -47,7 +47,7 @@ async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequ
 async def register(request: Request, user_in: UserCreate, uuid: str, code: str,
                    session: AsyncSession = Depends(get_session)):
     if get_is_Allow_register():
-        b, msg = gen.verifyCode(uu=uuid, cc=code)
+        b, msg = await gen.verifyCode(uu=uuid, cc=code)
         if b:
             await crud.create_user(session, user_in)
             u = await crud.findUser_by_name(session, user_in.username)
@@ -155,13 +155,13 @@ async def upload(file: UploadFile):
 @userapp.get("/get_code", summary='获取验证码', response_model=respCode)
 @limiter.limit(limit_value="10/minute")
 async def get_code(request: Request):
-    base64_img, u = gen.generateCode()
-    return respCode(uuid=u,img=base64_img)
+    base64_img, u = await gen.generateCode()
+    return respCode(uuid=u, img=base64_img)
 
 
 @userapp.get("/verify_code", summary='验证')
 async def verify_code(uuid: str, code: str, request: Request):
-    b, msg = gen.verifyCode(uu=uuid, cc=code)
+    b, msg = await gen.verifyCode(uu=uuid, cc=code)
     if b:
         return msg
     else:

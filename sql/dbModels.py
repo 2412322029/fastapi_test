@@ -112,9 +112,8 @@ def main():
     username = Config['Default_Administrator']
     password = hash_password(Config['Default_Passwd'])
     admin = session.query(User).where(User.username == username and User.group_id == 1).first()
-    if admin is not None:
-        print('管理员已存在，不创建')
-    else:
+    if admin is None:
+        print('创建管理员')
         session.add(User(
             username=username,
             password=password,
@@ -122,7 +121,6 @@ def main():
             group_id=1)  # 0 普通用户， 1 管理员
         )
         session.commit()
-
 
     if __name__ == '__main__':
         posts = session.execute(select(Post).offset(0).limit(5))

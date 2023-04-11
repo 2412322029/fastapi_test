@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(api, prefix='/api')
-app.mount("/", StaticFiles(directory="static/dist", html=True), name="dist")
+
 
 
 for route in app.routes:
@@ -38,4 +38,5 @@ if __name__ == '__main__':
                 port=c["port"],
                 reload=Config['Development'],
                 workers=c['workers'],
+                proxy_headers=False
                 )

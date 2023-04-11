@@ -1,6 +1,5 @@
-# 开发模式输出更多信息
-Development: true
-#Development: false
+
+Development: false
 
 # 跨域规则
 allow_origins:

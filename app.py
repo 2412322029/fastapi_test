@@ -26,7 +26,6 @@ app.add_middleware(
 app.include_router(api, prefix='/api')
 
 
-
 for route in app.routes:
     if isinstance(route, APIRoute):
         route.operation_id = route.name

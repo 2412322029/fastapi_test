@@ -22,7 +22,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(api, prefix='/api')
 
 

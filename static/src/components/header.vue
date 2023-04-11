@@ -1,6 +1,6 @@
 <template>
-    <header class="py-2 fixed w-full top-0 bg-white z-10">
-        <nav class="mx-auto flex max-w-7xl items-center justify-between p-2 px-4" aria-label="Global">
+    <header class="py-1 fixed w-full top-0 bg-white z-10" :headinfo="{}">
+        <nav class="mx-auto flex max-w-7xl items-center justify-between px-4" aria-label="Global">
             <div class="flex flex-1 justify-start">
                 <p class=" text-4xl font-bold" v-text="headinfo.title"></p>
             </div>

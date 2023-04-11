@@ -5,65 +5,50 @@
                 <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">注册
                 </h2>
             </div>
-            <form class="mt-8 space-y-6" action="#" method="POST">
-                <div class="-space-y-px rounded-md shadow-sm">
+            <div class="-space-y-px rounded-md shadow-sm">
+                <n-form ref="formRef" :model="user" :rules="rules" :show-label="false">
+                    <n-form-item path="username" label="用户名">
+                        <n-input v-model:value="user.username" @keydown.enter.prevent placeholder="用户名" />
+                    </n-form-item>
+                    <n-form-item path="password" label="密码">
+                        <n-input v-model:value="user.password" type="password" @keydown.enter.prevent placeholder="密码" />
+                    </n-form-item>
+                    <n-form-item first path="password_agine">
+                        <n-input v-model:value="password_agine" :disabled="!user.password" type="password"
+                            placeholder="重复密码" @keydown.enter.prevent />
+                    </n-form-item>
                     <div>
-                        <label for="name" class="sr-only">Username</label>
-                        <input id="name" :class="{ 'focus:ring-red-600': !ck0(), 'focus:ring-green-600': ck0() }"
-                            name="username" type="text" required v-model="user.username"
-                            class="p-5 h-9 relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            placeholder="用户名(至少5位)">
-                    </div>
-                    <div>
-                        <label for="password1" class="sr-only">Password</label>
-                        <input id="password1" :class="{ 'focus:ring-red-600': !ck1(), 'focus:ring-green-600': ck1() }"
-                            name="password" type="password" autocomplete="current-password" v-model="user.password" required
-                            class="p-5 h-9 relative block w-full border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            placeholder="密码(至少8位)">
-                    </div>
-                    <div>
-                        <label for="password2" class="sr-only">Password</label>
-                        <input id="password2" :class="{ 'focus:ring-red-600': !ck2(), 'focus:ring-green-600': ck2() }"
-                            name="password" type="password" autocomplete="current-password" v-model="password_agine"
-                            required
-                            class="p-5 h-9 relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none sm:text-sm sm:leading-6"
-                            placeholder="重复密码">
-                    </div>
-                </div>
-                <div class="h-5">
-                    <label for="yz" class="sr-only">验证码</label>
-                    <input id="yz" name="yz" type="text" required v-model="inputcode"
-                        class=" float-left p-5 h-9 w-2/3 relative block rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="验证码(区分大小写)">
-                    <div class="h-9 float-right" style="width: 30%;">
-                        <img v-if="code != undefined" :src="'data:image/Jpeg;base64,' + code?.img" alt="" @click="getcode()"
-                            class=" cursor-pointer">
-                        <button v-if="code == undefined" @click="getcode()" class=" text-sm " type="button">获取验证码</button>
+                        <n-form-item class="float-left" style="width: 68%;">
+                            <n-input v-model:value="inputcode" type="text" @keydown.enter.prevent
+                                placeholder="验证码(区分大小写)" />
+                        </n-form-item>
+                        <n-form-item class="float-right" style="width: 30%;">
+                            <img v-if="code != undefined" :src="'data:image/png;base64,' + code?.img" alt=""
+                                @click="getcode()" class=" cursor-pointer">
+                            <button v-if="code == undefined" @click="getcode()" class=" text-sm "
+                                type="button">获取验证码</button>
+                        </n-form-item>
                     </div>
 
+                    <n-row :gutter="[0, 24]">
+                        <div class="text-sm cursor-pointer">
+                            <a @click="$emit('gologin')" class="font-medium" style="color: #18a058;">登录</a>
+                        </div>
+                        <n-col :span="24">
+                            <div class=" flex justify-between ">
+                                <n-button class="text-black" round type="primary" @click="$emit('closeform')">
+                                    关闭
+                                </n-button>
+                                <n-button :disabled="user.username === '' || password_agine !== user.password" round
+                                    class="text-black" type="primary" @click="registerAction(user)">
+                                    注册
+                                </n-button>
+                            </div>
+                        </n-col>
+                    </n-row>
+                </n-form>
+            </div>
 
-                </div>
-                <div class="flex items-center justify-between">
-                    <div class="text-sm cursor-pointer">
-                        <a @click="$emit('gologin')" class="font-medium text-indigo-600 hover:text-indigo-500">返回登录</a>
-                    </div>
-                    <div class="text-sm cursor-pointer">
-                        <a @click="user.password = user.username = password_agine = ''"
-                            class="font-medium text-indigo-600 hover:text-indigo-500">清空输入框</a>
-                    </div>
-                </div>
-                <div>
-                    <button type="button" @click="registerAction(user)"
-                        :class="{ 'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600 cursor-pointer': ck0() && ck1() && ck2() }"
-                        class="group relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 cursor-not-allowed">
-                        注册
-                    </button>
-                    <button type="button" @click="$emit('closeform')"
-                        class="group mt-2 relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                        关闭
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </template>
@@ -72,6 +57,8 @@
 import { reactive, ref } from 'vue'
 import { OpenAPI, Service, type RegisterSuccess, UserCreate, ApiError, respCode } from '../client'
 import cogoToast from 'cogo-toast';
+import { NButton, NForm, NFormItem, NRow, NCol, NInput, FormItemRule, FormRules } from 'naive-ui';
+import { el } from 'date-fns/locale';
 const emit = defineEmits(['gologin'])
 defineProps<{
     showForm: boolean
@@ -83,41 +70,55 @@ const user = reactive<UserCreate>({
     password: ""
 })
 
-const password_agine = ref()
-const ck0 = () => {
-    const regex = /^[a-zA-Z0-9_ -]+$/;
-    if (user.username.length >= 5 && regex.test(user.username)) {
-        return true
-    } else {
-        return false
-    }
-}
-const ck1 = () => {
-    if (user.password.length >= 8) {
-        return true
-    } else {
-        return false
-    }
-}
-const ck2 = () => {
-    if (!ck1() || user.password !== password_agine.value) {
-        return false
-    } else {
-        return true
-    }
+const password_agine = ref('')
+
+const rules: FormRules = {
+    username: [
+        {
+            required: true,
+            validator(rule: FormItemRule, value: string) {
+                if (!value) {
+                    return new Error('需要用户名')
+                } else if (!/^[a-zA-Z0-9_ -]+$/.test(value)) {
+                    return new Error('用户名只包含英文 _-')
+                } else if (value.length <= 4) {
+                    return new Error('用户名应大于4位')
+                }
+                return true
+            },
+            trigger: ['input', 'blur']
+        }
+    ],
+    password: [
+        {
+            required: true,
+            validator(rule: FormItemRule, value: string) {
+                if (!value) {
+                    return new Error('需要密码')
+                } else if (value.length <= 8) {
+                    return new Error('用户名应大于8位')
+                }
+                return true
+            },
+            trigger: ['input', 'blur']
+        }
+    ],
+    password_agine: [
+        {
+            required: true,
+            validator: (rule: FormItemRule, value: string) => {
+                if (password_agine.value !== user.password) {
+                    return new Error('两次密码输入不一致')
+                } else {
+                    return true
+                }
+            },
+            trigger: ['blur', 'password-input']
+        }
+    ]
 }
 
 const registerAction = async (user: UserCreate) => {
-    if (!ck0()) {
-        cogoToast.error('用户名只包含大小写字母、数字、下划线、空格和短横线')
-        return
-    } else if (!ck1()) {
-        cogoToast.error('密码太短')
-        return
-    } else if (!ck2()) {
-        cogoToast.error('密码不一致')
-        return
-    }
     if (code.value === undefined) {
         cogoToast.error('请获取验证码')
         return

@@ -5,45 +5,31 @@
                 <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">登录
                 </h2>
             </div>
-            <form class="mt-8 space-y-6">
-                <div class="-space-y-px rounded-md shadow-sm">
-                    <div>
-                        <label for="name1" class="sr-only">Username</label>
-                        <input id="name1" :class="{ 'focus:ring-red-600': !ck0(), 'focus:ring-green-600': ck0() }"
-                            name="username" type="text" required v-model="user.username"
-                            class="p-5 h-9 relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            placeholder="Username">
-                    </div>
-                    <div>
-                        <label for="password" class="sr-only">Password</label>
-                        <input id="password" :class="{ 'focus:ring-red-600': !ck1(), 'focus:ring-green-600': ck1() }"
-                            name="password" type="password" autocomplete="current-password" v-model="user.password" required
-                            class="p-5 h-9 relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus-visible:outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            placeholder="Password">
-                    </div>
-
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                    </div>
+            <n-form ref="formRef" :model="user" :rules="rules">
+                <n-form-item path="username" label="用户名">
+                    <n-input v-model:value="user.username" @keydown.enter.prevent />
+                </n-form-item>
+                <n-form-item path="password" label="密码">
+                    <n-input v-model:value="user.password" type="password" @keydown.enter.prevent />
+                </n-form-item>
+                <n-row :gutter="[0, 24]">
                     <div class="text-sm cursor-pointer">
-                        <a @click="$emit('goregister')" class="font-medium text-indigo-600 hover:text-indigo-500">注册</a>
+                        <a @click="$emit('goregister')" class="font-medium" style="color: #18a058;">注册</a>
                     </div>
+                    <n-col :span="24">
 
-                </div>
-
-                <div>
-                    <button type="button" @click="loginAction(user)"
-                        class="relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                        登录
-                    </button>
-                    <button type="button" @click="$emit('closeform')"
-                        class="mt-2 relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                        关闭
-                    </button>
-                </div>
-            </form>
+                        <div class=" flex justify-between">
+                            <n-button class="text-black" round type="primary" @click="$emit('closeform')">
+                                关闭
+                            </n-button>
+                            <n-button :disabled="user.username === ''" round type="primary" @click="loginAction(user)"
+                                class="text-black">
+                                登录
+                            </n-button>
+                        </div>
+                    </n-col>
+                </n-row>
+            </n-form>
         </div>
     </div>
 </template>
@@ -52,6 +38,7 @@
 import { ref, onMounted, reactive } from 'vue'
 import { OpenAPI, Service, type Token, UserCreate, ApiError } from '../client'
 import cogoToast from 'cogo-toast';
+import { NButton, NForm, NFormItem, NRow, NCol, NInput, FormItemRule, FormRules } from 'naive-ui'
 
 defineProps<{
     showForm: boolean
@@ -62,21 +49,39 @@ const user = reactive<UserCreate>({
     password: ""
 })
 const remember = ref(true)
-const ck0 = () => {
-    const regex = /^[a-zA-Z0-9_ -]+$/;
-    if (user.username.length >= 5 && regex.test(user.username)) {
-        return true
-    } else {
-        return false
-    }
+const rules: FormRules = {
+    username: [
+        {
+            required: true,
+            validator(rule: FormItemRule, value: string) {
+                if (!value) {
+                    return new Error('需要用户名')
+                } else if (!/^[a-zA-Z0-9_ -]+$/.test(value)) {
+                    return new Error('用户名只包含英文 _-')
+                } else if (value.length <= 4) {
+                    return new Error('用户名应大于4位')
+                }
+                return true
+            },
+            trigger: ['input', 'blur']
+        }
+    ],
+    password: [
+        {
+            required: true,
+            validator(rule: FormItemRule, value: string) {
+                if (!value) {
+                    return new Error('密码')
+                } else if (value.length >= 8) {
+                    return new Error('密码应大于8位')
+                }
+                return true
+            },
+            message: '请输入密码'
+        }
+    ],
 }
-const ck1 = () => {
-    if (user.password.length >= 8) {
-        return true
-    } else {
-        return false
-    }
-}
+
 const loginAction = async (user: UserCreate) => {
     if (user.username == '' || user.password == '') {
         cogoToast.error('请输入账号密码')
@@ -102,9 +107,6 @@ onMounted(() => {
         user.username = a as string
     }
 })
-
-async function alluser() { return console.log(await Service.alluserinfo()) }
-async function info() { return console.log(await Service.userinfo()) }
 
 
 

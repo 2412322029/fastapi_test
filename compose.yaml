@@ -1,0 +1,53 @@
+version: '1.0'
+
+services:
+  mysqldb:
+    container_name: mysql
+    image: mysql:8.0.32
+    command: --default-authentication-plugin=mysql_native_password --mysqlx=0
+    networks:
+      - backnet
+    environment:
+      - MYSQL_DATABASE=blog
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_USER=lolik
+      - MYSQL_PASSWORD=123456
+      - MYSQL_HOST=localhost
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    expose:
+      - 3306
+
+  backend:
+    container_name: fastapi
+    build: .
+    networks:
+      - backnet
+    depends_on:
+      - mysqldb
+    environment:
+      #保持和 mysql一致
+      - MYSQL_HOST=mysqldb
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=123456
+      - MYSQL_DATABASE=blog
+    volumes:
+      - ./:/code
+    expose:
+      - 8000
+
+  proxy:
+    build: nginx
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+    volumes:
+      - ./static/dist:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/default.conf
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - backnet
+
+networks:
+  backnet:

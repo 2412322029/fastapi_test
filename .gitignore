@@ -37,3 +37,6 @@ dist-ssr
 client
 utill/temp.txt
 static/openapi.json
+
+data
+nginx/log

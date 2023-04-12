@@ -1,0 +1,12 @@
+.venv
+.idea
+**/__pycache__/
+.github
+.git
+data
+nginx
+test
+static/*
+!static/dist
+uploads/
+!./uploads/default.jpg

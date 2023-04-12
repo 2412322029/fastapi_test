@@ -11,7 +11,7 @@ def env():
         Config['databases']['host'] = os.environ['MYSQL_HOST']
         Config['databases']['username'] = os.environ['MYSQL_USER']
         Config['databases']['password'] = os.environ['MYSQL_PASSWORD']
-        Config['databases']['dbname'] = os.environ['MYSQL_NAME']
+        Config['databases']['dbname'] = os.environ['MYSQL_DATABASE']
 
     elif 'AZURE_MYSQL_HOST' in os.environ:
         print("use azure mysql")

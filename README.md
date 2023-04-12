@@ -37,4 +37,10 @@ npm run generate-client
 
 在main.ts中，修改后端api的url, 图片baseurl
 
+## docker部署
+
+nginx反向代理fastapi和静态文件目录
+```bash
+docker-compose up -d
+```
 

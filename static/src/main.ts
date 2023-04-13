@@ -5,7 +5,7 @@ import { router } from '@/route/router'
 import { OpenAPI } from './client/core/OpenAPI'
 
 // OpenAPI.BASE = 'https://lolik.azurewebsites.net'
-OpenAPI.BASE ='http://127.0.0.1:80'
+OpenAPI.BASE ='http://127.0.0.1:8000'
 export const imgbase:string = OpenAPI.BASE+'/uploads/'
 
 const app = createApp(App)

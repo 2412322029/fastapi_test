@@ -18,16 +18,26 @@ const routes = [
     },
     {
         path: '/websocket',
+        name: 'websocket',
         component: () => import('@/route/websocket.vue')
     },
     {
         path: '/admin',
+        name: 'admin',
         component: () => import('@/route/admin.vue')
     },
     {
-        path: '/:pathMatch(.*)',
+        path: '/404',
+        name: 'notfound',
         component: () => import('@/route/NotFound.vue')
-    }
+    },
+    {
+        path: '/:pathMatch(.*)',
+        redirect: (to: any) => {
+            return { name: '404' }
+        },
+    },
+
 ]
 
 export const router = createRouter({

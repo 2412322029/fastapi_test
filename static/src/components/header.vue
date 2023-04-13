@@ -7,11 +7,11 @@
             <div class="flex flex-1 justify-end">
                 <div class="flex items-center">
                     <button id="exclude1"
-                        class=" flex items-center w-full hover:bg-hover transition-colors py-1 px-2 rounded-lg ml-1"
+                        class="z-10 flex items-center w-full hover:bg-hover transition-colors py-1 px-2 rounded-lg ml-1"
                         type="button" aria-label="connector" @click="togoshow">
                         <span
                             class="inline-flex text-zinc-500 flex-shrink-0 items-center justify-center 
-                                                                              font-medium uppercase overflow-hidden text-[0px] rounded-full align-middle"
+                                                                                      font-medium uppercase overflow-hidden text-[0px] rounded-full align-middle"
                             style="width: 40px; height: 40px;">
                             <span class="inline-block w-full h-full overflow-hidden">
                                 <span class="inline-flex justify-center relative w-full h-full">
@@ -24,9 +24,10 @@
                         </span>
                     </button>
                 </div>
-                <div id="exclude2" :class="{ 'hidden': !showplan }" class="text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
-                                                            shadow-md py-2 text-base mt-1">
-                    <router-link v-if="user?.avatar !== undefined" :to="{ name: 'user', params: { username: user.username } }"
+                <div id="exclude2" :class="{ 'hidden': !showplan }" class="z-10 text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
+                                                                    shadow-md py-2 text-base mt-1">
+                    <router-link v-if="user?.avatar !== undefined"
+                        :to="{ name: 'user', params: { username: user.username } }"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         <img width="40" height="40" class="overflow-hidden object-cover rounded-full"
                             :src="imgbase + user.avatar">
@@ -57,10 +58,10 @@
     </header>
 </template>
 <script setup lang="ts">
-import { OpenAPI, Service, UserOut, ApiError } from '@/client'
+import { OpenAPI, Service, UserOut, ApiError, } from '@/client'
 import login from '@/components/login.vue';
 import register from './register.vue';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import cogoToast from 'cogo-toast';
 import { imgbase } from '@/main';
 

@@ -6,7 +6,6 @@
 data
 nginx
 test
-static/*
-!static/dist
-uploads/
+static
+uploads
 !./uploads/default.jpg

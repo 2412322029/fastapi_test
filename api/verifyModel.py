@@ -88,6 +88,12 @@ class ANewTag(BaseModel):
     name: str = Field(max_length=50)
 
 
+class TagInDB(BaseModel):
+    name: str = Field(max_length=50)
+    id: str = int
+    reference_count: int
+
+
 class PostInDB(BaseModel):
     username: str
     title: str
@@ -118,6 +124,13 @@ class PostOut(BaseModel):
     state: int
     created_at: datetime
     updated_at: datetime
+
+
+class PostOutPage(BaseModel):
+    page: int
+    pagesize: int
+    total: int
+    posts: List[Optional[PostOut]]
 
 
 class CommentIn(BaseModel):
@@ -154,6 +167,7 @@ class CommentUserOut(BaseModel):
     state: int
     created_at: datetime
 
+
 class respCode(BaseModel):
-    uuid:str
+    uuid: str
     img: str

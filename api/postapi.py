@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sql import crud
 from sql.database import get_session
 from .token import get_current_user
-from .verifyModel import TokenData, PostInDB, PostOut, PostIn, PostUpdate, ANewTag
+from .verifyModel import TokenData, PostInDB, PostOut, PostIn, PostUpdate, ANewTag, PostOutPage, TagInDB
 
 postapp = APIRouter()
 
@@ -20,17 +20,17 @@ async def newPost(post_in: PostIn, session: AsyncSession = Depends(get_session),
 
 @postapp.post("/new_tag", summary='新建tag')
 async def newTag(atag: ANewTag, session: AsyncSession = Depends(get_session),
-                  current_user: TokenData = Depends(get_current_user)):
+                 current_user: TokenData = Depends(get_current_user)):
     return await crud.new_tag(session=session, a_tag=atag)
 
 
-@postapp.get("/get_all_posts_ByPage", summary='所有文章分页', response_model=list[PostOut])
+@postapp.get("/get_all_posts_ByPage", summary='所有文章分页', response_model=PostOutPage)
 async def getAllPosts(page: int = Query(default=1, gt=0), pagesize: int = Query(default=5, gt=0, lt=11),
                       session: AsyncSession = Depends(get_session)):
     return await crud.get_all_posts_ByPage(session=session, page=page, pagesize=pagesize)
 
 
-@postapp.get("/get_users_posts", summary='用户文章分页', response_model=list[PostOut])
+@postapp.get("/get_users_posts", summary='用户文章分页', response_model=PostOutPage)
 async def getUsersPosts(page: int = Query(default=1, gt=0), pagesize: int = Query(default=5, gt=0, lt=11),
                         username: str = Query(min_length=1, max_length=50),
                         session: AsyncSession = Depends(get_session)):
@@ -43,12 +43,12 @@ async def getPostById(pid: int = Query(gt=0), session: AsyncSession = Depends(ge
     return await crud.get_post_ById(session, post_id=pid)
 
 
-@postapp.get("/get_all_tags", summary='获取所有tag')
+@postapp.get("/get_all_tags", summary='获取所有tag', response_model=list[TagInDB | None])
 async def getAllTags(session: AsyncSession = Depends(get_session)):
     return await crud.get_all_tags(session)
 
 
-@postapp.get("/get_user_all_tags", summary='获取用户所有tag', response_model=list[str])
+@postapp.get("/get_user_all_tags", summary='获取用户所有tag', response_model=list[TagInDB | None])
 async def getUserAllTags(username: str = Query(min_length=1, max_length=50),
                          session: AsyncSession = Depends(get_session)):
     return await crud.get_user_all_tags(session=session, username=username)
@@ -91,5 +91,5 @@ async def deletePost(pid: int = Query(gt=0), session: AsyncSession = Depends(get
 
 @postapp.delete("/del_tag", summary='删除tag')
 async def delTag(tag_id: int = Query(gt=0), session: AsyncSession = Depends(get_session),
-                  current_user: TokenData = Depends(get_current_user)):
+                 current_user: TokenData = Depends(get_current_user)):
     return await crud.del_tag(session, tag_id=tag_id)

@@ -1,7 +1,7 @@
 from typing import Optional, List
 
 from fastapi import HTTPException
-from sqlalchemy import func, delete, and_
+from sqlalchemy import func, delete, and_, desc
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -9,7 +9,7 @@ from starlette import status
 
 from api.password import verify_password, hash_password
 from api.verifyModel import UserOut, UserCreate, UserInDB, Userbase, UpdateSuccess, PubUserInfo, UploadSuccess, \
-    PostInDB, ANewTag, PostOut, CommentIn, CommentPostOut, CommentUserOut
+    PostInDB, ANewTag, PostOut, CommentIn, CommentPostOut, CommentUserOut, PostOutPage, TagInDB
 from sql.dbModels import User, Post, Tag, PostTag, Comment
 
 
@@ -268,13 +268,14 @@ async def get_post_owner(session: AsyncSession, uid: int) -> User:
     return u.scalar_one_or_none()
 
 
-async def get_all_posts_ByPage(session: AsyncSession, page: int, pagesize: int) -> List[Optional[PostOut]]:
+async def get_all_posts_ByPage(session: AsyncSession, page: int, pagesize: int) -> PostOutPage:
     try:
         offset = (page - 1) * pagesize
         posts = await session.execute(select(Post).offset(offset).limit(pagesize))
+        total = (await session.execute(func.count(Post.id))).scalars().all()[0]
         post_list = posts.scalars().all()
         if post_list is None:
-            return []
+            return PostOutPage(page=page, pagesize=pagesize, total=total, posts=[])
         post_out_list = []
         for post in post_list:
             user = await get_post_owner(session, post.user_id)
@@ -291,13 +292,13 @@ async def get_all_posts_ByPage(session: AsyncSession, page: int, pagesize: int) 
                 updated_at=post.updated_at,
             )
             post_out_list.append(post_out)
-        return post_out_list
+        return PostOutPage(page=page, pagesize=pagesize, total=total, posts=post_out_list)
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-async def get_user_posts_ByPage(session: AsyncSession, username: str, page: int, pagesize: int) -> List[PostOut]:
+async def get_user_posts_ByPage(session: AsyncSession, username: str, page: int, pagesize: int) -> PostOutPage:
     offset = (page - 1) * pagesize
     user = await get_user(session, username)
     if user is None:
@@ -306,6 +307,7 @@ async def get_user_posts_ByPage(session: AsyncSession, username: str, page: int,
                                   where(Post.user_id == user.id)
                                   .offset(offset).limit(pagesize))
     post_list = posts.scalars().all()
+    total = len((await session.execute(select(Post.id).filter(Post.user_id == user.id))).scalars().all())
     post_out_list = []
     for post in post_list:
         user = await get_post_owner(session, post.user_id)
@@ -322,18 +324,19 @@ async def get_user_posts_ByPage(session: AsyncSession, username: str, page: int,
             updated_at=post.updated_at,
         )
         post_out_list.append(post_out)
-    return post_out_list
+    return PostOutPage(page=page, pagesize=pagesize, total=total, posts=post_out_list)
 
 
-async def get_user_all_tags(session: AsyncSession, username: str) -> List[str]:
-    tags = await session.execute(select(Tag.name)
-                                 .join(PostTag, PostTag.tag_id == Tag.id)
-                                 .join(Post, PostTag.post_id == Post.id)
-                                 .where(Post.id.in_(select(Post.id)
-                                                    .join(User).where(User.username == username)
-                                                    .subquery().select())
-                                        ).distinct())
-    tag_list = [tag[0] for tag in tags.all()]
+async def get_user_all_tags(session: AsyncSession, username: str):
+    tags = (await session.execute(select(Tag)
+                                  .join(PostTag, PostTag.tag_id == Tag.id)
+                                  .join(Post, PostTag.post_id == Post.id)
+                                  .order_by(desc(Tag.reference_count))
+                                  .where(Post.id.in_(select(Post.id)
+                                                     .join(User).where(User.username == username)
+                                                     .subquery().select())
+                                         ).distinct())).all()
+    tag_list = [TagInDB(id=tag[0].id, name=tag[0].name, reference_count=tag[0].reference_count) for tag in tags]
     return tag_list
 
 
@@ -415,16 +418,16 @@ async def del_tag(session: AsyncSession, tag_id: int):
         return '删除成功'
     except Exception as e:
         await session.rollback()
-        raise e
+        # raise e
         raise HTTPException(status_code=400, detail=str('删除失败'))
 
 
 async def get_all_tags(session: AsyncSession):
     try:
         await updateTagCount(session)
-        tags = await session.execute(select(Tag))
+        tags = await session.execute(select(Tag).order_by(desc(Tag.reference_count)))
         tags = tags.scalars().all()
-        return tags
+        return [TagInDB(id=tag.id, name=tag.name, reference_count=tag.reference_count) for tag in tags]
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=400, detail=str(e))

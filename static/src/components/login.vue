@@ -36,7 +36,7 @@
 
 <script async setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
-import { OpenAPI, Service, type Token, UserCreate, ApiError } from '../client'
+import { OpenAPI, Service, type Token, UserCreate, ApiError, UserOut } from '../client'
 import cogoToast from 'cogo-toast';
 import { NButton, NForm, NFormItem, NRow, NCol, NInput, FormItemRule, FormRules } from 'naive-ui'
 

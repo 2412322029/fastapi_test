@@ -37,8 +37,9 @@
 <script async setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import { OpenAPI, Service, type Token, UserCreate, ApiError, UserOut } from '../client'
-import cogoToast from 'cogo-toast';
 import { NButton, NForm, NFormItem, NRow, NCol, NInput, FormItemRule, FormRules } from 'naive-ui'
+import { useMessage } from 'naive-ui'
+const message = useMessage()
 
 defineProps<{
     showForm: boolean
@@ -84,12 +85,12 @@ const rules: FormRules = {
 
 const loginAction = async (user: UserCreate) => {
     if (user.username == '' || user.password == '') {
-        cogoToast.error('请输入账号密码')
+        message.error('请输入账号密码')
         return
     }
     await Service.loginForAccessToken(user).then((token: Token) => {
         OpenAPI.TOKEN = token.access_token
-        cogoToast.success('登录成功')
+        message.success('登录成功')
         localStorage.setItem('token', OpenAPI.TOKEN)
         if (remember.value) {
             localStorage.setItem('username', user.username)
@@ -98,7 +99,7 @@ const loginAction = async (user: UserCreate) => {
         }
         location.reload()
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
 }
 onMounted(() => {

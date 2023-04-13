@@ -271,7 +271,7 @@ async def get_post_owner(session: AsyncSession, uid: int) -> User:
 async def get_all_posts_ByPage(session: AsyncSession, page: int, pagesize: int) -> PostOutPage:
     try:
         offset = (page - 1) * pagesize
-        posts = await session.execute(select(Post).offset(offset).limit(pagesize))
+        posts = await session.execute(select(Post).order_by(desc(Post.updated_at)).offset(offset).limit(pagesize))
         total = (await session.execute(func.count(Post.id))).scalars().all()[0]
         post_list = posts.scalars().all()
         if post_list is None:
@@ -305,6 +305,7 @@ async def get_user_posts_ByPage(session: AsyncSession, username: str, page: int,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='user not found')
     posts = await session.execute(select(Post).
                                   where(Post.user_id == user.id)
+                                  .order_by(desc(Post.updated_at))
                                   .offset(offset).limit(pagesize))
     post_list = posts.scalars().all()
     total = len((await session.execute(select(Post.id).filter(Post.user_id == user.id))).scalars().all())

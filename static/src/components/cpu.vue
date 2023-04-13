@@ -6,9 +6,9 @@
 <script setup lang="ts">
 import { OpenAPI } from "@/client";
 import { lineChart } from "@/script/chart.ts";
-import cogoToast from "cogo-toast";
 import { onMounted, ref } from "vue";
-
+import { useMessage } from 'naive-ui'
+const message = useMessage()
 var chartOption = {
     title: "状态",
     type: "verticle",
@@ -39,13 +39,13 @@ onMounted(() => {
     console.log(linechart)
     const ws = new WebSocket(`${OpenAPI.BASE.replace('http', 'ws')}/api/websocket/cpu`)
     ws.addEventListener("error", (ev) => {
-        cogoToast.error('websocket connection error')
+        message.error('websocket connection error')
     })
     ws.addEventListener("open", (ev) => {
-        cogoToast.success('websocket ready')
+        message.success('websocket ready')
     })
     ws.addEventListener("close", (ev) => {
-        cogoToast.error('websocket close')
+        message.error('websocket close')
     })
     ws.addEventListener("message", (ev) => {
         try {

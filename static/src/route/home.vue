@@ -6,8 +6,8 @@
         <div class="lg:w-2/3 max-lg:w-full">
             <n-layout>
                 <n-layout-content content-style="padding:15px;">
-                    <n-card :title="post.title" class=" rounded-xl mb-6" v-for="post in posts?.posts" hoverable bordered>
-                        <div v-text="post.content" @click="" class=" cursor-pointer">
+                    <n-card :title="post.title||'无标题'" class=" rounded-xl mb-6" v-for="post in posts?.posts" hoverable bordered>
+                        <div v-text="post.content||'无内容'" @click="" class=" cursor-pointer">
                         </div>
                         <template #header-extra>
                             <div class=" cursor-pointer flex justify-between items-center">
@@ -45,13 +45,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError, PostOutPage, PostOut, TagInDB } from '@/client'
-import cogoToast from 'cogo-toast';
 import Headers from '@/components/header.vue';
 import Footer from '@/components/footer.vue';
 import Tags from '@/components/tags.vue';
 import { NTag, NLayout, NLayoutContent, NCard, NPagination, NAvatar, NEllipsis, NAffix } from 'naive-ui'
 import { watchEffect } from 'vue';
 import { imgbase } from '@/main';
+import { useMessage } from 'naive-ui'
+const message = useMessage()
 const userinfo = ref<UserOut>()
 
 const posts = ref<PostOutPage>()
@@ -62,7 +63,7 @@ function getpost(page: number, pagesize: number) {
     Service.getAllPosts(page, pagesize).then((pop: PostOutPage) => {
         posts.value = pop
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
     Service.getAllTags().then((t: Array<TagInDB>) => {
         tags.value = t
@@ -74,7 +75,7 @@ onMounted(() => {
     Service.userinfo().then((u: UserOut) => {
         userinfo.value = u
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
 
 })

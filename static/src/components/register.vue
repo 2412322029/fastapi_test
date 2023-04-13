@@ -56,9 +56,9 @@
 <script async setup lang="ts">
 import { reactive, ref } from 'vue'
 import { OpenAPI, Service, type RegisterSuccess, UserCreate, ApiError, respCode } from '../client'
-import cogoToast from 'cogo-toast';
 import { NButton, NForm, NFormItem, NRow, NCol, NInput, FormItemRule, FormRules } from 'naive-ui';
-import { el } from 'date-fns/locale';
+import { useMessage } from 'naive-ui'
+const message = useMessage()
 const emit = defineEmits(['gologin'])
 defineProps<{
     showForm: boolean
@@ -120,19 +120,19 @@ const rules: FormRules = {
 
 const registerAction = async (user: UserCreate) => {
     if (code.value === undefined) {
-        cogoToast.error('请获取验证码')
+        message.error('请获取验证码')
         return
     }
     if (inputcode.value === '') {
-        cogoToast.error('请输入验证码')
+        message.error('请输入验证码')
         return
     }
     await Service.register(code.value.uuid, inputcode.value, user).then((r: RegisterSuccess) => {
-        cogoToast.success(r.detail)
+        message.success(r.detail)
         emit('gologin')
 
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message + e.body?.detail);
+        message.error(e.message + e.body?.detail);
     })
 }
 
@@ -140,7 +140,7 @@ const getcode = () => {
     Service.getCode().then((rc: respCode) => {
         code.value = rc
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message + e.body?.detail);
+        message.error(e.message + e.body?.detail);
     })
 }
 

@@ -25,9 +25,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError } from '@/client'
-import cogoToast from 'cogo-toast';
 import Headers from '@/components/header.vue';
 import { imgbase } from '@/main';
+import { useMessage } from 'naive-ui'
+const message = useMessage()
 const userinfo = ref<UserOut>()
 
 
@@ -39,19 +40,19 @@ onMounted(() => {
     Service.userinfo().then((u: UserOut) => {
         userinfo.value = u
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
     let url = `${OpenAPI.BASE.replace('http', 'ws')}/api/websocket/join?token=${OpenAPI.TOKEN}`
 
     ws = new WebSocket(url);
     ws.addEventListener("error", (ev) => {
-        cogoToast.error('websocket connection error')
+        message.error('websocket connection error')
     })
     ws.addEventListener("open", (ev) => {
-        cogoToast.success('websocket ready')
+        message.success('websocket ready')
     })
     ws.addEventListener("close", (ev) => {
-        cogoToast.error('websocket close')
+        message.error('websocket close')
     })
     ws.addEventListener("message", (ev) => {
         try {
@@ -65,13 +66,13 @@ onMounted(() => {
                 Service.publishUserInfo(da.username).then((pu) => {
                     da.a = pu.avatar
                 }).catch((e: ApiError) => {
-                    cogoToast.error(`${e.message},${e.statusText}`)
+                    message.error(`${e.message},${e.statusText}`)
                 })
             }
             msgs.value.push(da as never)
 
         } catch (e) {
-            cogoToast.error(`${e}`)
+            message.error(`${e}`)
         }
 
     })
@@ -80,7 +81,7 @@ onMounted(() => {
 
 const send = (m: string) => {
     if (msg.value == '') {
-        cogoToast.error('消息为空')
+        message.error('消息为空')
         return
     }
     ws.send(JSON.stringify({ 'username': userinfo.value?.username, "msg": m }))

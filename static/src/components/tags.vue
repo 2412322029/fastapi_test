@@ -1,13 +1,15 @@
 <template>
     <n-card>
-        <n-tag type="info" round v-for="t in tags" v-text="t.name + ' ' + t.reference_count" @click=""
+        <n-badge v-for="t in tags" :value="t.reference_count" :show-zero="true" type="success" :offset="[-10, 10]">
+        <n-tag type="info" round v-text="t.name" @click=""
             class="m-2 cursor-pointer">
         </n-tag>
+    </n-badge>
     </n-card>
 </template>
 <script setup lang="ts">
 import { TagInDB } from '@/client';
-import { NTag, NCard } from 'naive-ui'
+import { NTag, NCard, NBadge } from 'naive-ui'
 defineProps<{
     tags?: Array<TagInDB>
 }>()

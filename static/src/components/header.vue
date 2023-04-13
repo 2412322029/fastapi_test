@@ -11,7 +11,7 @@
                         type="button" aria-label="connector" @click="togoshow">
                         <span
                             class="inline-flex text-zinc-500 flex-shrink-0 items-center justify-center 
-                                                                                      font-medium uppercase overflow-hidden text-[0px] rounded-full align-middle"
+                                                                                          font-medium uppercase overflow-hidden text-[0px] rounded-full align-middle"
                             style="width: 40px; height: 40px;">
                             <span class="inline-block w-full h-full overflow-hidden">
                                 <span class="inline-flex justify-center relative w-full h-full">
@@ -25,16 +25,20 @@
                     </button>
                 </div>
                 <div id="exclude2" :class="{ 'hidden': !showplan }" class="z-10 text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
-                                                                    shadow-md py-2 text-base mt-1">
+                                                                        shadow-md py-2 text-base mt-1">
+
                     <router-link v-if="user?.avatar !== undefined"
                         :to="{ name: 'user', params: { username: user.username } }"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
-                        <img width="40" height="40" class="overflow-hidden object-cover rounded-full"
+                        <img width="40" height="40" class="overflow-hidden object-cover rounded-full" :alt="user.username+'的个人中心'"
                             :src="imgbase + user.avatar">
-                        <span class="p-2">{{ user.username }}</span> </router-link>
+                        <span class="p-2" >{{ user.username }}</span> </router-link>
                     <button v-if="user?.avatar === undefined" @click="showLoginForm = true; showRegisterForm = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         登录</button>
+                    <button @click="router.push({ name: 'home' })"
+                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
+                        主页</button>
                     <button @click="logout"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         注销</button>
@@ -62,9 +66,10 @@ import { OpenAPI, Service, UserOut, ApiError, } from '@/client'
 import login from '@/components/login.vue';
 import register from './register.vue';
 import { onMounted, ref, watch } from 'vue';
-import cogoToast from 'cogo-toast';
 import { imgbase } from '@/main';
-
+import { useMessage } from 'naive-ui'
+import { router } from '@/route/router';
+const message = useMessage()
 
 defineProps<{
     user?: UserOut,
@@ -83,7 +88,7 @@ const togoshow = () => {
 
 const logout = () => {
     if (localStorage.getItem('token') == null) {
-        cogoToast.warn('未登录')
+        message.warning('未登录')
         return
     }
     localStorage.removeItem('token')

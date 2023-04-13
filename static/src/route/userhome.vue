@@ -6,9 +6,9 @@
             <n-tab-pane name="post" tab="文章">
                 <n-layout v-if="posts?.total != 0">
                     <n-layout-content content-style="padding:15px;">
-                        <n-card :title="post.title" class=" rounded-xl mb-6" v-for="post in posts?.posts" hoverable
+                        <n-card :title="post.title||'无标题'" class=" rounded-xl mb-6" v-for="post in posts?.posts" hoverable
                             bordered>
-                            <div v-text="post.content" @click="" class=" cursor-pointer">
+                            <div v-text="post.content||'无内容'" @click="" class=" cursor-pointer">
                             </div>
                             <template #header-extra>
                                 <div class=" cursor-pointer w-6 opacity-70" v-if="isme">
@@ -83,10 +83,11 @@ import Footer from '@/components/footer.vue';
 import { useRouter, useRoute } from 'vue-router'
 import { NTag, NLayout, NLayoutContent, NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar } from 'naive-ui'
 import { OpenAPI, Service, UserOut, ApiError, PubUserInfo, PostOut, PostOutPage, TagInDB } from '@/client'
-import cogoToast from 'cogo-toast';
 import Headers from '@/components/header.vue';
 import newpost from '@/components/new_post.vue';
 import { imgbase } from '@/main'
+import { useMessage } from 'naive-ui'
+const message = useMessage()
 const router = useRouter()
 const route = useRoute()
 const userinfo = ref<UserOut>()
@@ -104,7 +105,7 @@ function getpost(page: number, pagesize: number) {
     Service.getUsersPosts(route.params.username as string, page, pagesize).then((po: PostOutPage) => {
         posts.value = po
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message + e.body.detail)
+        message.error(e.message + e.body.detail)
     })
 }
 watchEffect(() => getpost(page.value, pagesize.value))
@@ -122,7 +123,7 @@ onMounted(() => {
             pubuserinfo.value = up
             gettags(pubuserinfo.value.username)
         }).catch((e: ApiError) => {
-            cogoToast.error(e.message + e.body.detail)
+            message.error(e.message + e.body.detail)
             router.push({ name: 'notfound' })
         })
         if (localStorage.getItem("token")) {
@@ -130,7 +131,7 @@ onMounted(() => {
             Service.userinfo().then((u: UserOut) => {
                 myself.value = u
             }).catch((e: ApiError) => {
-                cogoToast.error(e.message)
+                message.error(e.message)
             })
         }
 
@@ -144,9 +145,9 @@ function gettags(name: string) {
 
 const upl = () => {
     Service.updateAvatar({ 'avatar_new': file.value.files[0] }).then((up) => {
-        cogoToast.success(up.detail)
+        message.success(up.detail)
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message + e.body.detail)
+        message.error(e.message + e.body.detail)
     })
 }
 const onChange = () => {

@@ -1,13 +1,18 @@
 
 
 <template>
-    <n-scrollbar id="mmm" class="h-screen">
-        <router-view />
-    </n-scrollbar>
+    <n-config-provider :locale="zhCN" :date-locale="dateZhCN" preflight-style-disabled>
+        <n-message-provider>
+            <n-scrollbar id="mmm" class="h-screen">
+                <router-view />
+            </n-scrollbar>
+        </n-message-provider>
+    </n-config-provider>
 </template>
 
 <script setup lang="ts">
-import { NScrollbar } from 'naive-ui'
+import { NScrollbar, NConfigProvider, zhCN, dateZhCN, NMessageProvider } from 'naive-ui'
+
 </script>
 <style>
 #mmm>.n-scrollbar-rail>.n-scrollbar-rail__scrollbar {

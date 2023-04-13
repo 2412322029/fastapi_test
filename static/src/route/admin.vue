@@ -35,8 +35,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError } from '@/client'
-import cogoToast from 'cogo-toast';
 import Headers from '@/components/header.vue';
+import { useMessage } from 'naive-ui'
+const message = useMessage()
 const userinfo = ref<UserOut>()
 
 const isr =ref()
@@ -46,7 +47,7 @@ const showalluser = () => {
     Service.alluserinfo().then((us: Array<UserOut>) => {
         alluserinfo.value = us
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
 }
 onMounted(() => {
@@ -55,32 +56,32 @@ onMounted(() => {
         userinfo.value = u
         showalluser()
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
     Service.isAllowRegister().then((b:boolean) => {
         isr.value=b
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
     Service.isLimiter().then((b:boolean) => {
         isl.value=b
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
 })
 
 const tj1=()=>{
     Service.allowRegister(isr.value).then((b:boolean) => {
-        cogoToast.error(b+'允许注册='+isr.value)
+        message.error(b+'允许注册='+isr.value)
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
 }
 const tj2=()=>{
     Service.setLimiter(isl.value).then((b:boolean) => {
-        cogoToast.error(b+'限制='+isl.value)
+        message.error(b+'限制='+isl.value)
     }).catch((e: ApiError) => {
-        cogoToast.error(e.message)
+        message.error(e.message)
     })
 }
 

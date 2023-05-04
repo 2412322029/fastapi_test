@@ -1,7 +1,5 @@
 <template>
-    <router-link :to="{ name: 'home' }">
-        <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
-    </router-link>
+    <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
     <div class="mx-auto flex max-w-7xl justify-between lg:px-4 top-20 relative">
         <div class="lg:w-2/3 max-lg:w-full">
             <n-layout>

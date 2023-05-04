@@ -2,7 +2,9 @@
     <header class="py-1 fixed w-full top-0 bg-white z-10" :headinfo="{}">
         <nav class="mx-auto flex max-w-7xl items-center justify-between px-4" aria-label="Global">
             <div class="flex flex-1 justify-start">
-                <p class=" text-4xl font-bold" v-text="headinfo.title"></p>
+                <router-link :to="{ name: 'home' }">
+                    <p class=" text-4xl font-bold" v-text="headinfo.title"></p>
+                </router-link>
             </div>
             <div class="flex flex-1 justify-end">
                 <div class="flex items-center">
@@ -11,7 +13,7 @@
                         type="button" aria-label="connector" @click="togoshow">
                         <span
                             class="inline-flex text-zinc-500 flex-shrink-0 items-center justify-center 
-                                                                                          font-medium uppercase overflow-hidden text-[0px] rounded-full align-middle"
+                                                                                              font-medium uppercase overflow-hidden text-[0px] rounded-full align-middle"
                             style="width: 40px; height: 40px;">
                             <span class="inline-block w-full h-full overflow-hidden">
                                 <span class="inline-flex justify-center relative w-full h-full">
@@ -25,14 +27,14 @@
                     </button>
                 </div>
                 <div id="exclude2" :class="{ 'hidden': !showplan }" class="z-10 text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
-                                                                        shadow-md py-2 text-base mt-1">
+                                                                            shadow-md py-2 text-base mt-1">
 
                     <router-link v-if="user?.avatar !== undefined"
                         :to="{ name: 'user', params: { username: user.username } }"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
-                        <img width="40" height="40" class="overflow-hidden object-cover rounded-full" :alt="user.username+'的个人中心'"
-                            :src="imgbase + user.avatar">
-                        <span class="p-2" >{{ user.username }}</span> </router-link>
+                        <img width="40" height="40" class="overflow-hidden object-cover rounded-full"
+                            :alt="user.username + '的个人中心'" :src="imgbase + user.avatar">
+                        <span class="p-2">{{ user.username }}</span> </router-link>
                     <button v-if="user?.avatar === undefined" @click="showLoginForm = true; showRegisterForm = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         登录</button>

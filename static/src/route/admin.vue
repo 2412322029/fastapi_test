@@ -1,6 +1,5 @@
 <template>
-    <router-link :to="{ name: 'home' }">
-    <Headers :user="userinfo" :headinfo="{ title: '管理' }" /></router-link>
+    <Headers :user="userinfo" :headinfo="{ title: '管理' }" />
     <div v-if="userinfo" class="mx-auto flex max-w-7xl items-center flex-col px-4 top-20 relative">
         <table>
             <tr>

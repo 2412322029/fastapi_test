@@ -1,34 +1,53 @@
 <template>
-    <router-link :to="{ name: 'home' }">
-        <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
-    </router-link>
+    <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
     <hr>
     <div class="mx-auto flex max-w-7xl justify-between lg:px-4 top-20 relative">
-        <div class="lg:w-2/3 max-lg:w-full">
+        <div class="lg:w-2/3 max-lg:w-full" v-if="post !== undefined">
             <p v-text="post?.title" class=" text-2xl flex justify-center m-5"></p>
             <div class=" flex items-center m-3 ml-6">
                 <n-avatar round size="small" :src="imgbase + post?.author_img" />
-                <span v-text="post?.author" class=" pl-2 cursor-pointer" @click="router.push({ name: 'user', params: { username: post?.author } })"></span>
+                <span v-text="post?.author" class=" pl-2 cursor-pointer"
+                    @click="router.push({ name: 'user', params: { username: post?.author } })"></span>
                 <span class=" text-sm text-gray-500 ">&nbsp;&nbsp; 创建于:{{ post?.created_at.replace('T', ' ') }} |
                     更新于:{{ post?.updated_at.replace('T', ' ') }}</span>
             </div>
-
             <v-md-preview :text="post?.content"></v-md-preview>
+            <p class=" text-xl m-5">评论</p>
+            <hr>
+            <div class="m-5">
+                <n-space vertical>
+                    <div v-for="c in comlist">
+                        <n-card>
+                            <n-avatar round size="small" :src="imgbase + c.user_img" />
+                            <span v-text="c.username" class=" pl-2 cursor-pointer"
+                                @click="router.push({ name: 'user', params: { username: c.username } })"></span>
+                            <p v-text="c.content" class="ml-5"></p>
+                            <p v-text="c.created_at.replace('T', ' ')" class=" float-right"></p>
+                        </n-card>
+                    </div>
+                </n-space>
+                <div v-show="userinfo !== undefined">
+                    <n-input v-model:value="cominp.content" type="textarea" placeholder="input" class="m-2" />
+                    <n-button class="m-2 float-right" @click="sendcom(0)"> 发表</n-button>
+                </div>
+                <p v-show="userinfo === undefined">登录以发表评论</p>
+            </div>
+
         </div>
         <div class="lg:w-1/3 max-lg:hidden">
-            
+            <n-tag type="info" round v-text="t" @click="" class="m-2 cursor-pointer" v-for="t in post?.tags">
+            </n-tag>
         </div>
     </div>
     <Footer />
 </template>
 <script setup lang="ts">
 import { imgbase } from '@/main';
-
 import Headers from '@/components/header.vue';
 import Footer from '@/components/footer.vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Service, ApiError, PostOut, OpenAPI, UserOut } from '@/client/index'
-import { useMessage, NAvatar } from 'naive-ui'
+import { Service, ApiError, PostOut, OpenAPI, UserOut, CommentInput, CommentPostOut } from '@/client/index'
+import { useMessage, NAvatar, NCard, NTag, NSpace, NInput, NButton } from 'naive-ui'
 import { onMounted, ref } from 'vue';
 const message = useMessage()
 const route = useRoute()
@@ -38,15 +57,9 @@ if (Number.isNaN(pid)) {
     location.href = '/'
 }
 const post = ref<PostOut>()
-Service.getPostById(pid).then((po: PostOut) => {
-    post.value = po
-}).catch((e: ApiError) => {
-    message.error(e.message)
-    if (e.status == 404) {
-        router.push({ name: 'notfound' })
-    }
-})
+
 const userinfo = ref<UserOut>()
+const comlist = ref<CommentPostOut[]>()
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
     Service.userinfo().then((u: UserOut) => {
@@ -54,7 +67,48 @@ onMounted(() => {
     }).catch((e: ApiError) => {
         message.error(e.message)
     })
-
+    Service.getPostById(pid).then((po: PostOut) => {
+        post.value = po
+    }).catch((e: ApiError) => {
+        message.error(e.message)
+        if (e.status == 404) {
+            router.push({ name: 'notfound' })
+        }
+    })
+    Service.postComm(pid).then((c: CommentPostOut[]) => {
+        comlist.value = c
+    }).catch((e: ApiError) => {
+        message.error(e.message)
+    })
 })
+
+const cominp = ref<CommentInput>({
+    post_id: 0,
+    parent_id: 0,
+    content: ''
+})
+function sendcom(pa: number) {
+    cominp.value.parent_id = pa
+    cominp.value.post_id = pid
+    if (cominp.value.content.replaceAll(' ', '') === '') {
+        message.warning('空内容')
+        return
+    }
+    if (cominp.value.content.length > 1000) {
+        message.warning('最多1000个字')
+        return
+    }
+    Service.newComment(cominp.value).then(() => {
+        message.success('发表成功')
+        cominp.value.content = ''
+        Service.postComm(pid).then((c: CommentPostOut[]) => {
+            comlist.value = c
+        }).catch((e: ApiError) => {
+            message.error(e.message)
+        })
+    }).catch((e: ApiError) => {
+        message.error(e.message)
+    })
+}
 
 </script>

@@ -6,11 +6,16 @@
         <div class="lg:w-2/3 max-lg:w-full">
             <n-layout>
                 <n-layout-content content-style="padding:15px;">
-                    <n-card :title="post.title||'无标题'" class=" rounded-xl mb-6" v-for="post in posts?.posts" hoverable bordered>
-                        <div v-text="post.content||'无内容'" @click="" class=" cursor-pointer">
+                    <n-card v-for="post in posts?.posts" class="mb-5" hoverable bordered>
+                        <template #header>
+                            <p v-text="post.title || '无标题'" class=" rounded-xl mb-6 cursor-pointer hover:opacity-70"
+                                @click="router.push({ name: 'post', params: { id: post.id } })"></p>
+                        </template>
+                        <div v-text="post.content || '无内容'" @click="">
                         </div>
                         <template #header-extra>
-                            <div class=" cursor-pointer flex justify-between items-center">
+                            <div class=" cursor-pointer flex justify-between items-center"
+                                @click="router.push({ name: 'user', params: { username: post.author } })">
                                 <n-avatar round size="small" :src="imgbase + post.author_img" />
                                 <span v-text="post.author" class=" pl-2"></span>
                             </div>
@@ -22,8 +27,7 @@
                         <template #action>
                             <div class=" float-right">
                                 <n-ellipsis style="max-width: 220px">
-                                    created at:{{ post.created_at.replace('T', ' ') }}
-                                    | updated at:{{ post.updated_at.replace('T', ' ') }}
+                                    <p v-text="post.updated_at.replace('T', ' ')"></p>
                                 </n-ellipsis>
                             </div>
                         </template>
@@ -52,9 +56,11 @@ import { NTag, NLayout, NLayoutContent, NCard, NPagination, NAvatar, NEllipsis, 
 import { watchEffect } from 'vue';
 import { imgbase } from '@/main';
 import { useMessage } from 'naive-ui'
+import { useRouter } from 'vue-router';
+import { Target } from 'vueuc';
 const message = useMessage()
 const userinfo = ref<UserOut>()
-
+const router = useRouter()
 const posts = ref<PostOutPage>()
 const page = ref(1)
 const pagesize = ref(5)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,Query
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +23,7 @@ limiter = Limiter(key_func=get_remote_address, enabled=True)
 
 async def get_admin(current_user: TokenData = Depends(get_current_user)):
     if current_user.gid == 1:
-        return AdminTokenData(username=current_user.username, id=current_user.id)
+        return AdminTokenData(username=current_user.username, _id=current_user.id)
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='非管理员')
 
@@ -91,6 +91,10 @@ async def set_limiter(allow: bool):
 async def deleteuser(username: str, session: AsyncSession = Depends(get_session), current_admin=Depends(get_admin)):
     return await crud.delete_user(session=session, username=username)
 
+@adminapp.delete("/del_tag", summary='删除tag')
+async def delTag(tag_id: int = Query(gt=0), session: AsyncSession = Depends(get_session),
+                 current_admin=Depends(get_admin)):
+    return await crud.del_tag(session, tag_id=tag_id)
 
 @adminapp.get("/get_disk", summary = '获取磁盘使用情况')
 async def get_disk(current_admin=Depends(get_admin)):

@@ -1,5 +1,5 @@
 <template>
-    <header class="py-1 fixed w-full top-0 bg-white z-10" :headinfo="{}">
+    <header class="py-1 fixed w-full top-0 bg-white z-10" headinfo="">
         <nav class="mx-auto flex max-w-7xl items-center justify-between px-4" aria-label="Global">
             <div class="flex flex-1 justify-start">
                 <router-link :to="{ name: 'home' }">
@@ -32,7 +32,7 @@
                     <router-link v-if="user?.avatar !== undefined"
                         :to="{ name: 'user', params: { username: user.username } }"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
-                        <img width="40" height="40" class="overflow-hidden object-cover rounded-full"
+                        <img class="overflow-hidden object-cover rounded-full" style="width: 40px;height: 40px;"
                             :alt="user.username + '的个人中心'" :src="imgbase + user.avatar">
                         <span class="p-2">{{ user.username }}</span> </router-link>
                     <button v-if="user?.avatar === undefined" @click="showLoginForm = true; showRegisterForm = false"

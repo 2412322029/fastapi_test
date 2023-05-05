@@ -149,7 +149,7 @@ async def upload(file: UploadFile):
         return UploadSuccess(filename=filename, content_type=file.content_type, detail="文件已存在")
     async with aiofiles.open(file_path, "wb") as buffer:
         await buffer.write(data)
-    return UploadSuccess(filename=filename + ext, content_type=file.content_type, detail="上传成功")
+    return UploadSuccess(filename=filename, content_type=file.content_type, detail="上传成功")
 
 
 @userapp.get("/get_code", summary='获取验证码', response_model=respCode)

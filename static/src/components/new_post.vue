@@ -40,7 +40,7 @@ const addpost = () => {
     }
     Service.newPost({ title: title.value, content: content.value, tag_names: tag_names.value }).then((p) => {
         message.success('发表成功')
-        router.push({ name: 'post', params: { id: p.id } })
+        router.push({ name: 'post', params: { id: p.id_ } })
     }).catch((e: ApiError) => {
         message.error(e.message + e.body.detail)
     })

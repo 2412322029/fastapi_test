@@ -37,7 +37,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         gid: str = payload.get("gid")
         if username is None:
             raise credentials_exception
-        token_data = TokenData(username=username, id=uid, gid=gid)
+        token_data = TokenData(username=username, id_=uid, gid=gid)
     except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

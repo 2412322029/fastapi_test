@@ -5,7 +5,7 @@
         <div class="lg:w-2/3 max-lg:w-full" v-if="post !== undefined">
             <p v-text="post?.title" class=" text-2xl flex justify-center m-5"></p>
             <div class=" flex items-center m-3 ml-6">
-                <n-avatar round size="small" :src="imgbase + post?.author_img" />
+                <n-avatar round size="small" :src="imgbase + post?.author_img" object-fit="cover"/>
                 <span v-text="post?.author" class=" pl-2 cursor-pointer"
                     @click="router.push({ name: 'user', params: { username: post?.author } })"></span>
                 <span class=" text-sm text-gray-500 ">&nbsp;&nbsp; 创建于:{{ post?.created_at.replace('T', ' ') }} |
@@ -18,7 +18,7 @@
                 <n-space vertical>
                     <div v-for="c in comlist">
                         <n-card>
-                            <n-avatar round size="small" :src="imgbase + c.user_img" />
+                            <n-avatar round size="small" :src="imgbase + c.user_img" object-fit="cover"/>
                             <span v-text="c.username" class=" pl-2 cursor-pointer"
                                 @click="router.push({ name: 'user', params: { username: c.username } })"></span>
                             <p v-text="c.content" class="ml-5"></p>

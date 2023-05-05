@@ -89,7 +89,3 @@ async def deletePost(pid: int = Query(gt=0), session: AsyncSession = Depends(get
     return await crud.delete_post(session, post_id=pid, username=current_user.username)
 
 
-@postapp.delete("/del_tag", summary='删除tag')
-async def delTag(tag_id: int = Query(gt=0), session: AsyncSession = Depends(get_session),
-                 current_user: TokenData = Depends(get_current_user)):
-    return await crud.del_tag(session, tag_id=tag_id)

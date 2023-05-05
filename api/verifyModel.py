@@ -16,7 +16,7 @@ class UserCreate(Userbase):
 
 
 class UserOut(BaseModel):
-    id: int
+    id_: int
     username: str
     avatar: str
     group_id: int
@@ -30,7 +30,7 @@ class UserInDB(UserOut):
 
 
 class PubUserInfo(BaseModel):
-    id: str
+    id_: int
     username: str
     avatar: str
 
@@ -51,7 +51,7 @@ class UpdateSuccess(RegisterSuccess):
     def from_User(cls, user: Type[User], detail: str):
         return cls(
             detail=detail, data=UserOut(
-                id=user.id,
+                id_=user.id,
                 username=user.username,
                 avatar=user.avatar,
                 group_id=user.group_id,
@@ -69,13 +69,13 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str
-    id: int
+    id_: int
     gid: int
 
 
 class AdminTokenData(BaseModel):
     username: str
-    id: int
+    id_: int
 
 
 class UploadSuccess(BaseModel):
@@ -90,7 +90,7 @@ class ANewTag(BaseModel):
 
 class TagInDB(BaseModel):
     name: str = Field(max_length=50)
-    id: str = int
+    id_: int
     reference_count: int
 
 
@@ -114,7 +114,7 @@ class PostUpdate(BaseModel):
 
 
 class PostOut(BaseModel):
-    id: int
+    id_: int
     user_id: int
     author: str
     author_img: str
@@ -147,7 +147,7 @@ class CommentInput(BaseModel):
 
 
 class CommentPostOut(BaseModel):
-    id: int
+    id_: int
     post_id: int
     parent_id: int
     username: str
@@ -158,7 +158,7 @@ class CommentPostOut(BaseModel):
 
 
 class CommentUserOut(BaseModel):
-    id: int
+    id_: int
     post_id: int
     parent_id: int
     username: str

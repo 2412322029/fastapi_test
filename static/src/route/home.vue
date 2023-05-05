@@ -1,20 +1,20 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 top-20 relative">
+    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20">
         <div class="lg:w-2/3 max-lg:w-full">
             <n-layout>
                 <n-layout-content content-style="padding:15px;">
                     <n-card v-for="post in posts?.posts" class="mb-5" hoverable bordered>
                         <template #header>
                             <p v-text="post.title || '无标题'" class=" rounded-xl mb-6 cursor-pointer hover:opacity-70"
-                                @click="router.push({ name: 'post', params: { id: post.id } })"></p>
+                                @click="router.push({ name: 'post', params: { id: post.id_ } })"></p>
                         </template>
                         <div v-text="post.content || '无内容'" @click="">
                         </div>
                         <template #header-extra>
                             <div class=" cursor-pointer flex justify-between items-center"
                                 @click="router.push({ name: 'user', params: { username: post.author } })">
-                                <n-avatar round size="small" :src="imgbase + post.author_img" />
+                                <n-avatar round size="small" :src="imgbase + post.author_img" object-fit="cover"/>
                                 <span v-text="post.author" class=" pl-2"></span>
                             </div>
                         </template>

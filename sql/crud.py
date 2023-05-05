@@ -18,7 +18,7 @@ async def findUser_by_name(session: AsyncSession, username: str) -> UserOut | No
     user: User | None = r.scalar_one_or_none()
     if user is not None:
         return UserOut(
-            id=user.id,
+            id_=user.id,
             username=user.username,
             avatar=user.avatar,
             group_id=user.group_id,
@@ -35,7 +35,7 @@ async def findPubUser_by_name(session: AsyncSession, username: str) -> PubUserIn
     user: User | None = r.scalar_one_or_none()
     if user is not None:
         return PubUserInfo(
-            id=user.id,
+            id_=user.id,
             username=user.username,
             avatar=user.avatar,
             state=user.state
@@ -49,7 +49,7 @@ async def get_user(session: AsyncSession, username: str) -> UserInDB | None:
     user: User | None = r.scalar_one_or_none()
     if user is not None:
         return UserInDB(
-            id=user.id,
+            id_=user.id,
             username=user.username,
             password=user.password,
             avatar=user.avatar,
@@ -148,7 +148,7 @@ async def get_all_user(session: AsyncSession) -> list[UserOut | None]:
     r = await session.execute(select(User).where(User.group_id == 0))
     users = r.scalars().all()
     return [UserOut(
-        id=user.id,
+        id_=user.id,
         username=user.username,
         avatar=user.avatar,
         group_id=user.group_id,
@@ -244,7 +244,7 @@ async def get_post_ById(session: AsyncSession, post_id: int) -> Optional[PostOut
         raise HTTPException(status_code=404, detail="Post not found")
     user = await get_post_owner(session, post.user_id)
     post_out = PostOut(
-        id=post.id,
+        id_=post.id,
         user_id=post.user_id,
         author=user.username,
         author_img=user.avatar,
@@ -280,7 +280,7 @@ async def get_all_posts_ByPage(session: AsyncSession, page: int, pagesize: int) 
         for post in post_list:
             user = await get_post_owner(session, post.user_id)
             post_out = PostOut(
-                id=post.id,
+                id_=post.id,
                 user_id=post.user_id,
                 author=user.username,
                 author_img=user.avatar,
@@ -313,7 +313,7 @@ async def get_user_posts_ByPage(session: AsyncSession, username: str, page: int,
     for post in post_list:
         user = await get_post_owner(session, post.user_id)
         post_out = PostOut(
-            id=post.id,
+            id_=post.id,
             user_id=post.user_id,
             author=user.username,
             author_img=user.avatar,
@@ -337,7 +337,7 @@ async def get_user_all_tags(session: AsyncSession, username: str):
                                                      .join(User).where(User.username == username)
                                                      .subquery().select())
                                          ).distinct())).all()
-    tag_list = [TagInDB(id=tag[0].id, name=tag[0].name, reference_count=tag[0].reference_count) for tag in tags]
+    tag_list = [TagInDB(id_=tag[0].id, name=tag[0].name, reference_count=tag[0].reference_count) for tag in tags]
     return tag_list
 
 
@@ -428,7 +428,7 @@ async def get_all_tags(session: AsyncSession):
         await updateTagCount(session)
         tags = await session.execute(select(Tag).order_by(desc(Tag.reference_count)))
         tags = tags.scalars().all()
-        return [TagInDB(id=tag.id, name=tag.name, reference_count=tag.reference_count) for tag in tags]
+        return [TagInDB(id_=tag.id, name=tag.name, reference_count=tag.reference_count) for tag in tags]
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=400, detail=str(e))
@@ -523,7 +523,7 @@ async def get_post_comm(session: AsyncSession, pid: int) -> List[CommentPostOut]
                 user.username = '未知'
                 user.avatar = 'default.jpg'
             return CommentPostOut(
-                id=comment.id,
+                id_=comment.id,
                 post_id=comment.post_id,
                 parent_id=comment.parent_id,
                 username=user.username,
@@ -558,7 +558,7 @@ async def get_comm_to_user(session: AsyncSession, username: str) -> List[Optiona
                     cuser = await session.execute(select(User).where(User.id == c.uid))
                     cuser = cuser.scalar_one()
                     comm_list.append(CommentUserOut(
-                        id=c.id,
+                        id_=c.id,
                         post_id=c.post_id,
                         parent_id=c.parent_id,
                         username=cuser.username,

@@ -13,7 +13,7 @@
             </tr>
             <tbody>
                 <tr v-for="u in alluserinfo">
-                    <td v-text="u.id"></td>
+                    <td v-text="u.id_"></td>
                     <td v-text="u.username"></td>
                     <td v-text="u.avatar"></td>
                     <td v-text="u.state"></td>

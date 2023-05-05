@@ -304,11 +304,11 @@ async def get_user_posts_ByPage(session: AsyncSession, username: str, page: int,
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='user not found')
     posts = await session.execute(select(Post).
-                                  where(Post.user_id == user.id)
+                                  where(Post.user_id == user.id_)
                                   .order_by(desc(Post.updated_at))
                                   .offset(offset).limit(pagesize))
     post_list = posts.scalars().all()
-    total = len((await session.execute(select(Post.id).filter(Post.user_id == user.id))).scalars().all())
+    total = len((await session.execute(select(Post.id).filter(Post.user_id == user.id_))).scalars().all())
     post_out_list = []
     for post in post_list:
         user = await get_post_owner(session, post.user_id)
@@ -442,7 +442,7 @@ async def add_tag_to_post_authorized(session: AsyncSession, post_id: int, tag_na
         if post is None:
             raise HTTPException(status_code=404, detail="Post not found")
         user = await get_user(session, username)
-        if user.id != post.user_id:
+        if user.id_ != post.user_id:
             raise HTTPException(status_code=401, detail=f"You are not authorized,"
                                                         f" this post belong to {user.username}")
         tag = await session.execute(select(Tag).where(Tag.name == tag_name))
@@ -491,7 +491,7 @@ async def newComment(session: AsyncSession, cin: CommentIn) -> str:
         comm = Comment(
             post_id=cin.post_id,
             parent_id=cin.parent_id,
-            uid=user.id,
+            uid=user.id_,
             content=cin.content,
             created_at=func.now(),
         )
@@ -545,7 +545,7 @@ async def get_comm_to_user(session: AsyncSession, username: str) -> List[Optiona
         user = await get_user(session, username)
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
-        pid_list = await session.execute(select(Post.id).where(Post.user_id == user.id))
+        pid_list = await session.execute(select(Post.id).where(Post.user_id == user.id_))
         pid_list = pid_list.scalars().all()
         comm_list = []
         if pid_list is None:

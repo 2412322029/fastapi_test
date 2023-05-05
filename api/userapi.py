@@ -36,7 +36,7 @@ async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequ
         )
     access_token_expires = timedelta(minutes=Config['ACCESS_TOKEN_EXPIRE_MINUTES'])
     access_token = await create_access_token(
-        data={"sub": user.username, "id": user.id, 'gid': user.group_id},
+        data={"sub": user.username, "id": user.id_, 'gid': user.group_id},
         expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}

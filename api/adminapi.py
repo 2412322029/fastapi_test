@@ -23,7 +23,7 @@ limiter = Limiter(key_func=get_remote_address, enabled=True)
 
 async def get_admin(current_user: TokenData = Depends(get_current_user)):
     if current_user.gid == 1:
-        return AdminTokenData(username=current_user.username, _id=current_user.id)
+        return AdminTokenData(username=current_user.username, id_=current_user.id_)
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='非管理员')
 

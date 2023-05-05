@@ -1,14 +1,18 @@
 <template>
     <Headers v-if="!isme" :user="myself" :headinfo="{ title: '用户:' + route.params.username.toString() }" />
     <Headers v-if="isme" :user="userinfo" :headinfo="{ title: '个人中心' }" />
-    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 relative" style="top:56px">
+    <div class="mx-auto flex max-w-7xl justify-between px-4 relative" style="top:56px;min-height: calc(100vh - 170px);">
         <n-tabs type="line" animated size="large">
             <n-tab-pane name="post" tab="文章">
-                <n-layout v-if="posts?.total != 0">
+                <n-layout v-if="posts?.total !== 0 && posts !== undefined">
                     <n-layout-content content-style="padding:15px;">
-                        <n-card :title="post.title||'无标题'" class=" rounded-xl mb-6" v-for="post in posts?.posts" hoverable
+                        <n-card :title="post.title || '无标题'" class=" rounded-xl mb-6" v-for="post in posts?.posts" hoverable
                             bordered>
-                            <div v-text="post.content||'无内容'" @click="" class=" cursor-pointer">
+                            <template #header>
+                                <p v-text="post.title || '无标题'" class=" rounded-xl mb-6 cursor-pointer hover:opacity-70"
+                                    @click="router.push({ name: 'post', params: { id: post.id_ } })"></p>
+                            </template>
+                            <div v-text="post.content || '无内容'" @click="">
                             </div>
                             <template #header-extra>
                                 <div class=" cursor-pointer w-6 opacity-70" v-if="isme">
@@ -26,8 +30,8 @@
                                 </div>
                             </template>
                             <template #footer>
-                                <n-tag type="info" round v-for="t in post.tags" v-text="t" @click=""
-                                    class=" cursor-pointer">
+                                <n-tag type="info" round v-for="t in post.tags" @click="" class=" cursor-pointer">
+                                    <span @click="$router.push('tag/' + t)">{{ t }}</span>
                                 </n-tag>
                             </template>
                             <template #action>
@@ -53,6 +57,24 @@
             </n-tab-pane>
             <n-tab-pane v-if="isme" name="new" tab="写文章" display-directive="show:lazy">
                 <newpost />
+            </n-tab-pane>
+            <n-tab-pane v-if="isme" name="pl" tab="评论" display-directive="show:lazy" @vnode-mounted="getcom()">
+                <n-button strong secondary circle type="primary" @click="getcom()">
+                    更新
+                </n-button>
+                <n-space vertical>
+                    <div v-for="c in comlist">
+                        <n-card>
+                            <p>{{ c.id_ }}</p>
+                            <n-avatar round size="small" :src="imgbase + c.user_img" object-fit="cover" />
+                            <span v-text="c.username" class=" pl-2 cursor-pointer"
+                                @click="router.push({ name: 'user', params: { username: c.username } })"></span>
+                            <p v-text="c.content" class="ml-5"></p>
+                            <p @click="router.push('/p/' + c.post_id)" class="ml-5 float-right cursor-pointer">详情</p>
+                            <p v-text="c.created_at.replace('T', ' ')" class=" float-right"></p>
+                        </n-card>
+                    </div>
+                </n-space>
             </n-tab-pane>
             <n-tab-pane v-if="isme" name="setting" tab="设置" display-directive="show:lazy">
                 <table>
@@ -81,8 +103,8 @@ import { ref, onMounted, watchEffect } from 'vue'
 import Tags from '@/components/tags.vue';
 import Footer from '@/components/footer.vue';
 import { useRouter, useRoute } from 'vue-router'
-import { NTag, NLayout, NLayoutContent, NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar } from 'naive-ui'
-import { OpenAPI, Service, UserOut, ApiError, PubUserInfo, PostOut, PostOutPage, TagInDB } from '@/client'
+import { NTag, NLayout, NLayoutContent, NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar, NSpace, NButton } from 'naive-ui'
+import { OpenAPI, Service, UserOut, ApiError, PubUserInfo, PostOut, PostOutPage, TagInDB, CommentUserOut } from '@/client'
 import Headers from '@/components/header.vue';
 import newpost from '@/components/new_post.vue';
 import { imgbase } from '@/main'
@@ -108,6 +130,7 @@ function getpost(page: number, pagesize: number) {
         message.error(e.message + e.body.detail)
     })
 }
+
 watchEffect(() => getpost(page.value, pagesize.value))
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
@@ -141,6 +164,14 @@ function gettags(name: string) {
     Service.getUserAllTags(name).then((t: Array<TagInDB>) => {
         tags.value = t
     })
+}
+const comlist = ref<CommentUserOut[]>()
+function getcom() {
+    if (userinfo.value !== undefined) {
+        Service.commToUser(userinfo.value.username).then((c: CommentUserOut[]) => {
+            comlist.value = c
+        })
+    }
 }
 
 const upl = () => {

@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 
 from api.password import verify_password
-from api.verifyModel import TokenData
+from api.verifyModel import TokenData, UserInDB
 from config import Config
 from sql.crud import get_user
 
@@ -47,7 +47,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return token_data
 
 
-async def authenticate_user(session, username: str, password: str):
+async def authenticate_user(session, username: str, password: str) -> UserInDB | None | bool:
     user = await get_user(session, username)
     if not user:
         return False

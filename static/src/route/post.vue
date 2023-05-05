@@ -39,6 +39,7 @@
             </n-tag>
         </div>
     </div>
+    <n-back-top :right="100" />
     <Footer />
 </template>
 <script setup lang="ts">
@@ -47,7 +48,7 @@ import Headers from '@/components/header.vue';
 import Footer from '@/components/footer.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Service, ApiError, PostOut, OpenAPI, UserOut, CommentInput, CommentPostOut } from '@/client/index'
-import { useMessage, NAvatar, NCard, NTag, NSpace, NInput, NButton } from 'naive-ui'
+import { useMessage, NAvatar, NCard, NTag, NSpace, NInput, NButton, NBackTop } from 'naive-ui'
 import { onMounted, ref } from 'vue';
 const message = useMessage()
 const route = useRoute()

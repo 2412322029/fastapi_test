@@ -1,8 +1,8 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: '管理' }" />
     <div v-if="userinfo" class="mx-auto flex max-w-7xl items-center flex-col px-4 top-20 relative">
-        <table>
-            <tr>
+        <n-table striped>
+            <thead>
                 <th>id</th>
                 <th>username</th>
                 <th>avatar</th>
@@ -10,7 +10,7 @@
                 <th>group_id</th>
                 <th>created_at</th>
                 <th>updated_at</th>
-            </tr>
+            </thead>
             <tbody>
                 <tr v-for="u in alluserinfo">
                     <td v-text="u.id_"></td>
@@ -22,11 +22,11 @@
                     <td v-text="u.updated_at"></td>
                 </tr>
             </tbody>
-        </table>
+        </n-table>
         <div>
-            用户注册 <input v-model="isr" type="checkbox">  <button @click="tj1">提交</button>
+            用户注册 <n-switch v-model="isr"></n-switch>  <button @click="tj1">提交</button>
             <br>
-            接口限制 <input v-model="isl" type="checkbox">  <button @click="tj2">提交</button>
+            接口限制 <n-switch v-model="isl"></n-switch>  <button @click="tj2">提交</button>
         </div>
 
     </div>
@@ -35,7 +35,7 @@
 import { ref, onMounted } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError } from '@/client'
 import Headers from '@/components/header.vue';
-import { useMessage } from 'naive-ui'
+import { useMessage, NTable, NSwitch} from 'naive-ui'
 const message = useMessage()
 const userinfo = ref<UserOut>()
 
@@ -87,26 +87,5 @@ const tj2=()=>{
 </script>
 
 <style scoped>
-table {
-    border-collapse: collapse;
-}
 
-table th {
-    font-weight: bold;
-}
-
-table th,
-table td {
-    border: 1px solid #ccc;
-    padding: 6px 13px;
-}
-
-table tr {
-    border-top: 1px solid #ccc;
-    background-color: #fff;
-}
-
-table tr:nth-child(2n) {
-    background-color: #f8f8f8;
-}
 </style>

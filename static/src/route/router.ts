@@ -17,6 +17,11 @@ const routes = [
         component: () => import('@/route/post.vue')
     },
     {
+        path: '/tag/:name',
+        name: 'tag',
+        component: () => import('@/route/tag.vue')
+    },
+    {
         path: '/websocket',
         name: 'websocket',
         component: () => import('@/route/websocket.vue')

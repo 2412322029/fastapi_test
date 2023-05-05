@@ -1,7 +1,7 @@
 <template>
     <n-card>
         <n-badge v-for="t in tags" :value="t.reference_count" :show-zero="true" type="success" :offset="[-10, 10]">
-        <n-tag type="info" round v-text="t.name" @click=""
+        <n-tag type="info" round v-text="t.name" @click="$router.push('tag/'+t.name)"
             class="m-2 cursor-pointer">
         </n-tag>
     </n-badge>

@@ -94,7 +94,7 @@ const logout = () => {
         return
     }
     localStorage.removeItem('token')
-    localStorage.removeItem('username')
+    localStorage.removeItem('userinfo')
     location.reload()
 }
 document.addEventListener('click', (e) => {

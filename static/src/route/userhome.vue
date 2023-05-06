@@ -1,11 +1,11 @@
 <template>
     <Headers v-if="!isme" :user="myself" :headinfo="{ title: '用户:' + route.params.username.toString() }" />
     <Headers v-if="isme" :user="userinfo" :headinfo="{ title: '个人中心' }" />
-    <div class="mx-auto flex max-w-7xl justify-between px-4 relative" style="top:56px;min-height: calc(100vh - 170px);">
-        <n-tabs type="line" animated size="large">
-            <n-tab-pane name="post" tab="文章">
-                <n-layout v-if="posts?.total !== 0 && posts !== undefined">
-                    <n-layout-content content-style="padding:15px;">
+    <div class="mx-auto flex max-w-7xl justify-between px-4 relative" style="top:56px;min-height: calc(100vh - 100px);">
+        <n-tabs ref="tabsInstRef" type="line" animated size="large" justify-content="center" v-model:value="tabnow">
+            <n-tab-pane name="post" tab="文章" display-directive="show:lazy">
+                <n-layout v-if="posts?.total !== 0 && posts !== undefined" style="background-color: transparent;">
+                    <n-layout-content content-style="padding:15px;background-color: transparent;">
                         <n-card :title="post.title || '无标题'" class=" rounded-xl mb-6" v-for="post in posts?.posts" hoverable
                             bordered>
                             <template #header>
@@ -58,7 +58,7 @@
             <n-tab-pane v-if="isme" name="new" tab="写文章" display-directive="show:lazy">
                 <newpost />
             </n-tab-pane>
-            <n-tab-pane v-if="isme" name="pl" tab="评论" display-directive="show:lazy" @vnode-mounted="getcom()">
+            <n-tab-pane v-if="isme" name="comm" tab="评论" display-directive="show:lazy" @vnode-mounted="getcom()">
                 <n-button strong secondary circle type="primary" @click="getcom()">
                     更新
                 </n-button>
@@ -77,7 +77,7 @@
                 </n-space>
             </n-tab-pane>
             <n-tab-pane v-if="isme" name="setting" tab="设置" display-directive="show:lazy">
-                <n-table :striped="true">
+                <n-table :striped="true" :single-line="false">
                     <tr>
                         <td>修改头像</td>
                         <td>
@@ -94,6 +94,23 @@
                             <button @click="upl()">提交</button>
                         </td>
                     </tr>
+                    <tr>
+                        <td>背景点击次数</td>
+                        <td>(点击多少次切换)</td>
+                        <td>
+                            <n-input-number v-model:value="times" :min="1" :max="10">
+                                <template #suffix>
+                                    次
+                                </template>
+                            </n-input-number>
+                        </td>
+                        <td>
+                            <button @click="times = 5">恢复默认</button>
+                        </td>
+                        <td>
+                            <button @click="rib()">提交</button>
+                        </td>
+                    </tr>
                 </n-table>
             </n-tab-pane>
 
@@ -103,11 +120,11 @@
     <Footer />
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watchEffect } from 'vue'
+import { ref, onMounted, watchEffect, watch } from 'vue'
 import Tags from '@/components/tags.vue';
 import Footer from '@/components/footer.vue';
 import { useRouter, useRoute } from 'vue-router'
-import { NTag, NLayout, NLayoutContent, NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar, NSpace, NButton, NImage, NTable } from 'naive-ui'
+import { NDivider, NInputNumber, NTag, NLayout, NLayoutContent, NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar, NSpace, NButton, NImage, NTable, TabsInst } from 'naive-ui'
 import { OpenAPI, Service, UserOut, ApiError, PubUserInfo, PostOut, PostOutPage, TagInDB, CommentUserOut } from '@/client'
 import Headers from '@/components/header.vue';
 import newpost from '@/components/new_post.vue';
@@ -140,7 +157,9 @@ function getpost(page: number, pagesize: number) {
 watchEffect(() => getpost(page.value, pagesize.value))
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
-    OpenAPI.USERNAME = JSON.parse(localStorage.getItem("userinfo") || '').username as string
+    if (localStorage.getItem("userinfo") !== null) {
+        OpenAPI.USERNAME = JSON.parse(localStorage.getItem("userinfo") || '').username
+    }
     if (OpenAPI.USERNAME == route.params.username) {
         Service.userinfo().then((u: UserOut) => {
             userinfo.value = u
@@ -219,31 +238,40 @@ const delimg = () => {
     file.value.value = ''
     base64.value = ''
 }
+let times = ref(5)
+{
+    let t = localStorage.getItem('ribbon-times')
+    if (t && Number.isInteger(Number(t))) {
+        times.value = Number(t)
+    } else {
+        times.value = 5
+    }
+}
+
+
+const rib = () => {
+    localStorage.setItem('ribbon-times', times.value.toString())
+    router.push({ name: 'home' })
+}
+const tabsInstRef = ref<TabsInst | null>(null)
+const tabnow = ref('')
+setTimeout(() => {
+    let prx = location.hash.toString().replace("#", "")
+    if (prx == 'post' || prx == 'tags' || prx == 'new' || prx == 'comm' || prx == 'setting') {
+        tabnow.value = prx
+    } else {
+        tabnow.value = 'post'
+    }
+}, 500);
+watch(tabnow, (newv) => {
+    location.hash = newv
+})
 
 </script>
 
 <style scoped>
-table {
-    border-collapse: collapse;
-}
-
-table th {
-    font-weight: bold;
-}
-
-table th,
-table td {
-    border: 1px solid #ccc;
-    padding: 6px 13px;
-}
-
-table tr {
-    border-top: 1px solid #ccc;
-    background-color: #fff;
-}
-
-table tr:nth-child(2n) {
-    background-color: #f8f8f8;
+.n-layout-content {
+    background-color: transparent;
 }
 </style>
 <style>

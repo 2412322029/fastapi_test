@@ -5,7 +5,10 @@
  * GitHub: https://github.com/hustcc/ribbon.js
 **/
 /*jshint -W030 */
-export function ribbon() {
+export function ribbon(ti = 5) {
+  if (!Number.isInteger(ti) || ti < 1) {
+    ti = 5
+  }
   function attr(node, attr, default_value) {
     return Number(node.getAttribute(attr)) || default_value;
   }
@@ -15,13 +18,13 @@ export function ribbon() {
     script = scripts[scripts.length - 1]; // 
   var config = {
     z: attr(script, "zIndex", -1), // z-index
-    a: attr(script, "alpha", 0.6), // alpha
-    s: attr(script, "size", 90), // size
+    a: attr(script, "alpha", 0.8), // alpha
+    s: attr(script, "size", 190), // size
   };
-  
+
   var ccc = document.getElementsByClassName('rib');
-  if(ccc.length>1){
-    for(let i=1;i<ccc.length;i++){
+  if (ccc.length > 1) {
+    for (let i = 1; i < ccc.length; i++) {
       ccc[i].remove()
     }
   }
@@ -45,11 +48,18 @@ export function ribbon() {
   canvas.style.cssText = 'opacity: ' + config.a + ';position:fixed;top:0;left:0;z-index: ' + config.z + ';width:100%;height:100%;pointer-events:none;';
   // create canvas
   document.getElementsByTagName('body')[0].appendChild(canvas);
-
+  var times = ti - 1
   function redraw() {
-    g2d.clearRect(0, 0, width, height);
-    q = [{ x: 0, y: height * 0.7 + f }, { x: 0, y: height * 0.7 - f }];
-    while (q[1].x < width + f) draw(q[0], q[1]);
+    times++
+    g2d.font = "50px serif";
+    g2d.fillText(`。`, 20, 80 + 20 * times);
+    if (times >= ti) {
+      g2d.clearRect(0, 0, width, height);
+      q = [{ x: 0, y: height * 0.7 + f }, { x: 0, y: height * 0.7 - f }];
+      while (q[1].x < width + f) draw(q[0], q[1]);
+      times = 0
+    }
+
   }
   function draw(i, j) {
     g2d.beginPath();
@@ -63,6 +73,7 @@ export function ribbon() {
     g2d.fill();
     q[0] = q[1];
     q[1] = { x: k, y: n };
+
   }
   function line(p) {
     t = p + (random() * 2 - 1.1) * f;

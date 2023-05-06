@@ -20,7 +20,7 @@
                     <div>
                         <n-form-item class="float-left" style="width: 68%;">
                             <n-input v-model:value="inputcode" type="text" @keydown.enter.prevent
-                                placeholder="验证码(区分大小写)" />
+                                placeholder="验证码" />
                         </n-form-item>
                         <n-form-item class="float-right" style="width: 30%;">
                             <img v-if="code != undefined" :src="'data:image/png;base64,' + code?.img" alt=""
@@ -95,12 +95,12 @@ const rules: FormRules = {
             validator(rule: FormItemRule, value: string) {
                 if (!value) {
                     return new Error('需要密码')
-                } else if (value.length <= 8) {
-                    return new Error('用户名应大于8位')
+                } else if (value.length < 8) {
+                    return new Error('密码应大于8位')
                 }
                 return true
             },
-            trigger: ['input', 'blur']
+            trigger: [ 'blur','password-input']
         }
     ],
     password_agine: [
@@ -113,7 +113,7 @@ const rules: FormRules = {
                     return true
                 }
             },
-            trigger: ['blur', 'password-input']
+            trigger: ['input','blur', 'password-input']
         }
     ]
 }

@@ -49,7 +49,6 @@ const user = reactive<UserCreate>({
     username: "",
     password: ""
 })
-const remember = ref(true)
 const rules: FormRules = {
     username: [
         {
@@ -88,25 +87,21 @@ const loginAction = async (user: UserCreate) => {
         message.error('请输入账号密码')
         return
     }
-    await Service.loginForAccessToken(user).then((token: Token) => {
+    await Service.loginForAccessToken(user).then(async (token: Token) => {
         OpenAPI.TOKEN = token.access_token
         message.success('登录成功')
         localStorage.setItem('token', OpenAPI.TOKEN)
-        // if (remember.value) {
-        //     localStorage.setItem('username', user.username)
-        // } else {
-        //     localStorage.removeItem('username')
-        // }
+        await Service.userinfo().then((u: UserOut) => {
+            localStorage.setItem('userinfo', JSON.stringify(u))
+        })
         location.reload()
     }).catch((e: ApiError) => {
         message.error(e.message)
     })
+
 }
 onMounted(() => {
-    var a = localStorage.getItem("username")
-    if (a) {
-        user.username = a as string
-    }
+
 })
 
 

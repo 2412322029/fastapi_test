@@ -6,6 +6,8 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.routing import Route
 from starlette.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from api.index import api
 from config import Config
@@ -26,6 +28,10 @@ app.include_router(api, prefix='/api')
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.mount("/", StaticFiles(directory="static/dist", html=True), name="static")
 
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request, exc):
+    html_file = open("static/dist/index.html", 'r').read()
+    return HTMLResponse(html_file)
 
 for route in app.routes:
     if isinstance(route, APIRoute):

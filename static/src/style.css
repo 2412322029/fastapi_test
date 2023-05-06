@@ -2,3 +2,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+#app{
+    background-color: rgba(211, 232, 251, 0.523);
+}

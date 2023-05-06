@@ -1,7 +1,6 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
-    <canvas id="cbg" class="rib" style="opacity: 0.6; position: fixed; top: 0px; left: 0px; z-index: -2; width: 100%; height: 70%; pointer-events: none;"></canvas>
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20 mb-20">
+    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20 mb-20" style="min-height: calc(100vh - 100px);">
         <div class="lg:w-2/3 max-lg:w-full">
             <n-layout style="background-color: transparent;">
                 <n-layout-content content-style="padding:15px;background-color: transparent;">
@@ -58,7 +57,6 @@ import { watchEffect } from 'vue';
 import { imgbase } from '@/main';
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router';
-import {ribbon} from '@/script/ribbon'
 
 const message = useMessage()
 const userinfo = ref<UserOut>()
@@ -91,7 +89,6 @@ onMounted(() => {
        userinfo.value = JSON.parse(localStorage.getItem('userinfo')||'')
     }
 
-    ribbon()
 })
 
 

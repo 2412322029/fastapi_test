@@ -8,10 +8,21 @@
             </n-scrollbar>
         </n-message-provider>
     </n-config-provider>
+    <canvas id="cbg" class="rib"
+        style="opacity: 0.6; position: fixed; top: 0px; left: 0px; z-index: -2; width: 100%; height: 70%; pointer-events: none;"></canvas>
 </template>
 
 <script setup lang="ts">
 import { NScrollbar, NConfigProvider, zhCN, dateZhCN, NMessageProvider } from 'naive-ui'
+import { ribbon } from './script/ribbon';
+import { onMounted } from 'vue';
+
+onMounted(() => {
+    let t = localStorage.getItem('ribbon-times')
+    if (t) {
+        ribbon(Number(t))
+    }
+})
 
 </script>
 <style>

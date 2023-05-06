@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style="top:56px;min-height: calc(100vh - 100px);">
         <n-collapse>
             <n-collapse-item title="标题和标签" :expanded-names="[1]" name="1">
                 <n-input type="text" v-model:value="title" placeholder="标题" class=" mb-1" />

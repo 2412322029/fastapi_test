@@ -567,7 +567,7 @@ async def get_comm_to_user(session: AsyncSession, username: str) -> List[Optiona
                         state=c.state,
                         created_at=c.created_at
                     ))
-        print(comm_list)
+        # print(comm_list)
         return comm_list
     except Exception as e:
         await session.rollback()

@@ -33,6 +33,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASSWORD=123456
       - MYSQL_DATABASE=blog
+      - dev=false
     volumes:
       - ./:/code
     expose:

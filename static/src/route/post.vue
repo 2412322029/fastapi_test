@@ -1,11 +1,11 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
     <hr>
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 top-20 relative">
+    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20 mb-20" style="min-height: calc(100vh - 170px);">
         <div class="lg:w-2/3 max-lg:w-full" v-if="post !== undefined">
             <p v-text="post?.title" class=" text-2xl flex justify-center m-5"></p>
             <div class=" flex items-center m-3 ml-6">
-                <n-avatar round size="small" :src="imgbase + post?.author_img" object-fit="cover"/>
+                <n-avatar round size="small" :src="imgbase + post?.author_img" object-fit="cover" />
                 <span v-text="post?.author" class=" pl-2 cursor-pointer"
                     @click="router.push({ name: 'user', params: { username: post?.author } })"></span>
                 <span class=" text-sm text-gray-500 ">&nbsp;&nbsp; 创建于:{{ post?.created_at.replace('T', ' ') }} |
@@ -18,7 +18,7 @@
                 <n-space vertical>
                     <div v-for="c in comlist">
                         <n-card>
-                            <n-avatar round size="small" :src="imgbase + c.user_img" object-fit="cover"/>
+                            <n-avatar round size="small" :src="imgbase + c.user_img" object-fit="cover" />
                             <span v-text="c.username" class=" pl-2 cursor-pointer"
                                 @click="router.push({ name: 'user', params: { username: c.username } })"></span>
                             <p v-text="c.content" class="ml-5"></p>
@@ -63,11 +63,17 @@ const userinfo = ref<UserOut>()
 const comlist = ref<CommentPostOut[]>()
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
-    Service.userinfo().then((u: UserOut) => {
-        userinfo.value = u
-    }).catch((e: ApiError) => {
-        message.error(e.message)
-    })
+    if (!localStorage.getItem('userinfo') || !OpenAPI.TOKEN) {
+        Service.userinfo().then((u: UserOut) => {
+            userinfo.value = u
+            localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
+        }).catch((e: ApiError) => {
+            message.error(e.message)
+        })
+    } else {
+       userinfo.value = JSON.parse(localStorage.getItem('userinfo')||'')
+    }
+
     Service.getPostById(pid).then((po: PostOut) => {
         post.value = po
     }).catch((e: ApiError) => {
@@ -97,7 +103,7 @@ function sendcom(pa: number) {
     }
     if (cominp.value.content.length > 1000) {
         message.warning('最多1000个字')
-        return
+        return  
     }
     Service.newComment(cominp.value).then(() => {
         message.success('发表成功')

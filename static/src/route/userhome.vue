@@ -77,20 +77,24 @@
                 </n-space>
             </n-tab-pane>
             <n-tab-pane v-if="isme" name="setting" tab="设置" display-directive="show:lazy">
-                <table>
+                <n-table :striped="true">
                     <tr>
                         <td>修改头像</td>
                         <td>
-                            <input ref="file" type="file" name="" @change="onChange()" />
+                            <input ref="file" type="file" name="" @change="onChange()"
+                                accept="image/jpeg,image/png,image/gif" />
                         </td>
                         <td>
-                            <img :src="base64" width="100" alt="">
+                            <n-image :src="base64" width="100" alt="" />
+                        </td>
+                        <td>
+                            <button @click="delimg()">取消</button>
                         </td>
                         <td>
                             <button @click="upl()">提交</button>
                         </td>
                     </tr>
-                </table>
+                </n-table>
             </n-tab-pane>
 
         </n-tabs>
@@ -103,12 +107,13 @@ import { ref, onMounted, watchEffect } from 'vue'
 import Tags from '@/components/tags.vue';
 import Footer from '@/components/footer.vue';
 import { useRouter, useRoute } from 'vue-router'
-import { NTag, NLayout, NLayoutContent, NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar, NSpace, NButton } from 'naive-ui'
+import { NTag, NLayout, NLayoutContent, NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar, NSpace, NButton, NImage, NTable } from 'naive-ui'
 import { OpenAPI, Service, UserOut, ApiError, PubUserInfo, PostOut, PostOutPage, TagInDB, CommentUserOut } from '@/client'
 import Headers from '@/components/header.vue';
 import newpost from '@/components/new_post.vue';
 import { imgbase } from '@/main'
 import { useMessage } from 'naive-ui'
+import { blob } from 'stream/consumers';
 const message = useMessage()
 const router = useRouter()
 const route = useRoute()
@@ -117,9 +122,10 @@ const myself = ref<UserOut>()
 const pubuserinfo = ref<PubUserInfo>()
 const isme = ref(false)
 const tags = ref<Array<TagInDB>>()
+
 const file = ref()
-const fileblob = ref()
 const base64 = ref()
+
 const page = ref(1)
 const pagesize = ref(5)
 const posts = ref<PostOutPage>()
@@ -134,7 +140,7 @@ function getpost(page: number, pagesize: number) {
 watchEffect(() => getpost(page.value, pagesize.value))
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
-    OpenAPI.USERNAME = localStorage.getItem("username") as string
+    OpenAPI.USERNAME = JSON.parse(localStorage.getItem("userinfo") || '').username as string
     if (OpenAPI.USERNAME == route.params.username) {
         Service.userinfo().then((u: UserOut) => {
             userinfo.value = u
@@ -175,27 +181,43 @@ function getcom() {
 }
 
 const upl = () => {
-    Service.updateAvatar({ 'avatar_new': file.value.files[0] }).then((up) => {
-        message.success(up.detail)
-    }).catch((e: ApiError) => {
-        message.error(e.message + e.body.detail)
-    })
+    if (file.value.value) {
+        Service.updateAvatar({ 'avatar_new': file.value.files[0] }).then((up) => {
+            message.success(up.detail)
+        }).catch((e: ApiError) => {
+            message.error(e.message + e.body.detail)
+        })
+    } else {
+        message.warning('请选择文件')
+    }
+
 }
 const onChange = () => {
-
-    let f = file.value.files[0]
-    const type = f.type;
-    const reader = new FileReader();
-    reader.readAsDataURL(f)
-    reader.onload = (e) => {
-        try {
-            //@ts-ignore
-            fileblob.value = new Blob([e.target.result], { type });
-            //@ts-ignore
-            base64.value = e.target.result
-        } catch (e) {
+    if (file.value.value !== '') {
+        let f = file.value.files[0]
+        const type = f.type
+        if (type === "image/jpeg" || type === "image/png" || type === 'image/gif') {
+            const reader = new FileReader();
+            reader.readAsDataURL(f)
+            reader.onload = (e) => {
+                try {
+                    //@ts-ignore
+                    base64.value = e.target.result
+                } catch (e) {
+                }
+            }
+        } else {
+            message.warning('仅支持jpg/png/gif')
+            delimg()
         }
+
+    } else {
+        message.warning('取消选择')
     }
+}
+const delimg = () => {
+    file.value.value = ''
+    base64.value = ''
 }
 
 </script>

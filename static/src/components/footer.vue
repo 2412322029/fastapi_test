@@ -1,5 +1,10 @@
 <template>
-    <div class="h-16 w-full m-5 mt-20 flex flex-col items-center text-gray-500 bottom-0">
-        <span> Made by Simple</span>
-    </div>
+    <footer class="w-full h-32 text-gray-500" style="background-color: #fafafc;">
+        <div class="h-10"></div>
+        <n-divider class="m-0 px-6"/>
+        <p class=" text-center mb-4 text-sm"> Made by Simple</p>
+    </footer>
 </template>
+<script lang="ts" setup>
+import {NDivider} from 'naive-ui'
+</script>

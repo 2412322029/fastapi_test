@@ -1,6 +1,7 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: '管理' }" />
     <div v-if="userinfo" class="mx-auto flex max-w-7xl items-center flex-col px-4 top-20 relative">
+
         <n-table striped>
             <thead>
                 <th>id</th>
@@ -35,6 +36,7 @@
 import { ref, onMounted } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError } from '@/client'
 import Headers from '@/components/header.vue';
+import CPU from '@/components/cpu.vue';
 import { useMessage, NTable, NSwitch} from 'naive-ui'
 const message = useMessage()
 const userinfo = ref<UserOut>()

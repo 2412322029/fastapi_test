@@ -1,9 +1,10 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20">
+    <canvas id="cbg" class="rib" style="opacity: 0.6; position: fixed; top: 0px; left: 0px; z-index: -2; width: 100%; height: 70%; pointer-events: none;"></canvas>
+    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20 mb-20">
         <div class="lg:w-2/3 max-lg:w-full">
-            <n-layout>
-                <n-layout-content content-style="padding:15px;">
+            <n-layout style="background-color: transparent;">
+                <n-layout-content content-style="padding:15px;background-color: transparent;">
                     <n-card v-for="post in posts?.posts" class="mb-5" hoverable bordered>
                         <template #header>
                             <p v-text="post.title || '无标题'" class=" rounded-xl mb-6 cursor-pointer hover:opacity-70"
@@ -57,6 +58,8 @@ import { watchEffect } from 'vue';
 import { imgbase } from '@/main';
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router';
+import {ribbon} from '@/script/ribbon'
+
 const message = useMessage()
 const userinfo = ref<UserOut>()
 const router = useRouter()
@@ -77,13 +80,24 @@ function getpost(page: number, pagesize: number) {
 watchEffect(() => getpost(page.value, pagesize.value))
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
-    Service.userinfo().then((u: UserOut) => {
-        userinfo.value = u
-    }).catch((e: ApiError) => {
-        message.error(e.message)
-    })
+    if (!localStorage.getItem('userinfo') || !OpenAPI.TOKEN) {
+        Service.userinfo().then((u: UserOut) => {
+            userinfo.value = u
+            localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
+        }).catch((e: ApiError) => {
+            message.error(e.message)
+        })
+    } else {
+       userinfo.value = JSON.parse(localStorage.getItem('userinfo')||'')
+    }
 
+    ribbon()
 })
 
 
 </script>
+<style scoped>
+.n-layout-content{
+    background-color: transparent;
+}
+</style>

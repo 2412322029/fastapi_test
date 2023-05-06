@@ -3,7 +3,7 @@
 <template>
     <n-config-provider :locale="zhCN" :date-locale="dateZhCN" preflight-style-disabled>
         <n-message-provider>
-            <n-scrollbar id="mmm" class="h-screen">
+            <n-scrollbar id="hua" class="h-screen">
                 <router-view />
             </n-scrollbar>
         </n-message-provider>
@@ -15,7 +15,8 @@ import { NScrollbar, NConfigProvider, zhCN, dateZhCN, NMessageProvider } from 'n
 
 </script>
 <style>
-#mmm>.n-scrollbar-rail>.n-scrollbar-rail__scrollbar {
+#hua>.n-scrollbar-rail>.n-scrollbar-rail__scrollbar {
     z-index: 10;
+    width: 9px;
 }
 </style>

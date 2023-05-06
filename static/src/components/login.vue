@@ -92,11 +92,11 @@ const loginAction = async (user: UserCreate) => {
         OpenAPI.TOKEN = token.access_token
         message.success('登录成功')
         localStorage.setItem('token', OpenAPI.TOKEN)
-        if (remember.value) {
-            localStorage.setItem('username', user.username)
-        } else {
-            localStorage.removeItem('username')
-        }
+        // if (remember.value) {
+        //     localStorage.setItem('username', user.username)
+        // } else {
+        //     localStorage.removeItem('username')
+        // }
         location.reload()
     }).catch((e: ApiError) => {
         message.error(e.message)

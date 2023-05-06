@@ -1,6 +1,6 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: 'Tag->'+$route.params.name }" />
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20">
+    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20" style="min-height: calc(100vh - 170px);">
         <div class="lg:w-2/3 max-lg:w-full">
             <n-layout v-if="posts!==undefined && posts[0]!==undefined">
                 <n-layout-content content-style="padding:15px;">
@@ -73,11 +73,16 @@ function getpost(page: number, pagesize: number) {
 watchEffect(() => getpost(page.value, pagesize.value))
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
-    Service.userinfo().then((u: UserOut) => {
-        userinfo.value = u
-    }).catch((e: ApiError) => {
-        message.error(e.message)
-    })
+    if (!localStorage.getItem('userinfo') || !OpenAPI.TOKEN) {
+        Service.userinfo().then((u: UserOut) => {
+            userinfo.value = u
+            localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
+        }).catch((e: ApiError) => {
+            message.error(e.message)
+        })
+    } else {
+       userinfo.value = JSON.parse(localStorage.getItem('userinfo')||'')
+    }
 
 })
 

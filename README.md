@@ -1,4 +1,16 @@
-+ server
+![image-20230506225558239](README.assets/image-20230506225558239.png)
+
+![image-20230506225922997](README.assets/image-20230506225922997.png)
+
+![image-20230506225902139](README.assets/image-20230506225902139.png)
+
+
+
+![image-20230506225716959](README.assets/image-20230506225716959.png)
+
+![image-20230506225751893](README.assets/image-20230506225751893.png)
+
+ + server
 
   + fastapi+sqlalchemy 实现 RESTful API与api文档自动生成，pydantic数据校验
   + 前后端鉴权使用[OAuth2 实现 Bearer JWT 令牌](https://fastapi.tiangolo.com/zh/tutorial/security/oauth2-jwt/)

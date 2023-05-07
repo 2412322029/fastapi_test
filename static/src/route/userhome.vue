@@ -1,12 +1,12 @@
 <template>
     <Headers v-if="!isme" :user="myself" :headinfo="{ title: '用户:' + route.params.username.toString() }" />
     <Headers v-if="isme" :user="userinfo" :headinfo="{ title: '个人中心' }" />
-    <div class="mx-auto flex max-w-7xl justify-between px-4 relative" style="top:56px;min-height: calc(100vh - 100px);">
-        <n-tabs ref="tabsInstRef" type="line" animated size="large" justify-content="center" v-model:value="tabnow">
+    <div class="mx-auto flex max-w-7xl justify-between px-4 relative mb-20" style="top:56px;min-height: calc(100vh - 100px);">
+        <n-tabs ref="tabsInstRef" type="line" animated size="large" justify-content="center" v-model:value="tabnow" class="mt-3">
             <n-tab-pane name="post" tab="文章" display-directive="show:lazy">
                 <n-layout v-if="posts?.total !== 0 && posts !== undefined" style="background-color: transparent;">
                     <n-layout-content content-style="padding:15px;background-color: transparent;">
-                        <n-card :title="post.title || '无标题'" class=" rounded-xl mb-6" v-for="post in posts?.posts" hoverable
+                        <n-card :title="post.title || '无标题'" class=" rounded-xl mb-6 shadow" v-for="post in posts?.posts" hoverable
                             bordered>
                             <template #header>
                                 <p v-text="post.title || '无标题'" class=" rounded-xl mb-6 cursor-pointer hover:opacity-70"
@@ -30,7 +30,7 @@
                                 </div>
                             </template>
                             <template #footer>
-                                <n-tag type="info" round v-for="t in post.tags" @click="" class=" cursor-pointer">
+                                <n-tag type="info" round v-for="t in post.tags" @click="" class=" cursor-pointer hover:shadow">
                                     <span @click="$router.push('tag/' + t)">{{ t }}</span>
                                 </n-tag>
                             </template>
@@ -278,7 +278,12 @@ watch(tabnow, (newv) => {
 .n-tabs-nav--line-type.n-tabs-nav--top.n-tabs-nav {
     position: sticky;
     top: 56px;
-    z-index: 1;
+    z-index:9;
     background-color: white;
+    /* --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow); */
 }
+
+
 </style>

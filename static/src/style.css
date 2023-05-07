@@ -2,6 +2,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-#app{
+
+#app {
     background-color: rgba(211, 232, 251, 0.523);
+}
+
+:root {
+    --bg-a: #e8f3fd;
+    --bg-b: #e66465;
+}
+
+header {
+    background-image: linear-gradient(to right, var(--bg-a), var(--bg-b));
+}
+footer{
+    position: relative;
+    background-color: white;
+}
+footer:before {
+    content: ' ';
+    background: url(assets/footer.png) no-repeat center;
+    height: 368px;
+    width: 100%;
+    display: block;
+    position: absolute;
+    top: -294px;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
 }

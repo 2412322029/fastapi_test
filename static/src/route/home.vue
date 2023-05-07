@@ -4,7 +4,7 @@
         <div class="lg:w-2/3 max-lg:w-full">
             <n-layout style="background-color: transparent;">
                 <n-layout-content content-style="padding:15px;background-color: transparent;">
-                    <n-card v-for="post in posts?.posts" class="mb-5" hoverable bordered>
+                    <n-card v-for="post in posts?.posts" class="mb-5" hoverable bordered :class="'shadow'">
                         <template #header>
                             <p v-text="post.title || '无标题'" class=" rounded-xl mb-6 cursor-pointer hover:opacity-70"
                                 @click="router.push({ name: 'post', params: { id: post.id_ } })"></p>
@@ -19,7 +19,7 @@
                             </div>
                         </template>
                         <template #footer>
-                            <n-tag type="info" round v-for="t in post.tags" @click="" class=" cursor-pointer">
+                            <n-tag type="info" round v-for="t in post.tags" @click="" class=" cursor-pointer mx-1 hover:shadow">
                             <span @click="$router.push('tag/'+t)">{{ t }}</span>
                             </n-tag>
                         </template>
@@ -37,8 +37,18 @@
                     class=" flex justify-center" />
             </n-layout>
         </div>
-        <div class="lg:w-1/3 max-lg:hidden">
-            <n-affix :trigger-top="100" :trigger-bottom="100" class=" absolute">
+        <div class="lg:w-1/3 max-lg:hidden m-2">
+            <n-affix :trigger-top="95"  class="absolute w-1/3 shadow-md ">
+                <n-card>
+                   <div v-for="m in msgs">
+                    <span v-if="m.username!==''">
+                        <span v-text="m.username" @click="router.push({name:'user',params:{username:m.username}})" class=" cursor-pointer text-green-700"></span>
+                         -> 
+                         <span v-text="m.path" @click="router.push(m.path)" class=" cursor-pointer text-green-700"></span>
+                        </span>
+                </div> 
+                </n-card>
+                
                 <Tags :tags="tags" />
             </n-affix>
         </div>
@@ -57,6 +67,7 @@ import { watchEffect } from 'vue';
 import { imgbase } from '@/main';
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router';
+import {msgs} from '@/main'
 
 const message = useMessage()
 const userinfo = ref<UserOut>()

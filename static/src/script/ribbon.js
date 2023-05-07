@@ -54,14 +54,21 @@ export function ribbon(ti = 5) {
     g2d.font = "50px serif";
     g2d.fillText(`。`, 20, 80 + 20 * times);
     if (times >= ti) {
+      var c1 = 0
       g2d.clearRect(0, 0, width, height);
       q = [{ x: 0, y: height * 0.7 + f }, { x: 0, y: height * 0.7 - f }];
-      while (q[1].x < width + f) draw(q[0], q[1]);
+      while (q[1].x < width + f) {
+          c1 = draw(q[0], q[1]);
+      }
       times = 0
+    }
+    if (c1) {
+      document.documentElement.style.setProperty('--bg-b', '#' + (cos(r) * 127 + 128 << 16 | cos(r + pi / 3) * 127 + 128 << 8 | cos(r + pi / 3 * 2) * 127 + 128).toString(16)+'60');
     }
 
   }
   function draw(i, j) {
+    let col = '#' + (cos(r) * 127 + 128 << 16 | cos(r + pi / 3) * 127 + 128 << 8 | cos(r + pi / 3 * 2) * 127 + 128).toString(16);
     g2d.beginPath();
     g2d.moveTo(i.x, i.y);
     g2d.lineTo(j.x, j.y);
@@ -69,11 +76,11 @@ export function ribbon(ti = 5) {
     g2d.lineTo(k, n);
     g2d.closePath();
     r -= pi / -50;
-    g2d.fillStyle = '#' + (cos(r) * 127 + 128 << 16 | cos(r + pi / 3) * 127 + 128 << 8 | cos(r + pi / 3 * 2) * 127 + 128).toString(16);
+    g2d.fillStyle = col
     g2d.fill();
     q[0] = q[1];
     q[1] = { x: k, y: n };
-
+    return col
   }
   function line(p) {
     t = p + (random() * 2 - 1.1) * f;

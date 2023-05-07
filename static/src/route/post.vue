@@ -4,10 +4,12 @@
     <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20 mb-20" style="min-height: calc(100vh - 170px);">
         <div class="lg:w-2/3 max-lg:w-full" v-if="post !== undefined">
             <p v-text="post?.title" class=" text-2xl flex justify-center m-5"></p>
-            <div class=" flex items-center m-3 ml-6">
-                <n-avatar round size="small" :src="imgbase + post?.author_img" object-fit="cover" />
-                <span v-text="post?.author" class=" pl-2 cursor-pointer"
-                    @click="router.push({ name: 'user', params: { username: post?.author } })"></span>
+            <div class=" flex items-center m-3 ml-6 flex-col justify-center">
+                <div class=" flex items-center m-2">
+                    <n-avatar round size="small" :src="imgbase + post?.author_img" object-fit="cover" />
+                    <span v-text="post?.author" class=" pl-2 cursor-pointer"
+                        @click="router.push({ name: 'user', params: { username: post?.author } })"></span>
+                </div>
                 <span class=" text-sm text-gray-500 ">&nbsp;&nbsp; 创建于:{{ post?.created_at.replace('T', ' ') }} |
                     更新于:{{ post?.updated_at.replace('T', ' ') }}</span>
             </div>
@@ -16,7 +18,7 @@
             <hr>
             <div class="m-5">
                 <n-space vertical>
-                    <div v-for="c in comlist">
+                    <div v-for="c in comlist" class="shadow">
                         <n-card>
                             <n-avatar round size="small" :src="imgbase + c.user_img" object-fit="cover" />
                             <span v-text="c.username" class=" pl-2 cursor-pointer"
@@ -27,7 +29,7 @@
                     </div>
                 </n-space>
                 <div v-show="userinfo !== undefined">
-                    <n-input v-model:value="cominp.content" type="textarea" placeholder="input" class="m-2" />
+                    <n-input v-model:value="cominp.content" type="textarea" placeholder="友善发言" class="mt-2 shadow" />
                     <n-button class="m-2 float-right" @click="sendcom(0)"> 发表</n-button>
                 </div>
                 <p v-show="userinfo === undefined">登录以发表评论</p>
@@ -71,7 +73,7 @@ onMounted(() => {
             message.error(e.message)
         })
     } else {
-       userinfo.value = JSON.parse(localStorage.getItem('userinfo')||'')
+        userinfo.value = JSON.parse(localStorage.getItem('userinfo') || '')
     }
 
     Service.getPostById(pid).then((po: PostOut) => {
@@ -103,7 +105,7 @@ function sendcom(pa: number) {
     }
     if (cominp.value.content.length > 1000) {
         message.warning('最多1000个字')
-        return  
+        return
     }
     Service.newComment(cominp.value).then(() => {
         message.success('发表成功')

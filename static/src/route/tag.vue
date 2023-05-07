@@ -2,8 +2,8 @@
     <Headers :user="userinfo" :headinfo="{ title: 'Tag->'+$route.params.name }" />
     <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20" style="min-height: calc(100vh - 170px);">
         <div class="lg:w-2/3 max-lg:w-full">
-            <n-layout v-if="posts!==undefined && posts[0]!==undefined">
-                <n-layout-content content-style="padding:15px;">
+            <n-layout v-if="posts!==undefined && posts[0]!==undefined"  style="background-color: transparent;">
+                <n-layout-content content-style="padding:15px;background-color: transparent;">
                     <n-card v-for="post in posts" class="mb-5" hoverable bordered>
                         <template #header>
                             <p v-text="post.title || '无标题'" class=" rounded-xl mb-6 cursor-pointer hover:opacity-70"
@@ -88,3 +88,8 @@ onMounted(() => {
 
 
 </script>
+<style scoped>
+.n-layout-content{
+    background-color: transparent;
+}
+</style>

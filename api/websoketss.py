@@ -48,7 +48,7 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
                 await manager.broadcast(f"{data}")
         except WebSocketDisconnect:
             manager.disconnect(websocket)
-            await manager.broadcast("{'username': '服务器', 'msg': '"+username+" left' }")
+            await manager.broadcast('{"username": "server", "left": "'+username+'" }')
         except Exception as e:
             print(e)
     except JWTError:

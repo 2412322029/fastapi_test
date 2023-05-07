@@ -39,7 +39,7 @@ const routes = [
     {
         path: '/:pathMatch(.*)',
         redirect: (to: any) => {
-            return { name: '404' }
+            return { name: 'notfound' }
         },
     },
 

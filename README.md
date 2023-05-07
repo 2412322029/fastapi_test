@@ -112,3 +112,13 @@ docker-compose up -d
 最大文件上传限制：config.yaml中的是python代码中写的限制，还取决于nginx配置文件中client_max_body_size（10m）
 
 ...未完待续
+
+
+
+## TODO
+
+- 用户发表的所有评论-删除 -（修改）
+- 对用户的所有文章评论-查看-审核
+- 文章-修改
+- tag  -添加-删除 -（修改）
+- :   自定义css,等（附件表）

@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, ref } from 'vue'
 import "./style.css"
 import App from './App.vue'
 import { router } from '@/route/router'
@@ -15,7 +15,7 @@ if (process.env.NODE_ENV == "development") {
   OpenAPI.BASE = location.origin
 }
 export const imgbase: string = OpenAPI.BASE + '/uploads/'
-
+export const msgs = ref<[{ username: string, path: string }]>([{ username: '', path: '' }])
 
 
 const app = createApp(App)

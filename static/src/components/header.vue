@@ -1,11 +1,13 @@
 <template>
-    <header class="py-1 fixed w-full top-0 bg-white z-10 " headinfo="">
+    <header id="header" class="py-1 fixed w-full top-0 bg-white z-10 shadow-md" headinfo="">
         <nav class="mx-auto flex max-w-7xl items-center justify-between px-4" aria-label="Global">
             <div class="flex flex-1 justify-start">
                 <router-link :to="{ name: 'home' }">
                     <p class=" text-4xl font-bold" v-text="headinfo.title"></p>
                 </router-link>
+
             </div>
+
             <div class="flex flex-1 justify-end">
                 <div class="flex items-center">
                     <button id="exclude1"
@@ -26,7 +28,7 @@
                         </span>
                     </button>
                 </div>
-                <div id="exclude2" :class="{ 'hidden': !showplan }" class="z-10 text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
+                <div id="exclude2" :class="{ 'hidden': !showplan }" class="z-100 text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
                                                                             shadow-md py-2 text-base mt-1">
 
                     <router-link v-if="user?.avatar !== undefined"
@@ -69,7 +71,7 @@ import login from '@/components/login.vue';
 import register from './register.vue';
 import { onMounted, ref, watch } from 'vue';
 import { imgbase } from '@/main';
-import { useMessage } from 'naive-ui'
+import { useMessage,NDropdown } from 'naive-ui'
 import { router } from '@/route/router';
 const message = useMessage()
 

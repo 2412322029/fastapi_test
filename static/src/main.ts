@@ -4,10 +4,10 @@ import App from './App.vue'
 import { router } from '@/route/router'
 import { OpenAPI } from './client/core/OpenAPI'
 import { VMdPreview, VueMarkdownEditor } from './md'
-
+import {host} from '@/host'
 
 if (process.env.NODE_ENV == "development") {
-  OpenAPI.BASE = 'http://127.0.0.1:8000'
+  OpenAPI.BASE = host
   console.log('in development')
 } else if (process.env.NODE_ENV == "production") {
   OpenAPI.BASE = location.origin
@@ -15,6 +15,7 @@ if (process.env.NODE_ENV == "development") {
   OpenAPI.BASE = location.origin
 }
 export const imgbase: string = OpenAPI.BASE + '/uploads/'
+export const usews: boolean = false
 export const msgs = ref<[{ username: string, path: string }]>([{ username: '', path: '' }])
 
 

@@ -11,6 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from api.index import api
 from config import Config
+from config.__init__ import options
 
 app = FastAPI(
     title='api docs',
@@ -38,11 +39,11 @@ for route in app.routes:
         route.operation_id = route.name
 
 if __name__ == '__main__':
-    c = Config["uvicorn"]
+    options()
     uvicorn.run(app='app:app',
-                host=c["host"],
-                port=c["port"],
+                host=Config["uvicorn"]["host"],
+                port=Config["uvicorn"]["port"],
                 reload=Config['Development'],
-                workers=c['workers'],
+                workers=Config["uvicorn"]['workers'],
                 proxy_headers=False
                 )

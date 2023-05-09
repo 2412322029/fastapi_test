@@ -52,7 +52,7 @@ docker部署nginx,mysql,python3.10,nginx反向代理/api路径(api都以/api开�
 
 ## 后端
 
-1. 安装依赖
+1. python>3.10 pip安装依赖 
 
 2. 最好使用虚拟环境
 ```bash
@@ -90,7 +90,10 @@ npm run generate-client
 
 ## docker部署
 
-nginx反向代理fastapi和静态文件目录
+git clone https://github.com/2412322029/fastapi_test
+
+编译前端代码，git clone 后上传覆盖dist目录
+
 ```bash
 docker-compose up -d
 ```
@@ -106,6 +109,24 @@ docker-compose up -d
 ## 其他
 
 修改config.yaml中的密钥，compose.yaml的mysql密码，保持mysql容器和python容器密码一致
+
+nginx反向代理ws：
+
+```
+location /{
+            proxy_pass   http://0.0.0.0:8000;
+        }
+        location /api/websocket/ {
+            proxy_hide_header X-Frame-Options;
+            proxy_pass  http://0.0.0.0:8000;
+
+            ＃代理ws
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Origin ""; 
+        }
+```
 
 
 

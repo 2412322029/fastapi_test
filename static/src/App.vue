@@ -4,7 +4,7 @@
     <n-config-provider :locale="zhCN" :date-locale="dateZhCN" preflight-style-disabled>
         <n-message-provider>
             <n-scrollbar id="hua" class="h-screen">
-                <online></online>
+                <online v-if="usews"></online>
                 <router-view />
             </n-scrollbar>
         </n-message-provider>
@@ -18,6 +18,7 @@ import { NScrollbar, NConfigProvider, zhCN, dateZhCN, NMessageProvider } from 'n
 import { ribbon } from './script/ribbon';
 import { onMounted } from 'vue';
 import online from '@/components/online.vue'
+import {usews} from '@/main'
 onMounted(() => {
     let t = localStorage.getItem('ribbon-times')
     if (t) {

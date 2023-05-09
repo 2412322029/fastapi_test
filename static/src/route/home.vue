@@ -39,14 +39,14 @@
         </div>
         <div class="lg:w-1/3 max-lg:hidden m-2">
             <n-affix :trigger-top="95"  class="absolute w-1/3 shadow-md ">
-                <n-card>
+                <n-card v-if="usews">
                    <div v-for="m in msgs">
                     <span v-if="m.username!==''">
                         <span v-text="m.username" @click="router.push({name:'user',params:{username:m.username}})" class=" cursor-pointer text-green-700"></span>
                          -> 
                          <span v-text="m.path" @click="router.push(m.path)" class=" cursor-pointer text-green-700"></span>
                         </span>
-                </div> 
+                    </div> 
                 </n-card>
                 
                 <Tags :tags="tags" />
@@ -67,7 +67,7 @@ import { watchEffect } from 'vue';
 import { imgbase } from '@/main';
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router';
-import {msgs} from '@/main'
+import {msgs,usews} from '@/main'
 
 const message = useMessage()
 const userinfo = ref<UserOut>()

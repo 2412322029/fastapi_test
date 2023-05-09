@@ -3,7 +3,8 @@ import time, json
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from jose import jwt, JWTError
 from starlette import status
-from websockets import InvalidMessage
+from websockets import InvalidMessage 
+from websockets.exceptions import ConnectionClosedError
 
 import utill.monitor
 from config import Config
@@ -38,7 +39,6 @@ manager = ConnectionManager()
 async def websocket_endpoint(websocket: WebSocket, token: str):
     try:
         payload = jwt.decode(token, Config['SECRET_KEY'], algorithms=[Config['ALGORITHM']])
-        print(payload)
         username: str = payload.get('sub')
         await manager.connect(websocket)
         try:
@@ -51,16 +51,9 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
             await manager.broadcast('{"username": "server", "left": "'+username+'" }')
         except Exception as e:
             print(e)
-    except JWTError:
-        raise InvalidMessage(status_code=status.WS_1008_POLICY_VIOLATION)
+    except JWTError as e:
+        print(e)
+    except ConnectionClosedError as e:
+        print(e)
 
 
-@webapp.websocket("/cpu")
-async def cpu_webs(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            time.sleep(1)
-            await manager.send_personal_message(json.dumps(utill.monitor.getcpumsg()), websocket)
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)

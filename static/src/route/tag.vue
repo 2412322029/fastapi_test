@@ -79,6 +79,8 @@ onMounted(() => {
             localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
         }).catch((e: ApiError) => {
             message.error(e.message)
+            localStorage.removeItem('userinfo')
+            localStorage.removeItem('token')
         })
     } else {
        userinfo.value = JSON.parse(localStorage.getItem('userinfo')||'')

@@ -24,7 +24,7 @@ async def get_session():
             yield session
         finally:
             await session.close()
-
+    await engine.dispose()
 
 if __name__ == '__main__':
     ...

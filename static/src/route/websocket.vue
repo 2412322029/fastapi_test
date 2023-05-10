@@ -41,6 +41,8 @@ onMounted(() => {
         userinfo.value = u
     }).catch((e: ApiError) => {
         message.error(e.message)
+        localStorage.removeItem('userinfo')
+        localStorage.removeItem('token')
     })
     let url = `${OpenAPI.BASE.replace('http', 'ws')}/api/websocket/join?token=${OpenAPI.TOKEN}`
 

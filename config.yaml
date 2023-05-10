@@ -1,9 +1,10 @@
 
 Development: false
 
+Access_statistics: true #API访问统计
 # 跨域规则
 allow_origins:
-    - '*'
+    - ''
 
 # 匹配一个字符串
 allow_origin_regex: 'https://.*\.unrun\.top'

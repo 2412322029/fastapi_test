@@ -51,7 +51,7 @@ async def register(request: Request, user_in: UserCreate, uuid: str, code: str,
         if b:
             await crud.create_user(session, user_in)
             u = await crud.findUser_by_name(session, user_in.username)
-            return RegisterSuccess.from_userOut(userout=u, detail=msg+",注册成功")
+            return RegisterSuccess.from_userOut(userout=u, detail=msg + ",注册成功")
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
     else:
@@ -127,7 +127,7 @@ async def update_avatar(request: Request, avatar_new: UploadFile, session: Async
 @userapp.post("/upload_file/",
               response_model=UploadSuccess,
               dependencies=[Depends(get_current_user)],
-             summary='图片文件上传')
+              summary='图片文件上传')
 @limiter.limit(limit_value="5/minute")
 async def create_upload_file(request: Request, file: UploadFile):
     return await upload(file)
@@ -160,6 +160,7 @@ async def get_code(request: Request):
 
 
 @userapp.get("/verify_code", summary='验证')
+@limiter.limit(limit_value="10/minute")
 async def verify_code(uuid: str, code: str, request: Request):
     b, msg = await gen.verifyCode(uu=uuid, cc=code)
     if b:

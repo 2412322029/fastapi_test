@@ -93,7 +93,6 @@ class Comment(Base):
         return f'<Comment> id={self.post_id},content={self.content} ...'
 
 
-
 def main():
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker

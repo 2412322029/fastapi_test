@@ -39,9 +39,7 @@ class PathMiddleware(BaseHTTPMiddleware):
                     api_path_count.update({path: count + 1})
 
                     ip_count.update({
-                        (request.client.host,
-                         request.headers.get('User-Agent')
-                         ): (ip_count.get((request.client.host, request.headers.get('User-Agent'))) or 0) + 1
+                         request.headers.get('User-Agent'): (ip_count.get(request.headers.get('User-Agent')) or 0) + 1
                     })
             if len(ip_count) > 100:
                 ip_count = dict(list(ip_count)[:100])

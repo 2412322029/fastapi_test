@@ -371,7 +371,7 @@ async def delete_post(session: AsyncSession, post_id: int, username: str) -> str
         if post is None:
             raise HTTPException(status_code=404, detail="Post not found")
         user = await get_user(session, username)
-        if user.id != post.user_id:
+        if user.id_ != post.user_id:
             raise HTTPException(status_code=401, detail=f"You are not authorized to delete this post,"
                                                         f" this post belong to {user.username}")
         # 删除对应postTag
@@ -500,7 +500,7 @@ async def newComment(session: AsyncSession, cin: CommentIn) -> str:
         return '发表成功'
     except Exception as e:
         await session.rollback()
-        raise e
+        # raise e
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='发表评论失败' + str(e))
 
 
@@ -623,5 +623,4 @@ async def del_comments(session: AsyncSession, username: str, cid: int):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='删除失败' + str(e))
 
 
-if __name__ == '__main__':
-    ...
+

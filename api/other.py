@@ -10,7 +10,7 @@ async def other_task(email: str, background_tasks: BackgroundTasks):
     return {"message": "Notification sent in the background"}
 
 
-@otherApp.get("/count")
+@otherApp.get("/api_ua_count")
 async def count():
     return ip_count.__str__()
 

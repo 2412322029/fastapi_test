@@ -10,6 +10,7 @@ from starlette.responses import JSONResponse
 from api.index import api
 from config import Config
 from config.__init__ import options
+from sql.database import engine
 from utill.middleware import PathMiddleware
 
 app = FastAPI(
@@ -45,6 +46,11 @@ async def custom_http_exception_handler(request: Request, exc):
     else:
         html_file = open("static/dist/index.html", 'r').read()
         return HTMLResponse(html_file)
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await engine.dispose()
 
 
 if __name__ == '__main__':

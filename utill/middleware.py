@@ -39,8 +39,13 @@ class PathMiddleware(BaseHTTPMiddleware):
                     api_path_count.update({path: count + 1})
 
                     ip_count.update({
-                         request.headers.get('User-Agent'): (ip_count.get(request.headers.get('User-Agent')) or 0) + 1
+                        request.headers.get('User-Agent'): (ip_count.get(request.headers.get('User-Agent')) or 0) + 1
                     })
             if len(ip_count) > 100:
                 ip_count = dict(list(ip_count)[:100])
+        path = str(request.url).replace(str(request.base_url), '')
+        if path.startswith('uploads/') or path.endswith(('.js', '.css', '.html', '.svg', '.png', '.jpg', '.ico')):
+            response.headers.update({'Cache-Control': 'max-age=8640'})
+        elif path.startswith('api/'):
+            response.headers.update({'Cache-Control': 'no-cache'})
         return response

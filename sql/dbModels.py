@@ -84,7 +84,7 @@ class Comment(Base):
     parent_id = Column(Integer, nullable=False)
     uid = Column(Integer, ForeignKey('tb_user.id'), nullable=False)
     content = Column(Text, nullable=False)
-    state = Column(Integer, nullable=False, comment='状态id', default=1)
+    state = Column(Integer, nullable=False, comment='状态id', default=0)
     created_at = Column(DateTime, default=func.now(), server_default=func.now(), nullable=False, comment='创建时间')
 
     # under_post = relationship("Post", back_populates="own_comments")  # 所属文章

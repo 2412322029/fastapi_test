@@ -9,7 +9,7 @@
                     <p> {{ x.username }}</p>
                 </div>
                 <div class="">
-                    <div class=" border-sky-700 border-x-2 border-y-2 p-2 rounded "> {{ x.msg }}</div>
+                    <div class=" border-sky-700 border-x-2 border-y-2 p-2 rounded "> {{ x.path }}</div>
                 </div>
             </div>
 
@@ -26,14 +26,18 @@
 import { ref, onMounted } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError } from '@/client'
 import Headers from '@/components/header.vue';
-import { imgbase } from '@/main';
+import { imgbase, usews } from '@/main';
 import { useMessage } from 'naive-ui'
+
+if (usews===false) {
+    location.href='/'
+}
 const message = useMessage()
 const userinfo = ref<UserOut>()
 
 
 const msg = ref('')
-const msgs = ref<Array<{ username: string, msg: string, a: string }>>([])
+const msgs = ref<Array<{ username: string, path: string, a: string }>>([])
 let ws: WebSocket
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
@@ -86,7 +90,7 @@ const send = (m: string) => {
         message.error('消息为空')
         return
     }
-    ws.send(JSON.stringify({ 'username': userinfo.value?.username, "msg": m }))
+    ws.send(JSON.stringify({ 'username': userinfo.value?.username, "path": m }))
 }
 
 

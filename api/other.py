@@ -1,5 +1,6 @@
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends
 from utill.middleware import ip_count, api_path_count
+from api.adminapi import get_admin
 
 otherApp = APIRouter()
 
@@ -10,12 +11,12 @@ async def other_task(email: str, background_tasks: BackgroundTasks):
     return {"message": "Notification sent in the background"}
 
 
-@otherApp.get("/api_ua_count")
+@otherApp.get("/api_ua_count", dependencies=[Depends(get_admin)])
 async def count():
-    return ip_count.__str__()
+    return ip_count
 
 
-@otherApp.get("/api_count")
+@otherApp.get("/api_count", dependencies=[Depends(get_admin)])
 async def api_count():
     return api_path_count
 

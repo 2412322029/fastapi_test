@@ -42,7 +42,7 @@
 
         </div>
     </div>
-    <n-back-top :right="100" />
+    <n-back-top :right="40" />
     <Footer />
 </template>
 <script setup lang="ts">
@@ -87,7 +87,7 @@ onMounted(() => {
     }
 
 })
-
+document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0,0);
 
 </script>
 <style scoped>

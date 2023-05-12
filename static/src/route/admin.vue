@@ -1,7 +1,7 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: '管理' }" />
     <div v-if="userinfo" class="mx-auto flex max-w-7xl items-center flex-col px-4 top-20 relative">
-        <n-tabs type="line" animated size="large">
+        <n-tabs ref="tabsInstRef" type="line" animated size="large"  justify-content="center"   v-model:value="tabnow">
             <n-tab-pane name="setting" tab="设置" display-directive="show:lazy">
                 <n-table striped>
                     <tbody>
@@ -46,6 +46,34 @@
                     </tbody>
                 </n-table>
             </n-tab-pane>
+            <n-tab-pane name="api" tab="api访问统计" display-directive="show:lazy">
+                <n-table striped>
+                    <thead>
+                        <th>path <button @click="show_api_count()">刷新</button></th>
+                        <th>count</th>
+                    </thead>
+                    <tbody>
+                        <tr v-for="a in api_path_count" :key="a[0]">
+                            <td v-text="a[0]"></td>
+                            <td v-text="a[1]"></td>
+                        </tr>
+                    </tbody>
+                </n-table>
+            </n-tab-pane>
+            <n-tab-pane name="ua" tab="UA访问统计" display-directive="show:lazy">
+                <n-table striped>
+                    <thead>
+                        <th>UA <button @click="show_us_count()">刷新</button></th>
+                        <th>count</th>
+                    </thead>
+                    <tbody>
+                        <tr v-for="a in ua_count" :key="a[0]">
+                            <td v-text="a[0]"></td>
+                            <td v-text="a[1]"></td>
+                        </tr>
+                    </tbody>
+                </n-table>
+            </n-tab-pane>
 
         </n-tabs>
 
@@ -55,16 +83,31 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError } from '@/client'
 import Headers from '@/components/header.vue';
 import CPU from '@/components/cpu.vue';
-import { useMessage, NTable, NSwitch, NTabs, NTabPane } from 'naive-ui'
+import { useMessage, NTable, NSwitch, NTabs, NTabPane, TabsInst } from 'naive-ui'
 import { imgbase } from '@/main';
 
 const message = useMessage()
 const userinfo = ref<UserOut>()
-
+const api_path_count = ref()
+const ua_count = ref()
+const show_api_count = () => {
+    Service.apiCount().then((res) => {
+        api_path_count.value = Object.keys(res).map(function (e) { return [e,res[e]]});
+    }).catch((e: ApiError) => {
+        message.error(e.message)
+    })
+}
+const show_us_count = () => {
+    Service.count().then((res) => {
+        ua_count.value = Object.keys(res).map(function (e) { return [e,res[e]]});
+    }).catch((e: ApiError) => {
+        message.error(e.message)
+    })
+}
 
 const isr = ref()
 const isl = ref()
@@ -76,6 +119,7 @@ const showalluser = () => {
         message.error(e.message)
     })
 }
+
 onMounted(() => {
     OpenAPI.TOKEN = localStorage.getItem("token") as string
     Service.admininfo().then((u: UserOut) => {
@@ -113,6 +157,34 @@ const tj2 = () => {
     })
 }
 
+const tabsInstRef = ref<TabsInst>()
+const tabnow = ref('')
+setTimeout(() => {
+    let prx = location.hash.toString().replace("#", "")
+    if (prx == 'setting' || prx == 'user' || prx == 'api' ) {
+        tabnow.value = prx
+    } else {
+        tabnow.value = 'setting'
+    }
+}, 500);
+watch(tabnow, (newv) => {
+    location.hash = newv
+    if (newv==='api' && !api_path_count.value) {
+        show_api_count()
+    }
+    if (newv==='ua' && !ua_count.value) {
+        show_us_count()
+    }
+    document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0,0);
+})
+
 </script>
 
-<style scoped></style>
+<style>
+.n-tabs-nav--line-type.n-tabs-nav--top.n-tabs-nav {
+    position: sticky;
+    top: 56px;
+    z-index: 9;
+    background-color: white;
+}
+</style>

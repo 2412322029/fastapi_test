@@ -55,6 +55,14 @@ async def is_allow_register():
     return Allow_register
 
 
+@adminapp.put("/review_user",
+              dependencies=[Depends(get_admin)],
+              summary='用户审核/封禁',
+              description='gid=0正常,2审核中,3封禁')
+async def review_user(uid:int=Query(default=...), group_id:crud.Ugroup=Query(default=...), session: AsyncSession = Depends(get_session)):
+    await crud.review_user(session, uid, group_id)
+
+
 @adminapp.get("/is_limiter",
               response_model=bool,
               summary='返回是否开启接口频率限制',

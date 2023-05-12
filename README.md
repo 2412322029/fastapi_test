@@ -12,18 +12,16 @@
 
  + server
 
-  + fastapi+sqlalchemy 实现 RESTful API与api文档自动生成，pydantic数据校验
-  + 前后端鉴权使用[OAuth2 实现 Bearer JWT 令牌](https://fastapi.tiangolo.com/zh/tutorial/security/oauth2-jwt/)
-  + slowapi限制api速率
-  + 简单websockets与api监控(python库 psutil)
-  + Pillow库生成简单验证码(扒的代码),文本文件缓存验证码
-  + 意义不大的异步aiomysql,aiofiles(异步的session导致写起来很麻烦)
+   + fastapi sqlalchemy aiomysql实现 RESTful API与api文档自动生成，pydantic数据校验
+   + 前后端鉴权使用[OAuth2 实现 Bearer JWT 令牌](https://fastapi.tiangolo.com/zh/tutorial/security/oauth2-jwt/)
+   + slowapi限制api速率
+   + 访问统计
+   + Pillow库生成简单验证码,文本文件缓存验证码
 
 + client
 
   + vite+ts+vue3+vue-router+navie-ui
   + openapi-generate-typescript自动生成axios请求代码
-  + tailwindcss，css in html
   + markdown解析和高亮使用highlight.js,编辑器[v-md-editor](https://code-farmer-i.github.io/vue-markdown-editor/zh/)
 
   
@@ -35,7 +33,6 @@ docker部署nginx,mysql,python3.10,nginx反向代理/api路径(api都以/api开�
 ```
 ├─static // vite构建目录
 |   ├─dist //nginx静态文件挂载
-├─nginx //nginx配置和日志文件
 ├─data/mysql //mysql数据，docker挂载目录
 ├─uploads //文件上传目录
 ├─utill //验证码生成/校验,cpu监控

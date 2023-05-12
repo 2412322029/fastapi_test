@@ -20,7 +20,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=Config['allow_origins'],
+    # allow_origins=Config['allow_origins'],
     allow_origin_regex=Config['allow_origin_regex'],
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,7 +39,7 @@ async def custom_http_exception_handler(request: Request, exc):
     # api/开头的请求都有正确的错误响应， 其他作回退路由返回index.html配合vue-route history模式
     path = str(request.url).replace(str(request.base_url), '')
     if path.startswith('api/'):
-        print(path)
+        # print(path)
         return JSONResponse(
             status_code=exc.status_code,
             content={'detail': str(exc.detail)})

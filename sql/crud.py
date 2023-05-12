@@ -1,5 +1,5 @@
 from typing import Optional, List
-
+from enum import Enum
 from fastapi import HTTPException
 from sqlalchemy import func, delete, and_, desc
 from sqlalchemy.exc import IntegrityError
@@ -77,6 +77,7 @@ async def create_user(session: AsyncSession, usercreate: UserCreate):
         session.add(User(
             username=usercreate.username,
             password=usercreate.password,
+            group_id=Ugroup.in_review,
             avatar='default.jpg')
         )
         await session.commit()
@@ -145,7 +146,7 @@ async def change_user_avatar(session: AsyncSession, username: str, fileinfo: Upl
 
 
 async def get_all_user(session: AsyncSession) -> list[UserOut | None]:
-    r = await session.execute(select(User).where(User.group_id == 0))
+    r = await session.execute(select(User).where(User.group_id != Ugroup.administrators))
     users = r.scalars().all()
     return [UserOut(
         id_=user.id,
@@ -156,6 +157,28 @@ async def get_all_user(session: AsyncSession) -> list[UserOut | None]:
         created_at=user.created_at,
         updated_at=user.updated_at
     ) for user in users]
+
+class Ugroup(Enum):
+    normal=0
+    administrators=1
+    in_review=2
+    ban=3
+
+
+async def review_user(session: AsyncSession,uid:int, group_id:Ugroup):
+    try:
+        r = await session.execute(select(User).where(User.id == uid))
+        user = r.scalar_one_or_none()
+        if user.group_id==Ugroup.administrators:
+            return '不可更改管理员状态'
+        if user:
+            user.group_id = group_id
+            user.updated_at = func.now()
+            await session.commit()
+        return '更新成功'
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="未知错误" + str(e))
 
 
 async def delete_user(session: AsyncSession, username: str):
@@ -210,6 +233,10 @@ async def new_post(session: AsyncSession, a_post: PostInDB) -> PostOut:
         user = user.scalar_one_or_none()
         if user is None:
             raise HTTPException(status_code=404, detail="your username not found, cannot new post")
+        if user.group_id ==Ugroup.in_review :
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='账号正在审核,无法发表')
+        if user.group_id ==Ugroup.ban :
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='账号被封禁,无法发表')
         # 创建新的文章
         post = Post(title=a_post.title, content=a_post.content, user_id=user.id)
         session.add(post)
@@ -231,6 +258,8 @@ async def new_post(session: AsyncSession, a_post: PostInDB) -> PostOut:
             await session.commit()
         await updateTagCount(session)
         return await get_post_ById(session, post.id)
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
         # raise e
@@ -348,16 +377,22 @@ async def update_post_authorized(session: AsyncSession, post_id: int, title: str
         if post is None:
             raise HTTPException(status_code=404, detail="Post not found")
         uid: int = post.user_id
-        author = await session.execute(select(User.username).where(User.id == uid))
-        author = author.scalar_one_or_none()
-        if author != username:
+        user = await session.execute(select(User.username).where(User.id == uid))
+        user = user.scalar_one_or_none()
+        if user.group_id ==Ugroup.in_review :
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='账号正在审核,无法发表')
+        if user.group_id ==ban :
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='账号被封禁,无法发表')
+        if user.username != username:
             raise HTTPException(status_code=403,
-                                detail=f"You are not authorized to update this post, this post belong to {author}")
+                                detail=f"You are not authorized to update this post, this post belong to {user.username}")
         post.title = title
         post.content = content
         post.updated_at = func.now()
         await session.commit()
         return '更新成功'
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
         # raise e
@@ -384,6 +419,8 @@ async def delete_post(session: AsyncSession, post_id: int, username: str) -> str
         await session.delete(post)
         await session.commit()
         return '删除成功'
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='删除post失败,' + str(e))
@@ -399,6 +436,8 @@ async def new_tag(session: AsyncSession, a_tag: ANewTag):
         session.add(tag)
         await session.commit()
         return '新建成功'
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
         # raise e
@@ -417,6 +456,8 @@ async def del_tag(session: AsyncSession, tag_id: int):
         await session.execute(delete(Tag).where(Tag.id == tag_id))
         await session.commit()
         return '删除成功'
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
         # raise e
@@ -456,6 +497,8 @@ async def add_tag_to_post_authorized(session: AsyncSession, post_id: int, tag_na
         await session.commit()
         await updateTagCount(session)
         return '更新成功'
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='更新失败' + str(e))
@@ -476,9 +519,13 @@ async def get_posts_ByTagPage(session: AsyncSession, tag_name: str, page: int, p
 
 async def newComment(session: AsyncSession, cin: CommentIn) -> str:
     try:
-        user = await findPubUser_by_name(session, cin.username)
+        user = await findUser_by_name(session, cin.username)
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户id不存在,无法发表')
+        if user.group_id ==Ugroup.in_review :
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='账号正在审核,无法发表')
+        if user.group_id ==Ugroup.ban :
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='账号被封禁,无法发表')
         post = await session.execute(select(Post).where(Post.id == cin.post_id))
         post = post.scalar_one_or_none()
         if post is None:
@@ -488,16 +535,21 @@ async def newComment(session: AsyncSession, cin: CommentIn) -> str:
             p_comm = p_comm.scalar_one_or_none()
             if p_comm is None:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='回复的评论不存在,无法发表')
+            if p_comm.state==0:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='回复的评论正在审核,无法发表')
         comm = Comment(
             post_id=cin.post_id,
             parent_id=cin.parent_id,
             uid=user.id_,
+            status=0,
             content=cin.content,
             created_at=func.now(),
         )
         session.add(comm)
         await session.commit()
         return '发表成功'
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
         # raise e
@@ -507,12 +559,11 @@ async def newComment(session: AsyncSession, cin: CommentIn) -> str:
 async def get_post_comm(session: AsyncSession, pid: int) -> List[CommentPostOut]:
     try:
         # 查询所有顶级评论
-        result = await session.execute(select(Comment).where(and_(Comment.post_id == pid, Comment.parent_id == 0)))
+        result = await session.execute(select(Comment).where(and_(Comment.post_id == pid, Comment.parent_id == 0, Comment.state==1)))
         top_comments = result.scalars().all()
-
         # 递归查询子评论
         async def get_child_comments(comment):
-            r = await session.execute(select(Comment).where(Comment.parent_id == comment.id))
+            r = await session.execute(select(Comment).where(Comment.parent_id == comment.id, Comment.state==1))
             child_comments = r.scalars().all()
             reply = None
             if child_comments:
@@ -569,30 +620,62 @@ async def get_comm_to_user(session: AsyncSession, username: str) -> List[Optiona
                     ))
         # print(comm_list)
         return comm_list
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
         # raise e
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='查询用户失败' + str(e))
 
+async def get_users_comm(session: AsyncSession, username: str) -> List[Optional[CommentUserOut]]:
+    try:
+        user = await get_user(session, username)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
+        comm = await session.execute(select(Comment).where(Comment.uid == user.id_))
+        comm = comm.scalars().fetchall()
+        for c in comm:  
+            comm_list.append(CommentUserOut(
+                id_=c.id,
+                post_id=c.post_id,
+                parent_id=c.parent_id,
+                username=user.username,
+                user_img=user.avatar,
+                content=c.content,
+                state=c.state,
+                created_at=c.created_at
+            ))
+        # print(comm_list)
+        return comm_list
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        await session.rollback()
+        # raise e
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='查询用户失败' + str(e))
 
-# async def review_comments(session: AsyncSession, username: str, cid: int):
-#     try:
-#         comm = await session.execute(select(Comment).where(Comment.id == cid))
-#         comm = comm.scalar_one_or_none()
-#         if comm is None:
-#             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='评论不存在')
-#         pid = comm.post_id
-#         post = await get_post_ById(pid)
-#         if username != post.author:
-#             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f'这不是你的文章,author:{post.author}')
-#         if comm.state == 1:
-#             comm.state = 0
-#             await session.commit()
-#             return ''
-#     except Exception as e:
-#         await session.rollback()
-#         # raise e
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='修改失败' + str(e))
+async def review_comments(session: AsyncSession, username: str, cid: int, passed: bool):
+    try:
+        comm = await session.execute(select(Comment).where(Comment.id == cid))
+        comm = comm.scalar_one_or_none()
+        if comm is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='评论不存在')
+        pid = comm.post_id
+        post = await get_post_ById(pid)
+        if username != post.author:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f'这不是你的文章的评论,author:{post.author}')
+        if passed:
+            comm.state = 1
+        if not passed:
+            comm.state = 0
+        await session.commit()
+
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        await session.rollback()
+        # raise e
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='修改失败' + str(e))
 
 
 async def del_comments(session: AsyncSession, username: str, cid: int):
@@ -603,8 +686,10 @@ async def del_comments(session: AsyncSession, username: str, cid: int):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='评论不存在')
         pid = comm.post_id
         post = await get_post_ById(session, pid)
-        if username != post.author:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f'这不是你的文章,author:{post.author}')
+        uid = (await get_user(session, username)).id_
+        group_id = (await get_user(session, username)).group_id
+        if username != post.author and uid != comm.uid and group_id != Ugroup.administrators:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f'没有权限删除')
 
         # TODO:级联删除
         async def delete_comment(comid: int):
@@ -617,6 +702,8 @@ async def del_comments(session: AsyncSession, username: str, cid: int):
         await delete_comment(comid=cid)
         await session.commit()
         return '删除成功'
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
         # raise e

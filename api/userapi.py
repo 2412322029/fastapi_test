@@ -24,7 +24,7 @@ userapp = APIRouter()
               response_model=Token,
               summary='登录返回获取token',
               description='50 pre minute')
-@limiter.limit(limit_value="50/minute")
+@limiter.limit(limit_value="5/minute")
 async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends(),
                                  session: AsyncSession = Depends(get_session)):
     user = await authenticate_user(session=session, username=form_data.username, password=form_data.password)
@@ -34,6 +34,8 @@ async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequ
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    if user.group_id == 3 :
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='账号被封禁,无法登录')
     access_token_expires = timedelta(minutes=Config['ACCESS_TOKEN_EXPIRE_MINUTES'])
     access_token = await create_access_token(
         data={"sub": user.username, "id": user.id_, 'gid': user.group_id},
@@ -116,7 +118,7 @@ async def update_password(old_password: str, password_new: str,
 @userapp.put("/update_avatar",
              response_model=UploadSuccess,
              summary='更新用户头像')
-@limiter.limit(limit_value="5/minute")
+@limiter.limit(limit_value="2/minute")
 async def update_avatar(request: Request, avatar_new: UploadFile, session: AsyncSession = Depends(get_session),
                         current_user: TokenData = Depends(get_current_user)):
     fileinfo = await upload(avatar_new)
@@ -128,7 +130,7 @@ async def update_avatar(request: Request, avatar_new: UploadFile, session: Async
               response_model=UploadSuccess,
               dependencies=[Depends(get_current_user)],
               summary='图片文件上传')
-@limiter.limit(limit_value="5/minute")
+@limiter.limit(limit_value="2/minute")
 async def create_upload_file(request: Request, file: UploadFile):
     return await upload(file)
 
@@ -153,7 +155,7 @@ async def upload(file: UploadFile):
 
 
 @userapp.get("/get_code", summary='获取验证码', response_model=respCode)
-@limiter.limit(limit_value="10/minute")
+@limiter.limit(limit_value="5/minute")
 async def get_code(request: Request):
     base64_img, u = await gen.generateCode()
     return respCode(uuid=u, img=base64_img)

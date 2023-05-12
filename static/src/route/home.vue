@@ -14,13 +14,14 @@
                         <template #header-extra>
                             <div class=" cursor-pointer flex justify-between items-center"
                                 @click="router.push({ name: 'user', params: { username: post.author } })">
-                                <n-avatar round size="small" :src="imgbase + post.author_img" object-fit="cover"/>
+                                <n-avatar round size="small" :src="imgbase + post.author_img" object-fit="cover" />
                                 <span v-text="post.author" class=" pl-2"></span>
                             </div>
                         </template>
                         <template #footer>
-                            <n-tag type="info" round v-for="t in post.tags" @click="" class=" cursor-pointer mx-1 hover:shadow">
-                            <span @click="$router.push('tag/'+t)">{{ t }}</span>
+                            <n-tag type="info" round v-for="t in post.tags" @click=""
+                                class=" cursor-pointer mx-1 hover:shadow">
+                                <span @click="$router.push('tag/' + t)">{{ t }}</span>
                             </n-tag>
                         </template>
                         <template #action>
@@ -38,26 +39,28 @@
             </n-layout>
         </div>
         <div class="lg:w-1/3 max-lg:hidden m-2">
-            <n-affix :trigger-top="95"  class="absolute w-1/3 shadow-md ">
+            <n-affix :trigger-top="95" class="absolute w-1/3 shadow-md ">
                 <n-card v-if="usews">
-                   <div v-for="m in msgs">
-                    <span v-if="m.username!==''">
-                        <span v-text="m.username" @click="router.push({name:'user',params:{username:m.username}})" class=" cursor-pointer text-green-700"></span>
-                         -> 
-                         <span v-text="m.path" @click="router.push(m.path)" class=" cursor-pointer text-green-700"></span>
+                    <div v-for="m in msgs">
+                        <span v-if="m.username !== ''">
+                            <span v-text="m.username" @click="router.push({ name: 'user', params: { username: m.username } })"
+                                class=" cursor-pointer text-green-700"></span>
+                            ->
+                            <span v-text="m.path" @click="router.push(m.path)"
+                                class=" cursor-pointer text-green-700"></span>
                         </span>
-                    </div> 
+                    </div>
                 </n-card>
-                
+
                 <Tags :tags="tags" />
             </n-affix>
         </div>
     </div>
-    <n-back-top :right="100" />
+    <n-back-top :right="40" />
     <Footer />
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { OpenAPI, Service, UserOut, ApiError, PostOutPage, PostOut, TagInDB } from '@/client'
 import Headers from '@/components/header.vue';
 import Footer from '@/components/footer.vue';
@@ -67,7 +70,7 @@ import { watchEffect } from 'vue';
 import { imgbase } from '@/main';
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router';
-import {msgs,usews} from '@/main'
+import { msgs, usews } from '@/main'
 
 const message = useMessage()
 const userinfo = ref<UserOut>()
@@ -86,26 +89,23 @@ function getpost(page: number, pagesize: number) {
         tags.value = t
     })
 }
+OpenAPI.TOKEN = localStorage.getItem("token") as string
+if (!localStorage.getItem('userinfo') || !OpenAPI.TOKEN) {
+    Service.userinfo().then((u: UserOut) => {
+        userinfo.value = u
+        localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
+    }).catch((e: ApiError) => {
+        message.error(e.message)
+    })
+} else {
+    userinfo.value = JSON.parse(localStorage.getItem('userinfo') || '')
+}
+getpost(page.value, pagesize.value)
 watchEffect(() => getpost(page.value, pagesize.value))
-onMounted(() => {
-    OpenAPI.TOKEN = localStorage.getItem("token") as string
-    if (!localStorage.getItem('userinfo') || !OpenAPI.TOKEN) {
-        Service.userinfo().then((u: UserOut) => {
-            userinfo.value = u
-            localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
-        }).catch((e: ApiError) => {
-            message.error(e.message)
-        })
-    } else {
-       userinfo.value = JSON.parse(localStorage.getItem('userinfo')||'')
-    }
-
-})
-
+document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0,0);
 
 </script>
 <style scoped>
-.n-layout-content{
+.n-layout-content {
     background-color: transparent;
-}
-</style>
+}</style>

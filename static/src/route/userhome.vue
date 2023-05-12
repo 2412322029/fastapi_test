@@ -1,10 +1,15 @@
 <template>
-    <Headers v-if="!isme" :user="myself" :headinfo="{ title: '用户:' + route.params.username.toString() }" />
-    <Headers v-if="isme" :user="userinfo" :headinfo="{ title: '个人中心' }" />
+    <Headers :user="userinfo" :headinfo="isme ? { title: '个人中心' } : { title: '用户:' + route.params.username.toString() }"
+        @me="isme = true" />
     <div class="mx-auto flex max-w-7xl justify-between px-4 relative mb-20"
         style="top:56px;min-height: calc(100vh - 100px);">
         <n-tabs ref="tabsInstRef" type="line" animated size="large" justify-content="center" v-model:value="tabnow"
             class="mt-3">
+            <n-tab-pane name="self" :tab="isme ? '我的' : '用户:' + route.params.username.toString()"
+                display-directive="show:lazy" @vnode-mounted="getcom()">
+                <div v-if="isme">{{ userinfo }}</div>
+                <div v-else>{{ pubuserinfo }}</div>
+            </n-tab-pane>
             <n-tab-pane name="post" tab="文章" display-directive="show:lazy">
                 <n-layout v-if="posts?.total !== 0 && posts !== undefined" style="background-color: transparent;">
                     <n-layout-content content-style="padding:15px;background-color: transparent;">
@@ -54,14 +59,14 @@
                 </n-layout>
                 <n-empty v-else description="没有文章"></n-empty>
             </n-tab-pane>
-            <n-tab-pane name="tags" tab="tags" display-directive="show:lazy">
+            <n-tab-pane name="tags" tab="标签" display-directive="show:lazy">
                 <Tags v-if="tags?.length !== 0" :tags="tags" />
                 <n-empty v-else description="没有tag"></n-empty>
             </n-tab-pane>
             <n-tab-pane v-if="isme" name="new" tab="写文章" display-directive="show:lazy">
                 <newpost />
             </n-tab-pane>
-            <n-tab-pane v-if="isme" name="comm" tab="评论" display-directive="show:lazy" @vnode-mounted="getcom()">
+            <n-tab-pane v-if="isme" name="comm" tab="评论审核" display-directive="show:lazy" @vnode-mounted="getcom()">
                 <n-button strong secondary circle type="primary" @click="getcom()">
                     更新
                 </n-button>
@@ -78,6 +83,10 @@
                         </n-card>
                     </div>
                 </n-space>
+            </n-tab-pane>
+            <n-tab-pane name="mycomm" :tab="isme ? '我的评论' : 'TA的评论'" display-directive="show:lazy"
+                @vnode-mounted="getcom()">
+                xx
             </n-tab-pane>
             <n-tab-pane v-if="isme" name="setting" tab="设置" display-directive="show:lazy">
                 <n-table :striped="true" :single-line="false">
@@ -133,12 +142,10 @@ import Headers from '@/components/header.vue';
 import newpost from '@/components/new_post.vue';
 import { imgbase } from '@/main'
 import { useMessage } from 'naive-ui'
-import { blob } from 'stream/consumers';
 const message = useMessage()
 const router = useRouter()
 const route = useRoute()
 const userinfo = ref<UserOut>()
-const myself = ref<UserOut>()
 const pubuserinfo = ref<PubUserInfo>()
 const isme = ref(false)
 const tags = ref<Array<TagInDB>>()
@@ -164,15 +171,7 @@ onMounted(() => {
         OpenAPI.USERNAME = JSON.parse(localStorage.getItem("userinfo") || '').username
     }
     if (OpenAPI.USERNAME == route.params.username) {
-        Service.userinfo().then((u: UserOut) => {
-            userinfo.value = u
-            isme.value = true
-            gettags(userinfo.value.username)
-        }).catch((e: ApiError) => {
-            message.error(e.message + e.body.detail)
-            localStorage.removeItem('userinfo')
-            localStorage.removeItem('token')
-        })
+        isme.value = true
     } else {
         Service.publishUserInfo(route.params.username as string).then((up: PubUserInfo) => {
             pubuserinfo.value = up
@@ -181,17 +180,17 @@ onMounted(() => {
             message.error(e.message + e.body.detail)
             router.push({ name: 'notfound' })
         })
-        if (localStorage.getItem("token")) {
-            OpenAPI.TOKEN = localStorage.getItem("token") as string
-            Service.userinfo().then((u: UserOut) => {
-                myself.value = u
-            }).catch((e: ApiError) => {
-                message.error(e.message)
-                localStorage.removeItem('userinfo')
-                localStorage.removeItem('token')
-            })
-        }
+    }
+    if (localStorage.getItem("token")) {
+        Service.userinfo().then((u: UserOut) => {
+            userinfo.value = u
+            gettags(userinfo.value.username)
 
+        }).catch((e: ApiError) => {
+            message.error(e.message)
+            localStorage.removeItem('userinfo')
+            localStorage.removeItem('token')
+        })
     }
 })
 function gettags(name: string) {
@@ -262,18 +261,19 @@ const rib = () => {
     localStorage.setItem('ribbon-times', times.value.toString())
     router.push({ name: 'home' })
 }
-const tabsInstRef = ref<TabsInst | null>(null)
+const tabsInstRef = ref<TabsInst>()
 const tabnow = ref('')
 setTimeout(() => {
     let prx = location.hash.toString().replace("#", "")
-    if (prx == 'post' || prx == 'tags' || prx == 'new' || prx == 'comm' || prx == 'setting') {
+    if (prx == 'self' || prx == 'post' || prx == 'tags' || prx == 'new' || prx == 'comm' || prx == 'mycomm' || prx == 'setting') {
         tabnow.value = prx
     } else {
-        tabnow.value = 'post'
+        tabnow.value = 'self'
     }
 }, 500);
 watch(tabnow, (newv) => {
     location.hash = newv
+    document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0, 0);
 })
 
 </script>
@@ -289,8 +289,5 @@ watch(tabnow, (newv) => {
     top: 56px;
     z-index: 9;
     background-color: white;
-    /* --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
-    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow); */
 }
 </style>

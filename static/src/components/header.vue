@@ -30,20 +30,22 @@
                 </div>
                 <div id="exclude2" :class="{ 'hidden': !showplan }" class="z-100 text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
                                                                             shadow-md py-2 text-base mt-1">
+                    <!-- <a v-if="user?.avatar !== undefined" :href="'/user/'+user.username" target="_blank" -->
 
-                    <router-link v-if="user?.avatar !== undefined"
-                        :to="{ name: 'user', params: { username: user.username } }"
+                    <button v-if="user?.avatar !== undefined"
+                        @click="$router.push({ name: 'user', params: { username: user.username } }); $emit('me'); showplan = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         <img class="overflow-hidden object-cover rounded-full" style="width: 40px;height: 40px;"
                             :alt="user.username + '的个人中心'" :src="imgbase + user.avatar">
-                        <span class="p-2">{{ user.username }}</span> </router-link>
-                    <button v-if="user?.avatar === undefined" @click="showLoginForm = true; showRegisterForm = false"
+                        <span class="p-2">{{ user.username }}</span> </button>
+                    <button v-if="user?.avatar === undefined"
+                        @click="showLoginForm = true; showRegisterForm = false; showplan = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         登录</button>
-                    <button @click="router.push({ name: 'home' })"
+                    <button @click="router.push({ name: 'home' }); showplan = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         主页</button>
-                    <button @click="logout"
+                    <button @click="logout(); showplan = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         注销</button>
                 </div>
@@ -71,7 +73,7 @@ import login from '@/components/login.vue';
 import register from './register.vue';
 import { onMounted, ref, watch } from 'vue';
 import { imgbase } from '@/main';
-import { useMessage,NDropdown } from 'naive-ui'
+import { useMessage, NDropdown } from 'naive-ui'
 import { router } from '@/route/router';
 const message = useMessage()
 

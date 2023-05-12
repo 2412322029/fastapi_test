@@ -6,8 +6,8 @@ Access_statistics: true #API访问统计
 allow_origins:
     - ''
 
-# 匹配一个字符串
-allow_origin_regex: 'https://.*\.unrun\.top'
+# 匹配一个字符串, 允许本机所有端口
+allow_origin_regex: 'http://127\.0\.0\.1:.*'
 
 # mysql数据库信息
 databases:

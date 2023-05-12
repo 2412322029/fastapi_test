@@ -14,8 +14,7 @@ from sql.database import get_session
 from utill import gen
 from .adminapi import get_is_Allow_register, limiter
 from .token import authenticate_user, create_access_token, get_current_user
-from .verifyModel import UserCreate, RegisterSuccess, UserOut, Token, TokenData, Userbase, UpdateSuccess, PubUserInfo, \
-    UploadSuccess, respCode
+from .verifyModel import *
 
 userapp = APIRouter()
 
@@ -61,7 +60,7 @@ async def register(request: Request, user_in: UserCreate, uuid: str, code: str,
 
 
 @userapp.get("/pubInfo",
-             response_model=PubUserInfo,
+             response_model=UserOut,
              summary='返回用户公开信息')
 @limiter.limit(limit_value="10/minute")
 async def publish_user_info(

@@ -8,9 +8,8 @@ from sqlalchemy.future import select
 from starlette import status
 
 from api.password import verify_password, hash_password
-from api.verifyModel import UserOut, UserCreate, UserInDB, Userbase, UpdateSuccess, PubUserInfo, UploadSuccess, \
-    PostInDB, ANewTag, PostOut, CommentIn, CommentPostOut, CommentUserOut, PostOutPage, TagInDB
-from sql.dbModels import User, Post, Tag, PostTag, Comment
+from api.verifyModel import *
+from sql.dbModels import *
 
 
 async def findUser_by_name(session: AsyncSession, username: str) -> UserOut | None:
@@ -30,15 +29,18 @@ async def findUser_by_name(session: AsyncSession, username: str) -> UserOut | No
         return None
 
 
-async def findPubUser_by_name(session: AsyncSession, username: str) -> PubUserInfo | None:
+async def findPubUser_by_name(session: AsyncSession, username: str) -> UserOut | None:
     r = await session.execute(select(User).where(User.username == username))
     user: User | None = r.scalar_one_or_none()
     if user is not None:
-        return PubUserInfo(
+        return UserOut(
             id_=user.id,
             username=user.username,
             avatar=user.avatar,
-            state=user.state
+            group_id=user.group_id,
+            state=user.state,
+            created_at=user.created_at,
+            updated_at=user.updated_at
         )
     else:
         return None
@@ -634,6 +636,7 @@ async def get_users_comm(session: AsyncSession, username: str) -> List[Optional[
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
         comm = await session.execute(select(Comment).where(Comment.uid == user.id_))
         comm = comm.scalars().fetchall()
+        comm_list = []
         for c in comm:  
             comm_list.append(CommentUserOut(
                 id_=c.id,
@@ -651,7 +654,7 @@ async def get_users_comm(session: AsyncSession, username: str) -> List[Optional[
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         await session.rollback()
-        # raise e
+        raise e
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='查询用户失败' + str(e))
 
 async def review_comments(session: AsyncSession, username: str, cid: int, passed: bool):

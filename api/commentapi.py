@@ -6,7 +6,7 @@ from starlette.requests import Request
 from sql import crud
 from sql.database import get_session
 from .token import get_current_user
-from .verifyModel import TokenData, CommentIn, CommentInput, CommentPostOut, CommentUserOut
+from .verifyModel import *
 from .adminapi import  limiter
 
 commentapp = APIRouter()
@@ -32,7 +32,7 @@ async def commToUser(username: str = Query(), session: AsyncSession = Depends(ge
     return await crud.get_comm_to_user(session, username=username)
 
 @commentapp.get("/get_users_comm", summary='获取用户发表的所有评论', response_model=List[Optional[CommentUserOut]])
-async def commToUser(username: str = Query(), session: AsyncSession = Depends(get_session)):
+async def UserComm(username: str = Query(), session: AsyncSession = Depends(get_session)):
     return await crud.get_users_comm(session, username=username)
 
 @commentapp.delete("/del_comments", summary='用户删除评论')
@@ -40,5 +40,5 @@ async def delComments(cid: int, session: AsyncSession = Depends(get_session), cu
     return await crud.del_comments(session, current_user.username, cid)
 
 @commentapp.put("/review_comments", summary='评论审核')
-async def delComments(cid: int,passed:bool, session: AsyncSession = Depends(get_session), current_user: TokenData = Depends(get_current_user)):
+async def reviewCcomm(cid: int,passed:bool, session: AsyncSession = Depends(get_session), current_user: TokenData = Depends(get_current_user)):
     return await crud.review_comments(session, current_user.username, cid, passed)

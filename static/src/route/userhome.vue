@@ -7,8 +7,21 @@
             class="mt-3">
             <n-tab-pane name="self" :tab="isme ? '我的' : '用户:' + route.params.username.toString()"
                 display-directive="show:lazy" @vnode-mounted="getcom()">
-                <div v-if="isme">{{ userinfo }}</div>
-                <div v-else>{{ pubuserinfo }}</div>
+                <div class=" w-96">
+                    <img :src="imgbase + userinfo?.avatar" alt="">
+                    <p>id: {{ userinfo?.id_ }}</p>
+                    <p>用户名:{{ userinfo?.username }}</p>
+                    <n-alert v-if="userinfo?.group_id == 0" title="账号状态" type="success">普通用户
+                    </n-alert>
+                    <n-alert v-if="userinfo?.group_id == 1" title="账号状态" type="info">管理员
+                    </n-alert>
+                    <n-alert v-if="userinfo?.group_id == 2" title="账号状态" type="warning">审核中
+                    </n-alert>
+                    <n-alert v-if="userinfo?.group_id == 3" title="账号状态" type="error">封禁
+                    </n-alert>
+                    <p>created_at: {{ userinfo?.created_at }}</p>
+                    <p>updated_at: {{ userinfo?.updated_at }}</p>
+                </div>
             </n-tab-pane>
             <n-tab-pane name="post" tab="文章" display-directive="show:lazy">
                 <n-layout v-if="posts?.total !== 0 && posts !== undefined" style="background-color: transparent;">
@@ -74,6 +87,9 @@
                     <div v-for="c in comlist">
                         <n-card>
                             <p>{{ c.id_ }}</p>
+                            <p class=" text-green-500">{{ c.state==0?'审核中':'' }}</p>
+                            <n-button class=" float-right" v-if="c.state==0" tertiary type="primary">通过</n-button>
+                            <n-button class=" float-right" v-if="c.state==1" tertiary type="error">标记为未审核</n-button>
                             <n-avatar round size="small" :src="imgbase + c.user_img" object-fit="cover" />
                             <span v-text="c.username" class=" pl-2 cursor-pointer"
                                 @click="router.push({ name: 'user', params: { username: c.username } })"></span>
@@ -85,8 +101,24 @@
                 </n-space>
             </n-tab-pane>
             <n-tab-pane name="mycomm" :tab="isme ? '我的评论' : 'TA的评论'" display-directive="show:lazy"
-                @vnode-mounted="getcom()">
-                xx
+                @vnode-mounted="getmycom()">
+                <n-button strong secondary circle type="primary" @click="getcom()">
+                    更新
+                </n-button>
+                <n-space vertical>
+                    <div v-for="c in mycomlist">
+                        <n-card>
+                            <p>{{ c.id_ }}</p>
+                            <p class=" text-green-500">{{ c.state==0?'审核中':'' }}</p>
+                            <n-avatar round size="small" :src="imgbase + c.user_img" object-fit="cover" />
+                            <span v-text="c.username" class=" pl-2 cursor-pointer"
+                                @click="router.push({ name: 'user', params: { username: c.username } })"></span>
+                            <p v-text="c.content" class="ml-5"></p>
+                            <p @click="router.push('/p/' + c.post_id)" class="ml-5 float-right cursor-pointer">详情</p>
+                            <p v-text="c.created_at.replace('T', ' ')" class=" float-right"></p>
+                        </n-card>
+                    </div>
+                </n-space>
             </n-tab-pane>
             <n-tab-pane v-if="isme" name="setting" tab="设置" display-directive="show:lazy">
                 <n-table :striped="true" :single-line="false">
@@ -136,8 +168,11 @@ import { ref, onMounted, watchEffect, watch } from 'vue'
 import Tags from '@/components/tags.vue';
 import Footer from '@/components/footer.vue';
 import { useRouter, useRoute } from 'vue-router'
-import { NDivider, NInputNumber, NTag, NLayout, NLayoutContent, NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar, NSpace, NButton, NImage, NTable, TabsInst } from 'naive-ui'
-import { OpenAPI, Service, UserOut, ApiError, PubUserInfo, PostOut, PostOutPage, TagInDB, CommentUserOut } from '@/client'
+import {
+    NAlert, NInputNumber, NTag, NLayout, NLayoutContent,
+    NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar, NSpace, NButton, NImage, NTable, TabsInst
+} from 'naive-ui'
+import { OpenAPI, Service, UserOut, ApiError, PostOut, PostOutPage, TagInDB, CommentUserOut } from '@/client'
 import Headers from '@/components/header.vue';
 import newpost from '@/components/new_post.vue';
 import { imgbase } from '@/main'
@@ -146,7 +181,6 @@ const message = useMessage()
 const router = useRouter()
 const route = useRoute()
 const userinfo = ref<UserOut>()
-const pubuserinfo = ref<PubUserInfo>()
 const isme = ref(false)
 const tags = ref<Array<TagInDB>>()
 
@@ -173,9 +207,9 @@ onMounted(() => {
     if (OpenAPI.USERNAME == route.params.username) {
         isme.value = true
     } else {
-        Service.publishUserInfo(route.params.username as string).then((up: PubUserInfo) => {
-            pubuserinfo.value = up
-            gettags(pubuserinfo.value.username)
+        Service.publishUserInfo(route.params.username as string).then((up: UserOut) => {
+            userinfo.value = up
+            gettags((userinfo.value as UserOut).username)
         }).catch((e: ApiError) => {
             message.error(e.message + e.body.detail)
             router.push({ name: 'notfound' })
@@ -203,6 +237,15 @@ function getcom() {
     if (userinfo.value !== undefined) {
         Service.commToUser(userinfo.value.username).then((c: CommentUserOut[]) => {
             comlist.value = c
+        })
+    }
+}
+
+const mycomlist = ref<CommentUserOut[]>()
+function getmycom() {
+    if (userinfo.value !== undefined) {
+        Service.userComm(userinfo.value.username).then((c: CommentUserOut[]) => {
+            mycomlist.value = c
         })
     }
 }

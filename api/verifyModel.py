@@ -29,10 +29,6 @@ class UserInDB(UserOut):
     password: str
 
 
-class PubUserInfo(BaseModel):
-    id_: int
-    username: str
-    avatar: str
 
 
 class RegisterSuccess(BaseModel):

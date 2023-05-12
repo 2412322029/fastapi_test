@@ -33,7 +33,7 @@
                     <!-- <a v-if="user?.avatar !== undefined" :href="'/user/'+user.username" target="_blank" -->
 
                     <button v-if="user?.avatar !== undefined"
-                        @click="$router.push({ name: 'user', params: { username: user.username } }); $emit('me'); showplan = false"
+                        @click="$router.push({ name: 'user', params: { username: user?.username } }); $emit('me'); showplan = false"
                         class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
                         <img class="overflow-hidden object-cover rounded-full" style="width: 40px;height: 40px;"
                             :alt="user.username + '的个人中心'" :src="imgbase + user.avatar">

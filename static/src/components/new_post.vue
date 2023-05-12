@@ -17,7 +17,7 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, reactive, toRaw, watch } from 'vue'
-import { OpenAPI, Service, UserOut, ApiError, PubUserInfo, PostIn, TagInDB } from '@/client'
+import { OpenAPI, Service, UserOut, ApiError, PostIn, TagInDB } from '@/client'
 import { useRouter } from 'vue-router';
 import { NDynamicTags, NInput, NButton, NDivider, NH4, NTag, NCollapse,NCollapseItem } from 'naive-ui'
 import { useMessage } from 'naive-ui'

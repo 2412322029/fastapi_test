@@ -8,7 +8,6 @@ DATABASE_URL = f'mysql+aiomysql://{d["username"]}:{d["password"]}@{d["host"]}:{d
 engine = create_async_engine(
     DATABASE_URL,
     hide_parameters=True,
-    echo=False,
     connect_args={'charset': 'utf8mb4'}
 )
 

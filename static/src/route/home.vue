@@ -43,7 +43,8 @@
                 <n-card v-if="usews">
                     <div v-for="m in msgs">
                         <span v-if="m.username !== ''">
-                            <span v-text="m.username" @click="router.push({ name: 'user', params: { username: m.username } })"
+                            <span v-text="m.username"
+                                @click="router.push({ name: 'user', params: { username: m.username } })"
                                 class=" cursor-pointer text-green-700"></span>
                             ->
                             <span v-text="m.path" @click="router.push(m.path)"
@@ -67,7 +68,7 @@ import Footer from '@/components/footer.vue';
 import Tags from '@/components/tags.vue';
 import { NTag, NLayout, NLayoutContent, NCard, NPagination, NAvatar, NEllipsis, NAffix, NBackTop } from 'naive-ui'
 import { watchEffect } from 'vue';
-import { imgbase } from '@/main';
+import { imgbase, loading } from '@/main';
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router';
 import { msgs, usews } from '@/main'
@@ -82,6 +83,7 @@ const tags = ref<Array<TagInDB>>()
 function getpost(page: number, pagesize: number) {
     Service.getAllPosts(page, pagesize).then((pop: PostOutPage) => {
         posts.value = pop
+        loading.value=false
     }).catch((e: ApiError) => {
         message.error(e.message)
     })
@@ -100,12 +102,13 @@ if (!localStorage.getItem('userinfo') || !OpenAPI.TOKEN) {
 } else {
     userinfo.value = JSON.parse(localStorage.getItem('userinfo') || '')
 }
-getpost(page.value, pagesize.value)
+// getpost(page.value, pagesize.value)
 watchEffect(() => getpost(page.value, pagesize.value))
-document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0,0);
+document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0, 0);
 
 </script>
 <style scoped>
 .n-layout-content {
     background-color: transparent;
-}</style>
+}
+</style>

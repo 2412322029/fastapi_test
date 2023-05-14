@@ -45,7 +45,7 @@
     <Footer />
 </template>
 <script setup lang="ts">
-import { imgbase } from '@/main';
+import { imgbase, loading } from '@/main';
 import Headers from '@/components/header.vue';
 import Footer from '@/components/footer.vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -80,6 +80,7 @@ onMounted(() => {
 
     Service.getPostById(pid).then((po: PostOut) => {
         post.value = po
+        loading.value=false
     }).catch((e: ApiError) => {
         message.error(e.message)
         if (e.status == 404) {

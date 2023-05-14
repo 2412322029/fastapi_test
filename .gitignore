@@ -32,7 +32,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
+*.csv
+*.xls
 
 client
 utill/temp.txt

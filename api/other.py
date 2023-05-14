@@ -1,4 +1,9 @@
+import datetime
+
 from fastapi import APIRouter, BackgroundTasks, Depends
+from starlette.responses import StreamingResponse
+
+from config.options import sql_tool
 from utill.middleware import ip_count, api_path_count
 from api.adminapi import get_admin
 
@@ -19,6 +24,16 @@ async def count():
 @otherApp.get("/api_count", dependencies=[Depends(get_admin)])
 async def api_count():
     return api_path_count
+
+
+@otherApp.get("/download_excel", dependencies=[Depends(get_admin)])
+async def download_excel():
+    try:
+        filename = 'export-' + datetime.datetime.now().strftime('%Y-%m-%d %H_%M_%S')
+        return StreamingResponse(sql_tool.to_excel(), headers={"Content-Disposition": f"attachment;filename={filename}"},
+                                 media_type='application/vnd.ms-excel')
+    except Exception as e:
+        return e
 
 
 def write_notification(email: str, message=""):

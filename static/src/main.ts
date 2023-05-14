@@ -17,7 +17,7 @@ if (process.env.NODE_ENV == "development") {
 export const imgbase: string = OpenAPI.BASE + '/uploads/'
 export const usews: boolean = false
 export const msgs = ref<[{ username: string, path: string }]>([{ username: '', path: '' }])
-
+export const loading = ref(false)
 
 const app = createApp(App)
 app.use(router)

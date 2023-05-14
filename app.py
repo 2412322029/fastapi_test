@@ -9,7 +9,6 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from api.index import api
 from config import Config
-from config.__init__ import options
 from sql.database import engine
 from utill.middleware import PathMiddleware
 
@@ -54,7 +53,6 @@ async def shutdown():
 
 
 if __name__ == '__main__':
-    options()
     uvicorn.run(app='app:app',
                 host=Config["uvicorn"]["host"],
                 port=Config["uvicorn"]["port"],

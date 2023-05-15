@@ -143,11 +143,19 @@
                     <tr>
                         <td>修改头像</td>
                         <td>
-                            <input ref="file" type="file" name="" @change="onChange()"
-                                accept="image/jpeg,image/png,image/gif" />
+                            <input ref="file" type="file" name="" @change="onChange()" accept="image/jpeg,image/png" />
                         </td>
                         <td>
-                            <n-image :src="base64" width="100" alt="" />
+
+                            <n-image :src="crbo" style="max-width: 200px;" alt=""
+                                @load="message.success('图片处理完成,压缩' + Math.floor((1-bfaf[1] / bfaf[0]) * 10000) / 100 + '%')" /><br>
+                            <div v-if="bfaf[0]">
+                                原图: {{ bfaf[0] }}kb <br>
+                                压缩后:{{ bfaf[1] }}kb<br>
+                                质量:{{ bfaf[2] }}
+                            </div>
+                            <p v-else>压缩大于100kb的图片,尽量是正方形</p>
+
                         </td>
                         <td>
                             <button @click="delimg()">取消</button>
@@ -206,7 +214,9 @@ const isme = ref(false)
 const tags = ref<Array<TagInDB>>()
 
 const file = ref()
-const base64 = ref()
+const resbin = ref()
+const crbo = ref()
+const bfaf = ref([1, 1, 1])
 
 const page = ref(1)
 const pagesize = ref(5)
@@ -324,9 +334,13 @@ const delpost = (pid: number, success: Function) => {
 }
 
 const upl = () => {
-    if (file.value.value) {
-        Service.updateAvatar({ 'avatar_new': file.value.files[0] }).then((up) => {
+    if (file.value.value && resbin.value) {
+        Service.updateAvatar({ 'avatar_new': resbin.value }).then((up) => {
             message.success(up.detail)
+            Service.userinfo().then((u: UserOut) => {
+                localStorage.setItem('userinfo', JSON.stringify(u))
+                location.reload()
+            })
         }).catch((e: ApiError) => {
             message.error(e.message + e.body.detail)
         })
@@ -336,21 +350,59 @@ const upl = () => {
 
 }
 const onChange = () => {
+    bfaf.value = []
     if (file.value.value !== '') {
+        message.info('图片处理中')
         let f = file.value.files[0]
         const type = f.type
-        if (type === "image/jpeg" || type === "image/png" || type === 'image/gif') {
+        if (type === "image/jpeg" || type === "image/png") {
             const reader = new FileReader();
             reader.readAsDataURL(f)
             reader.onload = (e) => {
                 try {
+                    var img = new Image()
                     //@ts-ignore
-                    base64.value = e.target.result
+                    img.src = e.target?.result
+                    var canvas = document.createElement('canvas')
+                    var ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+                    img.onload = () => {
+                        var width = img.width;
+                        var height = img.height;
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        var quality = 1
+                        if (f.size > 1024 * 1024 * 20) {
+                            delimg()
+                            message.warning('图片大于20mb!!!,')
+                            return
+                        }
+                        if (f.size > 102400) {
+                            quality = Math.floor(102400 / f.size * 10000) / 10000
+                        }
+                        if (f.size <= 102400) {
+                            crbo.value = img.src
+                            resbin.value = f
+                            bfaf.value.push(Math.floor(f.size / 1024), Math.floor(f.size / 1024), quality)
+                            return
+                        }
+                        if (quality <= 0.1) { quality = 0.1 }
+                        let resultBlob: Blob = new Blob();
+                        canvas.toBlob(function (blob) {
+                            resultBlob = blob as Blob;
+                            bfaf.value.push(Math.floor(f.size / 1024), Math.floor(resultBlob.size / 1024), quality)
+                            const blobUrl = URL.createObjectURL(resultBlob)
+                            crbo.value = blobUrl
+                            resbin.value = new window.File([resultBlob], f.name)
+
+                        }, 'image/jpeg', quality);
+                    }
                 } catch (e) {
+                    console.error(e)
                 }
             }
         } else {
-            message.warning('仅支持jpg/png/gif')
+            message.warning('仅支持jpg/png')
             delimg()
         }
 
@@ -359,8 +411,10 @@ const onChange = () => {
     }
 }
 const delimg = () => {
+    bfaf.value = []
+    resbin.value = ''
     file.value.value = ''
-    base64.value = ''
+    crbo.value = ''
 }
 let times = ref(5)
 {
@@ -388,7 +442,7 @@ setTimeout(() => {
     }
 }, 500);
 watch(tabnow, (newv) => {
-    router.push({hash:'#'+newv,query:route.query})
+    router.push({ hash: '#' + newv, query: route.query })
     document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0, 0);
 })
 

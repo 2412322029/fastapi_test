@@ -131,16 +131,18 @@ class sql_tool:
 
 if os.getenv('dev') == 'true':
     Config['Development'] = True
-parser = argparse.ArgumentParser(description='可选参数')
-parser.add_argument('-l', '--list-all', action='store_true', help='list all administrators and exit', default=False)
-parser.add_argument('-t', '--tables', action='store_true', help='show all tables and exit', default=False)
-parser.add_argument('-c', '--show-config', action='store_true', help='show config(after change)', default=False)
-parser.add_argument('-n', '--new-admin', action='store_true', help='create a administrator', default=False)
-parser.add_argument('--del-admin', action='store_true', help='del admin', default=False)
-parser.add_argument('-p', '--port', type=int, help='set port', default=Config["uvicorn"]["port"])
-parser.add_argument('--vite', action='store_true', help='Also run vite', default=False)
-parser.add_argument('--open', action='store_true', help='Also open the browser', default=False)
-parser.add_argument('--dev', action='store_true', help='set Development=true', default=Config["Development"])
+parser = argparse.ArgumentParser(description='''可选参数''')
+group1 = parser.add_argument_group("tools")
+group1.add_argument('-l', '--list-all', action='store_true', help='list all administrators and exit', default=False)
+group1.add_argument('-t', '--tables', action='store_true', help='show all tables and exit', default=False)
+group1.add_argument('-c', '--show-config', action='store_true', help='show config(after change)', default=False)
+group1.add_argument('-n', '--new-admin', action='store_true', help='create a administrator', default=False)
+group1.add_argument('-x', '--del-admin', action='store_true', help='delete a administrator', default=False)
+group2 = parser.add_argument_group("in Development")
+group2.add_argument('-p', '--port', type=int, help='set port', default=Config["uvicorn"]["port"])
+group2.add_argument('--vite', action='store_true', help='also run vite', default=False)
+group2.add_argument('--open', action='store_true', help='also open the browser', default=False)
+group2.add_argument('--dev', action='store_true', help='set Development=true', default=Config["Development"])
 
 args = parser.parse_args()
 if args.list_all:
@@ -160,7 +162,7 @@ if args.new_admin:
     if len(a) >= 5 and len(b) >= 8:
         sql_tool.new_admin(a, b)
     else:
-        print('不合要求')
+        print('不合要求!!!')
     sys.exit()
 
 Config["uvicorn"]["port"] = args.port

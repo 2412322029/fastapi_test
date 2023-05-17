@@ -1,5 +1,5 @@
 <template>
-    <header id="header" class="py-1 fixed w-full top-0 bg-white z-10 shadow-md" headinfo="">
+    <header id="header" class="py-1 fixed w-full top-0 z-10 shadow-md" headinfo="">
         <nav class="mx-auto flex max-w-7xl items-center justify-between px-4" aria-label="Global">
             <div class="flex flex-1 justify-start">
                 <router-link :to="{ name: 'home' }">
@@ -11,7 +11,7 @@
             <div class="flex flex-1 justify-end">
                 <div class="flex items-center">
                     <button id="exclude1"
-                        class="z-10 flex items-center w-full hover:bg-hover transition-colors py-1 px-2 rounded-lg ml-1"
+                        class="z-10 flex items-center w-full hover:opacity-50 transition-colors py-1 px-2 rounded-lg ml-1"
                         type="button" aria-label="connector" @click="togoshow">
                         <span
                             class="inline-flex text-zinc-500 flex-shrink-0 items-center justify-center 
@@ -28,29 +28,30 @@
                         </span>
                     </button>
                 </div>
-                <div id="exclude2" :class="{ 'hidden': !showplan }" class="z-100 text-gray-600 bg-white rounded-lg ring-1 ring-zinc-100 min-w-[140px] absolute top-14 
-                                                                            shadow-md py-2 text-base mt-1">
+                <div id="exclude2" :class="{ 'hidden': !showplan }" class="z-100 rounded-lg ring-zinc-100 min-w-[140px] absolute top-14 
+                                                                            shadow-md py-2 text-base mt-1"
+                    style="background-color: var(--bg-a); color: var(--bg-t);">
                     <!-- <a v-if="user?.avatar !== undefined" :href="'/user/'+user.username" target="_blank" -->
 
                     <button v-if="user?.avatar !== undefined"
                         @click="$router.push({ name: 'user', params: { username: user?.username }, hash: '#self' }); $emit('me'); showplan = false"
-                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
+                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:opacity-50">
                         <img class="overflow-hidden object-cover rounded-full" style="width: 40px;height: 40px;"
                             :alt="user.username + '的个人中心'" :src="imgbase + user.avatar">
                         <span class="p-2">{{ user.username }}</span> </button>
                     <button v-if="user?.avatar !== undefined"
                         @click="$router.push({ name: 'user', params: { username: user?.username }, hash: '#new' })"
-                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
+                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:opacity-50">
                         新文章</button>
                     <button v-if="user?.avatar === undefined"
                         @click="showLoginForm = true; showRegisterForm = false; showplan = false"
-                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
+                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:opacity-50">
                         登录</button>
                     <button @click="router.push({ name: 'home' }); showplan = false"
-                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
+                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:opacity-50">
                         主页</button>
                     <button @click="logout(); showplan = false"
-                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:bg-slate-100">
+                        class="pl-5 pr-6 h-11 flex items-center w-full whitespace-nowrap hover:opacity-50">
                         注销</button>
                 </div>
             </div>
@@ -99,6 +100,7 @@ const togoshow = () => {
 const logout = () => {
     if (localStorage.getItem('token') == null) {
         message.warning('未登录')
+        localStorage.setItem('onlogin', 'false')
         return
     }
     localStorage.removeItem('token')

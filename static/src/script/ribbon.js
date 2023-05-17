@@ -62,9 +62,6 @@ export function ribbon(ti = 5) {
       }
       times = 0
     }
-    if (c1) {
-      document.documentElement.style.setProperty('--bg-b', '#' + (cos(r) * 127 + 128 << 16 | cos(r + pi / 3) * 127 + 128 << 8 | cos(r + pi / 3 * 2) * 127 + 128).toString(16)+'60');
-    }
 
   }
   function draw(i, j) {

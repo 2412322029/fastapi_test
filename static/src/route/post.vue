@@ -37,7 +37,8 @@
 
         </div>
         <div class="lg:w-1/3 max-lg:hidden">
-            <n-tag type="info" round v-text="t" @click="" class="m-2 cursor-pointer" v-for="t in post?.tags">
+            <n-tag type="info" round v-text="t" @click="$router.push({ name: 'tag', params: { name: t } })"
+                class="m-2 cursor-pointer" v-for="t in post?.tags">
             </n-tag>
         </div>
     </div>
@@ -64,23 +65,21 @@ const post = ref<PostOut>()
 const userinfo = ref<UserOut>()
 const comlist = ref<CommentPostOut[]>()
 onMounted(() => {
-    OpenAPI.TOKEN = localStorage.getItem("token") as string
-    if (!localStorage.getItem('userinfo') || !OpenAPI.TOKEN) {
-        Service.userinfo().then((u: UserOut) => {
-            userinfo.value = u
-            localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
-        }).catch((e: ApiError) => {
-            message.error(e.message)
-            localStorage.removeItem('userinfo')
-            localStorage.removeItem('token')
-        })
-    } else {
-        userinfo.value = JSON.parse(localStorage.getItem('userinfo') || '')
+    if (localStorage.getItem('onlogin') == 'true') {
+        if (!localStorage.getItem('userinfo')) {
+            Service.userinfo().then((u: UserOut) => {
+                userinfo.value = u
+                localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
+            }).catch((e: ApiError) => {
+                message.error(e.message)
+            })
+        } else {
+            userinfo.value = JSON.parse(localStorage.getItem('userinfo') || '')
+        }
     }
-
     Service.getPostById(pid).then((po: PostOut) => {
         post.value = po
-        loading.value=false
+        loading.value = false
     }).catch((e: ApiError) => {
         message.error(e.message)
         if (e.status == 404) {
@@ -122,5 +121,5 @@ function sendcom(pa: number) {
         message.error(e.message)
     })
 }
-document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0,0);
+document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0, 0);
 </script>

@@ -3,7 +3,8 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(),
+  ],
   resolve: {
     alias: {
       // 别名配置
@@ -11,20 +12,35 @@ export default defineConfig({
     }
   },
   server: {
-    open:true,
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:80/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-      '/uploads': {
-        target: 'http://127.0.0.1:80/uploads',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/uploads/, ''),
-      },
+    open: true,
+  },
 
-    },
+  build: {
+    rollupOptions: {
+      manualChunks(id) {
+        if (id.includes('naive-ui')) {
+          return 'naive-ui'
+        }
+        if (id.includes('components') || id.includes('route')) {
+          return 'components-route'
+        }
+        if (id.includes('client')) {
+          return 'client'
+        }
+        if (id.includes('@kangc')) {
+          return '@kangc'
+        }
+        if (id.includes('highlight')) {
+          return 'highlight'
+        }
+
+      },
+      output: {
+        entryFileNames: 'js/[name]-[hash].js',
+        chunkFileNames: 'js/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
+    }
   },
 })
 

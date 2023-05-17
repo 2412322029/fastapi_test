@@ -1,7 +1,7 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20 mb-20" style="min-height: calc(100vh - 100px);">
-        <div class="lg:w-2/3 max-lg:w-full">
+    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mb-20 relative" style="min-height: calc(100vh - 100px);">
+        <div class="lg:w-2/3 max-lg:w-full mt-20">
             <n-layout style="background-color: transparent;">
                 <n-layout-content content-style="padding:15px;background-color: transparent;">
                     <n-card v-for="post in posts?.posts" class="mb-5" hoverable bordered :class="'shadow'">
@@ -83,7 +83,7 @@ const tags = ref<Array<TagInDB>>()
 function getpost(page: number, pagesize: number) {
     Service.getAllPosts(page, pagesize).then((pop: PostOutPage) => {
         posts.value = pop
-        loading.value=false
+        loading.value = false
     }).catch((e: ApiError) => {
         message.error(e.message)
     })
@@ -91,17 +91,36 @@ function getpost(page: number, pagesize: number) {
         tags.value = t
     })
 }
-OpenAPI.TOKEN = localStorage.getItem("token") as string
-if (!localStorage.getItem('userinfo') || !OpenAPI.TOKEN) {
-    Service.userinfo().then((u: UserOut) => {
-        userinfo.value = u
-        localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
-    }).catch((e: ApiError) => {
-        message.error(e.message)
-    })
-} else {
-    userinfo.value = JSON.parse(localStorage.getItem('userinfo') || '')
+function checkinfo() {
+    OpenAPI.TOKEN = localStorage.getItem("token") as string
+    let outtime = Math.floor(Date.now() / 1000) - Number(localStorage.getItem('userinfo-time'))
+    let localuser = localStorage.getItem('userinfo')
+    localStorage.setItem('onlogin', 'false') 
+    if (!OpenAPI.TOKEN) {
+        message.warning('未登录')
+    } else if (outtime > 24 * 60 * 60) {
+        localStorage.removeItem('userinfo')
+        localStorage.removeItem('token')
+        message.error('登录信息过期')
+    } else {
+        console.log(outtime);
+    }
+
+    if (!localuser && OpenAPI.TOKEN && outtime < 24 * 60 * 60) {
+        Service.userinfo().then((u: UserOut) => {
+            userinfo.value = u
+            localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
+            localStorage.setItem('onlogin', 'true')
+        }).catch((e: ApiError) => {
+            message.error(e.message)
+        })
+    }
+    if (localuser && OpenAPI.TOKEN && outtime < 24 * 60 * 60) {
+        userinfo.value = JSON.parse(localuser)
+        localStorage.setItem('onlogin', 'true')
+    }
 }
+checkinfo()
 // getpost(page.value, pagesize.value)
 watchEffect(() => getpost(page.value, pagesize.value))
 document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0, 0);

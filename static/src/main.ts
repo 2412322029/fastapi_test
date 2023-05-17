@@ -1,10 +1,11 @@
-import { createApp, ref } from 'vue'
+import { createApp, ref, watch } from 'vue'
 import "./style.css"
 import App from './App.vue'
 import { router } from '@/route/router'
 import { OpenAPI } from './client/core/OpenAPI'
 import { VMdPreview, VueMarkdownEditor } from './md'
-import {host} from '@/host'
+import { host } from '@/host'
+import { darkTheme } from 'naive-ui'
 
 if (process.env.NODE_ENV == "development") {
   OpenAPI.BASE = host
@@ -18,6 +19,10 @@ export const imgbase: string = OpenAPI.BASE + '/uploads/'
 export const usews: boolean = false
 export const msgs = ref<[{ username: string, path: string }]>([{ username: '', path: '' }])
 export const loading = ref(false)
+export const theme = ref<typeof darkTheme | null>()
+export const followos = ref(true)
+
+
 
 const app = createApp(App)
 app.use(router)

@@ -20,7 +20,7 @@
                         </template>
                         <template #footer>
                             <n-tag type="info" round v-for="t in post.tags" @click="" class=" cursor-pointer">
-                                <span @click="$router.push('tag/' + t)">{{ t }}</span>
+                                <span @click="$router.push({ name: 'tag', params: { name: t } })">{{ t }}</span>
                             </n-tag>
                         </template>
                         <template #action>
@@ -63,23 +63,22 @@ const page = ref(1)
 const pagesize = ref(5)
 
 onMounted(() => {
-    OpenAPI.TOKEN = localStorage.getItem("token") as string
-    if (!localStorage.getItem('userinfo') || !OpenAPI.TOKEN) {
-        Service.userinfo().then((u: UserOut) => {
-            userinfo.value = u
-            localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
-        }).catch((e: ApiError) => {
-            message.error(e.message)
-            localStorage.removeItem('userinfo')
-            localStorage.removeItem('token')
-        })
-    } else {
-        userinfo.value = JSON.parse(localStorage.getItem('userinfo') || '')
+    if (localStorage.getItem('onlogin') == 'true') {
+        if (!localStorage.getItem('userinfo')) {
+            Service.userinfo().then((u: UserOut) => {
+                userinfo.value = u
+                localStorage.setItem('userinfo', JSON.stringify(userinfo.value))
+            }).catch((e: ApiError) => {
+                message.error(e.message)
+            })
+        } else {
+            userinfo.value = JSON.parse(localStorage.getItem('userinfo') || '')
+        }
     }
     function getpost(page: number, pagesize: number) {
         Service.getPostsByTagPage(route.params.name.toString(), page, pagesize).then((po: PostOut[]) => {
             posts.value = po
-            loading.value=false
+            loading.value = false
         }).catch((e: ApiError) => {
             message.error(e.message)
         })

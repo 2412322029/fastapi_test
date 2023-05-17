@@ -91,6 +91,7 @@ const loginAction = async (user: UserCreate) => {
         OpenAPI.TOKEN = token.access_token
         message.success('登录成功')
         localStorage.setItem('token', OpenAPI.TOKEN)
+                localStorage.setItem('userinfo-time', Math.floor(Date.now()/1000).toString())
         await Service.userinfo().then((u: UserOut) => {
             localStorage.setItem('userinfo', JSON.stringify(u))
         })

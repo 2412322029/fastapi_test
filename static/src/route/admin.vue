@@ -1,7 +1,7 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: '管理' }" />
     <div v-if="userinfo" class="mx-auto flex max-w-7xl items-center flex-col px-4 top-20 relative">
-        <n-tabs ref="tabsInstRef" type="line" animated size="large"  justify-content="center"   v-model:value="tabnow">
+        <n-tabs ref="tabsInstRef" type="line" animated size="large" justify-content="center" v-model:value="tabnow">
             <n-tab-pane name="setting" tab="设置" display-directive="show:lazy">
                 <n-table striped>
                     <tbody>
@@ -41,7 +41,9 @@
                             <td v-text="u.group_id"></td>
                             <td v-text="u.created_at"></td>
                             <td v-text="u.updated_at"></td>
-                            <td><button @click="$router.push({name:'user',params:{username:u.username}})">查看</button></td>
+                            <td><button
+                                    @click="$router.push({ name: 'user', params: { username: u.username } })">查看</button>
+                            </td>
                         </tr>
                     </tbody>
                 </n-table>
@@ -77,10 +79,10 @@
 
         </n-tabs>
 
-
-
+        <div style="width: 100%;height: 30vh;"></div>
 
     </div>
+    <!-- <Footer /> -->
 </template>
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
@@ -96,14 +98,14 @@ const api_path_count = ref()
 const ua_count = ref()
 const show_api_count = () => {
     Service.apiCount().then((res) => {
-        api_path_count.value = Object.keys(res).map(function (e) { return [e,res[e]]});
+        api_path_count.value = Object.keys(res).map(function (e) { return [e, res[e]] });
     }).catch((e: ApiError) => {
         message.error(e.message)
     })
 }
 const show_us_count = () => {
     Service.count().then((res) => {
-        ua_count.value = Object.keys(res).map(function (e) { return [e,res[e]]});
+        ua_count.value = Object.keys(res).map(function (e) { return [e, res[e]] });
     }).catch((e: ApiError) => {
         message.error(e.message)
     })
@@ -161,7 +163,7 @@ const tabsInstRef = ref<TabsInst>()
 const tabnow = ref('')
 setTimeout(() => {
     let prx = location.hash.toString().replace("#", "")
-    if (prx == 'setting' || prx == 'user' || prx == 'api' ) {
+    if (prx == 'setting' || prx == 'user' || prx == 'api') {
         tabnow.value = prx
     } else {
         tabnow.value = 'setting'
@@ -169,13 +171,13 @@ setTimeout(() => {
 }, 500);
 watch(tabnow, (newv) => {
     location.hash = newv
-    if (newv==='api' && !api_path_count.value) {
+    if (newv === 'api' && !api_path_count.value) {
         show_api_count()
     }
-    if (newv==='ua' && !ua_count.value) {
+    if (newv === 'ua' && !ua_count.value) {
         show_us_count()
     }
-    document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0,0);
+    document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0, 0);
 })
 
 </script>
@@ -185,6 +187,6 @@ watch(tabnow, (newv) => {
     position: sticky;
     top: 56px;
     z-index: 9;
-    background-color: white;
+    background-color: var(--bg-a);
 }
 </style>

@@ -1,26 +1,36 @@
 <template>
     <Headers :user="myself" :headinfo="isme ? { title: '个人中心' } : { title: '用户:' + route.params.username.toString() }"
         @me="isme = true; needshow = myself" />
-    <div class="mx-auto flex max-w-7xl justify-between px-4 relative mb-20"
+    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 relative mb-20"
         style="top:56px;min-height: calc(100vh - 100px);">
         <n-tabs ref="tabsInstRef" type="line" animated size="large" justify-content="center" v-model:value="tabnow"
-            class="mt-3">
+            class="mt-3" >
             <n-tab-pane name="self" :tab="isme ? '我的' : '用户:' + route.params.username.toString()"
-                display-directive="show:lazy">
+                display-directive="show:lazy" class=" flex justify-center">
                 <div class=" w-96">
-                    <img :src="imgbase + needshow?.avatar" alt="">
-                    <p>id: {{ needshow?.id_ }}</p>
-                    <p>用户名:{{ needshow?.username }}</p>
-                    <n-alert v-if="needshow?.group_id == 0" title="账号状态" type="success">普通用户
-                    </n-alert>
-                    <n-alert v-if="needshow?.group_id == 1" title="账号状态" type="info">管理员
-                    </n-alert>
-                    <n-alert v-if="needshow?.group_id == 2" title="账号状态" type="warning">审核中
-                    </n-alert>
-                    <n-alert v-if="needshow?.group_id == 3" title="账号状态" type="error">封禁
-                    </n-alert>
-                    <p>created_at: {{ needshow?.created_at }}</p>
-                    <p>updated_at: {{ needshow?.updated_at }}</p>
+                    <n-card hoverable :title="needshow?.username">
+                        <template #cover>
+                            <n-image :src="imgbase + needshow?.avatar" object-fit="cover" class="w-full"
+                                style="max-height: 200px;" />
+                        </template>
+                        <p>uid: {{ needshow?.id_ }}</p>
+                        <template #footer>
+                            <p>创建于: {{ needshow?.created_at.replace('T',' ') }}</p>
+                            <p>最后更新于: {{ needshow?.updated_at.replace('T',' ') }}</p>
+                        </template>
+                        <template #action>
+                            <n-alert v-if="needshow?.group_id == 0" title="账号状态" type="success">普通用户
+                            </n-alert>
+                            <n-alert v-if="needshow?.group_id == 1" title="账号状态" type="info">管理员
+                            </n-alert>
+                            <n-alert v-if="needshow?.group_id == 2" title="账号状态" type="warning">审核中
+                            </n-alert>
+                            <n-alert v-if="needshow?.group_id == 3" title="账号状态" type="error">封禁
+                            </n-alert>
+                        </template>
+
+
+                    </n-card>
                 </div>
             </n-tab-pane>
             <n-tab-pane name="post" tab="文章" display-directive="show:lazy">
@@ -148,7 +158,7 @@
                         <td>
 
                             <n-image :src="crbo" style="max-width: 200px;" alt=""
-                                @load="message.success('图片处理完成,压缩' + Math.floor((1-bfaf[1] / bfaf[0]) * 10000) / 100 + '%')" /><br>
+                                @load="message.success('图片处理完成,压缩' + Math.floor((1 - bfaf[1] / bfaf[0]) * 10000) / 100 + '%')" /><br>
                             <div v-if="bfaf[0]">
                                 原图: {{ bfaf[0] }}kb <br>
                                 压缩后:{{ bfaf[1] }}kb<br>
@@ -216,7 +226,7 @@ const tags = ref<Array<TagInDB>>()
 const file = ref()
 const resbin = ref()
 const crbo = ref()
-const bfaf = ref([1, 1, 1])
+const bfaf = ref([NaN, NaN, 1])
 
 const page = ref(1)
 const pagesize = ref(5)
@@ -240,9 +250,10 @@ watch(pagesize, () => getpost(page.value, pagesize.value))
 OpenAPI.TOKEN = localStorage.getItem("token") as string
 if (localStorage.getItem("userinfo") !== null && OpenAPI.TOKEN !== undefined) {
     myself.value = JSON.parse(localStorage.getItem("userinfo") || '')
-} else {
-    message.warning('未登录')
 }
+// else {
+//     message.warning('未登录')
+// }
 
 if (myself.value?.username == route.params.username) {
     isme.value = true
@@ -429,7 +440,7 @@ let times = ref(5)
 
 const rib = () => {
     localStorage.setItem('ribbon-times', times.value.toString())
-    router.push({ name: 'home' })
+    location.reload()
 }
 const tabsInstRef = ref<TabsInst>()
 const tabnow = ref('')
@@ -438,6 +449,9 @@ setTimeout(() => {
     if (prx == 'self' || prx == 'post' || prx == 'tags' || prx == 'new' || prx == 'comm' || prx == 'mycomm' || prx == 'setting') {
         tabnow.value = prx
     } else {
+        tabnow.value = 'self'
+    }
+    if (!isme.value || localStorage.getItem('onlogin') == 'false') {
         tabnow.value = 'self'
     }
 }, 500);
@@ -458,6 +472,6 @@ watch(tabnow, (newv) => {
     position: sticky;
     top: 56px;
     z-index: 9;
-    background-color: white;
+    background-color: var(--bg-a);
 }
 </style>

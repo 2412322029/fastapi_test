@@ -1,8 +1,9 @@
 <template>
-    <div class="flex min-h-full items-center justify-center px-4 py-6 lg:px-8 w-80 bg-white">
+    <div class="flex min-h-full items-center justify-center px-4 py-6 lg:px-8 w-80"
+     style="background-color: var(--bg-a);border:1px solid var(--bg-bo) ;">
         <div class="w-full max-w-md space-y-8">
             <div>
-                <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">注册
+                <h2 class="mt-6 text-center text-3xl font-bold tracking-tight" style="color: var(--bg-t);">注册
                 </h2>
             </div>
             <div class="-space-y-px rounded-md shadow-sm">
@@ -19,8 +20,7 @@
                     </n-form-item>
                     <div>
                         <n-form-item class="float-left" style="width: 68%;">
-                            <n-input v-model:value="inputcode" type="text" @keydown.enter.prevent
-                                placeholder="验证码" />
+                            <n-input v-model:value="inputcode" type="text" @keydown.enter.prevent placeholder="验证码" />
                         </n-form-item>
                         <n-form-item class="float-right" style="width: 30%;">
                             <img v-if="code != undefined" :src="'data:image/png;base64,' + code?.img" alt=""
@@ -36,11 +36,11 @@
                         </div>
                         <n-col :span="24">
                             <div class=" flex justify-between ">
-                                <n-button class="text-black" round type="primary" @click="$emit('closeform')">
+                                <n-button style="color: var(--bg-t);" round type="primary" @click="$emit('closeform')">
                                     关闭
                                 </n-button>
                                 <n-button :disabled="user.username === '' || password_agine !== user.password" round
-                                    class="text-black" type="primary" @click="registerAction(user)">
+                                    style="color: var(--bg-t);" type="primary" @click="registerAction(user)">
                                     注册
                                 </n-button>
                             </div>
@@ -100,7 +100,7 @@ const rules: FormRules = {
                 }
                 return true
             },
-            trigger: [ 'blur','password-input']
+            trigger: ['blur', 'password-input']
         }
     ],
     password_agine: [
@@ -113,7 +113,7 @@ const rules: FormRules = {
                     return true
                 }
             },
-            trigger: ['input','blur', 'password-input']
+            trigger: ['input', 'blur', 'password-input']
         }
     ]
 }

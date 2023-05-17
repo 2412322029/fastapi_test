@@ -1,8 +1,9 @@
 <template>
-    <div class="flex min-h-full items-center justify-center px-4 py-6 lg:px-8 w-80 bg-white">
+    <div class="flex min-h-full items-center justify-center px-4 py-6 lg:px-8 w-80"
+        style="background-color: var(--bg-a);border:1px solid var(--bg-bo) ;">
         <div class="w-full max-w-md space-y-8">
             <div>
-                <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">登录
+                <h2 class="mt-6 text-center text-3xl font-bold tracking-tight" style="color: var(--bg-t);">登录
                 </h2>
             </div>
             <n-form ref="formRef" :model="user" :rules="rules">
@@ -19,11 +20,11 @@
                     <n-col :span="24">
 
                         <div class=" flex justify-between">
-                            <n-button class="text-black" round type="primary" @click="$emit('closeform')">
+                            <n-button round type="primary" @click="$emit('closeform')" style="color: var(--bg-t);">
                                 关闭
                             </n-button>
                             <n-button :disabled="user.username === ''" round type="primary" @click="loginAction(user)"
-                                class="text-black">
+                                style="color: var(--bg-t);">
                                 登录
                             </n-button>
                         </div>
@@ -91,7 +92,7 @@ const loginAction = async (user: UserCreate) => {
         OpenAPI.TOKEN = token.access_token
         message.success('登录成功')
         localStorage.setItem('token', OpenAPI.TOKEN)
-                localStorage.setItem('userinfo-time', Math.floor(Date.now()/1000).toString())
+        localStorage.setItem('userinfo-time', Math.floor(Date.now() / 1000).toString())
         await Service.userinfo().then((u: UserOut) => {
             localStorage.setItem('userinfo', JSON.stringify(u))
         })

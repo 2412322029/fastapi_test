@@ -57,14 +57,14 @@
             </div>
         </nav>
         <div :class="{ 'translate-y-0': showLoginForm, 'translate-y-[-200%]': !showLoginForm }"
-            class="left-1/2 translate-x-[-50%] top-32  absolute transition duration-500 ease-in-out border border-cyan-700 rounded-md m-0">
+            class="left-1/2 translate-x-[-50%] top-32  absolute transition duration-500 ease-in-out ">
             <login :show-form="showLoginForm" @closeform="() => { showLoginForm = false }" @goregister="() => {
                 showLoginForm = false
                 showRegisterForm = true
             }" />
         </div>
         <div :class="{ 'translate-y-0': showRegisterForm, 'translate-y-[-200%]': !showRegisterForm }"
-            class="left-1/2 translate-x-[-50%] top-32 absolute transition duration-500 ease-in-out border border-cyan-700 rounded-md m-0">
+            class="left-1/2 translate-x-[-50%] top-32 absolute transition duration-500 ease-in-out ">
             <register :show-form="showRegisterForm" @closeform="() => { showRegisterForm = false }" @gologin="() => {
                 showLoginForm = true
                 showRegisterForm = false

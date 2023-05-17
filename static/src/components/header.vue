@@ -56,21 +56,24 @@
                 </div>
             </div>
         </nav>
+        <div v-if="showLoginForm || showRegisterForm"
+        style="position: absolute;inset: 0;height: 100vh;background-color: rgba(0, 0, 0, .4);z-index: 19;"></div>
         <div :class="{ 'translate-y-0': showLoginForm, 'translate-y-[-200%]': !showLoginForm }"
-            class="left-1/2 translate-x-[-50%] top-32  absolute transition duration-500 ease-in-out ">
+            class="left-1/2 translate-x-[-50%] top-32 sm:top-16 absolute transition duration-500 ease-in-out z-20">
             <login :show-form="showLoginForm" @closeform="() => { showLoginForm = false }" @goregister="() => {
                 showLoginForm = false
                 showRegisterForm = true
             }" />
         </div>
         <div :class="{ 'translate-y-0': showRegisterForm, 'translate-y-[-200%]': !showRegisterForm }"
-            class="left-1/2 translate-x-[-50%] top-32 absolute transition duration-500 ease-in-out ">
+            class="left-1/2 translate-x-[-50%] top-32 sm:top-16 absolute transition duration-500 ease-in-out z-20">
             <register :show-form="showRegisterForm" @closeform="() => { showRegisterForm = false }" @gologin="() => {
                 showLoginForm = true
                 showRegisterForm = false
             }" />
         </div>
     </header>
+
 </template>
 <script setup lang="ts">
 import { OpenAPI, Service, UserOut, ApiError, } from '@/client'

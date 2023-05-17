@@ -1,5 +1,5 @@
 <template>
-    <div class="flex min-h-full items-center justify-center px-4 py-6 lg:px-8 w-80"
+    <div class="flex min-h-full items-center justify-center px-4 py-6 lg:px-8 w-80 z-20"
         style="background-color: var(--bg-a);border:1px solid var(--bg-bo) ;">
         <div class="w-full max-w-md space-y-8">
             <div>

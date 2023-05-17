@@ -2,28 +2,41 @@
 
 ![image-20230506225922997](README.assets/image-20230506225922997.png)
 
-![image-20230506225902139](README.assets/image-20230506225902139.png)
+![image-20230506225902139](README.assets/image-20230517165410545.png)
 
+![image-20230517165643460](README.assets/image-20230517165643460.png)
 
+![image-20230517165217549](README.assets/image-20230517165217549.png)
 
-![image-20230506225716959](README.assets/image-20230506225716959.png)
-
-![image-20230506225751893](README.assets/image-20230506225751893.png)
+![image-20230517165507761](README.assets/image-20230517165507761.png)
 
  + server
 
    + fastapi sqlalchemy aiomysql实现 RESTful API与api文档自动生成，pydantic数据校验
    + 前后端鉴权使用[OAuth2 实现 Bearer JWT 令牌](https://fastapi.tiangolo.com/zh/tutorial/security/oauth2-jwt/)
    + slowapi限制api速率
-   + 访问统计
    + Pillow库生成简单验证码,文本文件缓存验证码
-
 + client
 
-  + vite+ts+vue3+vue-router+navie-ui
+  + vite + ts
+  
+  + vue3 + vue-router + navie-ui
+  
   + openapi-generate-typescript自动生成axios请求代码
-  + markdown解析和高亮使用highlight.js,编辑器[v-md-editor](https://code-farmer-i.github.io/vue-markdown-editor/zh/)
 
+  + markdown解析和高亮使用highlight.js,编辑器[v-md-editor](https://code-farmer-i.github.io/vue-markdown-editor/zh/)
+  
++ feature
+  
+  + 访问统计
+  + 导出excel
+  + 图片压缩上传
+  + 暗色模式
+  + 有用的命令行参数`python app.py -h`查看
+  + optional(main.ts文件中可选开启)
+    + 基于websocket 显示在线用户及其所在路径
+    + ~~服务器监控(psutil库)~~
+    + ~~websocket聊天室~~
   
 
 docker部署nginx,mysql,python3.10,nginx反向代理/api路径(api都以/api开头)单独代理/docs,/openapi.json路径的api文档，/uploads路径挂载文件上传的目录其他路径匹配[回退路由](https://router.vuejs.org/zh/guide/essentials/history-mode.html#nginx)
@@ -129,14 +142,9 @@ location /{
 
 最大文件上传限制：config.yaml中的是python代码中写的限制，还取决于nginx配置文件中client_max_body_size（10m）
 
-...未完待续
-
 
 
 ## TODO
 
-- 用户发表的所有评论-删除 -（修改）
-- 对用户的所有文章评论-查看-审核
-- 文章-修改
 - tag  -添加-删除 -（修改）
-- :   自定义css,等（附件表）
+- 用户管理

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sql import crud
 from sql.database import get_session
 from .token import get_current_user
-from .verifyModel import TokenData, PostInDB, PostOut, PostIn, PostUpdate, ANewTag, PostOutPage, TagInDB
+from .verifyModel import *
 
 postapp = APIRouter()
 
@@ -55,7 +55,7 @@ async def getUserAllTags(username: str = Query(min_length=1, max_length=50),
 
 
 @postapp.get("/get_posts_ByTagPage",
-             summary='获取该tag下的文章', response_model=list[PostOut])
+             summary='获取该tag下的文章', response_model=PostOutPage)
 async def getPostsByTagPage(tag_name: str = Query(min_length=1, max_length=50),
                             page: int = Query(default=1, gt=0), pagesize: int = Query(default=5, gt=0, lt=11),
                             session: AsyncSession = Depends(get_session)):

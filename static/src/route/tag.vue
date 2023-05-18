@@ -1,10 +1,10 @@
 <template>
-    <Headers :user="userinfo" :headinfo="{ title: 'Tag->' + $route.params.name }" />
+    <Headers :user="userinfo" :headinfo="{ title: 'Tag:' + $route.params.name }" />
     <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20" style="min-height: calc(100vh - 170px);">
         <div class="lg:w-2/3 max-lg:w-full">
-            <n-layout v-if="posts !== undefined && posts[0] !== undefined" style="background-color: transparent;">
+            <n-layout v-if="posts !== undefined && posts.posts[0] !== undefined" style="background-color: transparent;">
                 <n-layout-content content-style="padding:15px;background-color: transparent;">
-                    <n-card v-for="post in posts" class="mb-5" hoverable bordered>
+                    <n-card v-for="post in posts.posts" class="mb-5" hoverable bordered>
                         <template #header>
                             <p v-text="post.title || '无标题'" class=" rounded-xl mb-6 cursor-pointer hover:opacity-70"
                                 @click="router.push({ name: 'post', params: { id: post.id_ } })"></p>
@@ -32,8 +32,9 @@
                         </template>
                     </n-card>
                 </n-layout-content>
-                <n-pagination v-model:page="page" :page-count="10" :page-slot="5" size="large" :page-sizes="[5, 10]"
-                    v-model:page-size="pagesize" show-size-picker class=" flex justify-center" />
+                <n-pagination v-model:page="page" :page-count="Math.ceil(posts?.total as number / pagesize)" :page-slot="5"
+                    size="large" :page-sizes="[5, 10]" v-model:page-size="pagesize" show-size-picker
+                    class=" flex justify-center" />
             </n-layout>
             <n-empty v-else description="无相关内容"></n-empty>
         </div>
@@ -41,12 +42,12 @@
 
         </div>
     </div>
-    <n-back-top :right="40" />
+    <n-back-top :right="40" :bottom="60"/>
     <Footer />
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { OpenAPI, Service, UserOut, ApiError, PostOut } from '@/client'
+import { OpenAPI, Service, UserOut, ApiError, PostOut, PostOutPage } from '@/client'
 import Headers from '@/components/header.vue';
 import Footer from '@/components/footer.vue';
 import { NTag, NLayout, NLayoutContent, NCard, NPagination, NAvatar, NEllipsis, NEmpty, NBackTop } from 'naive-ui'
@@ -58,10 +59,10 @@ const message = useMessage()
 const userinfo = ref<UserOut>()
 const router = useRouter()
 const route = useRoute()
-const posts = ref<PostOut[]>()
+const posts = ref<PostOutPage>()
 const page = ref(1)
 const pagesize = ref(5)
-
+document.title = route.params.name.toString()
 onMounted(() => {
     if (localStorage.getItem('onlogin') == 'true') {
         if (!localStorage.getItem('userinfo')) {
@@ -76,7 +77,7 @@ onMounted(() => {
         }
     }
     function getpost(page: number, pagesize: number) {
-        Service.getPostsByTagPage(route.params.name.toString(), page, pagesize).then((po: PostOut[]) => {
+        Service.getPostsByTagPage(route.params.name.toString(), page, pagesize).then((po: PostOutPage) => {
             posts.value = po
             loading.value = false
         }).catch((e: ApiError) => {

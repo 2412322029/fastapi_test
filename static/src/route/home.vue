@@ -57,7 +57,7 @@
             </n-affix>
         </div>
     </div>
-    <n-back-top :right="40" />
+    <n-back-top :right="40" :bottom="60"/>
     <Footer />
 </template>
 <script setup lang="ts">
@@ -73,6 +73,7 @@ import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router';
 import { msgs, usews } from '@/main'
 
+document.title = 'undefined'
 const message = useMessage()
 const userinfo = ref<UserOut>()
 const router = useRouter()
@@ -103,7 +104,7 @@ function checkinfo() {
         localStorage.removeItem('token')
         message.error('登录信息过期')
     } else {
-        console.log(outtime);
+        // console.log(outtime);
     }
 
     if (!localuser && OpenAPI.TOKEN && outtime < 24 * 60 * 60) {

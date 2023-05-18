@@ -4,7 +4,7 @@
     <div class="mx-auto flex max-w-7xl justify-between lg:px-4 relative mb-20"
         style="top:56px;min-height: calc(100vh - 100px);">
         <n-tabs ref="tabsInstRef" type="line" animated size="large" justify-content="center" v-model:value="tabnow"
-            class="mt-3" >
+            class="mt-3">
             <n-tab-pane name="self" :tab="isme ? '我的' : '用户:' + route.params.username.toString()"
                 display-directive="show:lazy" class=" flex justify-center">
                 <div class=" w-96">
@@ -15,8 +15,8 @@
                         </template>
                         <p>uid: {{ needshow?.id_ }}</p>
                         <template #footer>
-                            <p>创建于: {{ needshow?.created_at.replace('T',' ') }}</p>
-                            <p>最后更新于: {{ needshow?.updated_at.replace('T',' ') }}</p>
+                            <p>创建于: {{ needshow?.created_at.replace('T', ' ') }}</p>
+                            <p>最后更新于: {{ needshow?.updated_at.replace('T', ' ') }}</p>
                         </template>
                         <template #action>
                             <n-alert v-if="needshow?.group_id == 0" title="账号状态" type="success">普通用户
@@ -148,8 +148,34 @@
                     </div>
                 </n-space>
             </n-tab-pane>
-            <n-tab-pane v-if="isme" name="setting" tab="设置" display-directive="show:lazy">
-                <n-table :striped="true" :single-line="false">
+            <n-tab-pane v-if="isme" name="setting" tab="设置" display-directive="show:lazy" class=" overflow-auto">
+                <n-table :striped="true" :single-line="false" class=" min-w-max">
+                    <tr>
+                        <td>修改密码</td>
+                        <td>
+                            <n-button @click="showModal = true">
+                                go
+                            </n-button>
+                        </td>
+                        <td>
+                            <n-modal v-model:show="showModal" :closable="true">
+                                <n-card style="width: 600px" title="密码修改" :bordered="false" size="huge" role="dialog"
+                                    aria-modal="true">
+                                    <n-space vertical>
+                                        <p>最少8位!</p>
+                                        <n-input placeholder="原密码" v-model:value="changpeass.oldp"></n-input>
+                                        <n-input placeholder="新密码" v-model:value="changpeass.newp" minlength="8"></n-input>
+                                        <n-input placeholder="重复密码" v-model:value="changpeass.newp2" minlength="8"></n-input>
+                                    </n-space>
+                                    <template #footer>
+                                        <n-button @click="changepasswd()" class=" float-right">
+                                            提交
+                                        </n-button>
+                                    </template>
+                                </n-card>
+                            </n-modal>
+                        </td>
+                    </tr>
                     <tr>
                         <td>修改头像</td>
                         <td>
@@ -205,14 +231,15 @@ import Tags from '@/components/tags.vue';
 import Footer from '@/components/footer.vue';
 import { useRouter, useRoute } from 'vue-router'
 import {
-    NAlert, NInputNumber, NTag, NLayout, NLayoutContent, useDialog,
+    NAlert, NInputNumber, NTag, NLayout, NLayoutContent, useDialog, NModal, NInput,
     NCard, NPagination, NEmpty, NTabs, NTabPane, NEllipsis, NAvatar, NSpace, NButton, NImage, NTable, TabsInst
 } from 'naive-ui'
-import { OpenAPI, Service, UserOut, ApiError, PostOut, PostOutPage, TagInDB, CommentUserOut } from '@/client'
+import { OpenAPI, Service, UserOut, ApiError, PostOut, PostOutPage, TagInDB, CommentUserOut, UpdateSuccess } from '@/client'
 import Headers from '@/components/header.vue';
 import newpost from '@/components/new_post.vue';
 import { imgbase } from '@/main'
 import { useMessage } from 'naive-ui'
+
 const message = useMessage()
 const router = useRouter()
 const route = useRoute()
@@ -231,6 +258,38 @@ const bfaf = ref([NaN, NaN, 1])
 const page = ref(1)
 const pagesize = ref(5)
 const posts = ref<PostOutPage>()
+
+const showModal = ref(false)
+const changpeass = ref({
+    oldp: '',
+    newp: '',
+    newp2: '',
+})
+function changepasswd() {
+    if (changpeass.value.oldp && changpeass.value.newp && changpeass.value.newp2) {
+        if (changpeass.value.newp !== changpeass.value.newp2) {
+            message.error('密码不一致')
+            return
+        }
+        if (changpeass.value.newp.length<8) {
+            message.error('8位以上')
+            return
+        }
+        Service.updatePassword(changpeass.value.oldp, changpeass.value.newp).then((v: UpdateSuccess) => {
+            message.success(v.data.username + ', ' + v.detail)
+            showModal.value = false
+            changpeass.value.oldp = changpeass.value.newp = changpeass.value.newp2 = ''
+            localStorage.removeItem('token')
+            localStorage.removeItem('userinfo')
+            localStorage.removeItem('onlogin')
+            location.reload()
+        }).catch((e: ApiError) => {
+            message.error(e.message + JSON.stringify(e.body.detail),{duration:8000})
+        })
+    } else {
+        message.warning('空')
+    }
+}
 function getpost(page: number, pagesize: number) {
     Service.getUsersPosts(route.params.username as string, page, pagesize).then((po: PostOutPage) => {
         posts.value = po
@@ -274,6 +333,7 @@ if (myself.value?.username == route.params.username) {
     })
 }
 
+document.title = needshow.value?.username || '用户'
 
 function gettags() {
     Service.getUserAllTags((needshow.value as UserOut).username).then((t: Array<TagInDB>) => {

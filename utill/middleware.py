@@ -37,10 +37,11 @@ class PathMiddleware(BaseHTTPMiddleware):
                 async with lock:
                     count = api_path_count.get(path)
                     api_path_count.update({path: count + 1})
-
+                    ua = request.headers.get('User-Agent')
                     ip_count.update({
-                        request.headers.get('User-Agent'): (ip_count.get(request.headers.get('User-Agent')) or 0) + 1
+                        ua: (ip_count.get(ua) or 0) + 1
                     })
+                    # 持久化
             if len(ip_count) > 100:
                 ip_count = dict(list(ip_count)[:100])
         path = str(request.url).replace(str(request.base_url), '')

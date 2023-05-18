@@ -30,7 +30,11 @@ async def api_count():
 async def download_excel():
     try:
         filename = 'export-' + datetime.datetime.now().strftime('%Y-%m-%d %H_%M_%S')
-        return StreamingResponse(sql_tool.to_excel(), headers={"Content-Disposition": f"attachment;filename={filename}"},
+        return StreamingResponse(sql_tool.to_excel(),
+                                 headers={
+                                     "Content-Disposition": f"attachment;filename={filename}",
+                                     "Access-Control-Expose-Headers": "Content-Disposition"
+                                 },
                                  media_type='application/vnd.ms-excel')
     except Exception as e:
         return e

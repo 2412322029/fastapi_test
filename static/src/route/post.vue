@@ -18,21 +18,41 @@
             <hr>
             <div class="m-5">
                 <n-space vertical>
-                    <div v-for="c in comlist" class="shadow">
+                    <div v-for="c, index in comlist" class="shadow">
                         <n-card>
+                            <span class=" float-right">{{ index + 1 }}楼</span>
                             <n-avatar round size="small" :src="imgbase + c.user_img" object-fit="cover" />
                             <span v-text="c.username" class=" pl-2 cursor-pointer"
                                 @click="router.push({ name: 'user', params: { username: c.username } })"></span>
                             <p v-text="c.content" class="ml-5"></p>
-                            <p v-text="c.created_at.replace('T', ' ')" class=" float-right"></p>
+                            <n-button @click="replyto = { id: c.id_, L: index + 1 };" class=" float-right"> 回复</n-button>
+                            <p v-text="c.created_at.replace('T', ' ')" class=" float-right" style="padding: 7px;"></p>
+
+                            <n-card v-if="c.reply !== null" v-for="r in c.reply">
+                                <n-avatar round size="small" :src="imgbase + c.user_img" object-fit="cover" />
+                                <span v-text="r.username" class=" pl-2 cursor-pointer"
+                                    @click="router.push({ name: 'user', params: { username: r.username } })"></span>
+                                <p v-text="r.content" class="ml-5"></p>
+                                <p v-text="r.created_at.replace('T', ' ')" class=" float-right"></p>
+
+                            </n-card>
                         </n-card>
                     </div>
+
+                    <div v-show="userinfo !== undefined">
+                        <div v-if="replyto.id !== 0">
+                            <n-card>
+                                <p>回复给:{{ replyto.L }}楼
+                                    <n-button class=" float-right" @click="replyto.id = 0">清除</n-button>
+                                </p>
+
+                            </n-card>
+                        </div>
+                        <n-input v-model:value="cominp.content" type="textarea" placeholder="友善发言" class=" shadow" />
+                        <n-button class="m-2 float-right" @click="sendcom(replyto.id)"> 发表</n-button>
+                    </div>
+                    <p v-show="userinfo === undefined">登录以发表评论</p>
                 </n-space>
-                <div v-show="userinfo !== undefined">
-                    <n-input v-model:value="cominp.content" type="textarea" placeholder="友善发言" class="mt-2 shadow" />
-                    <n-button class="m-2 float-right" @click="sendcom(0)"> 发表</n-button>
-                </div>
-                <p v-show="userinfo === undefined">登录以发表评论</p>
             </div>
 
         </div>
@@ -79,6 +99,7 @@ onMounted(() => {
     }
     Service.getPostById(pid).then((po: PostOut) => {
         post.value = po
+        document.title = post.value.title
         loading.value = false
     }).catch((e: ApiError) => {
         message.error(e.message)
@@ -98,6 +119,7 @@ const cominp = ref<CommentInput>({
     parent_id: 0,
     content: ''
 })
+const replyto = ref({ id: 0, L: 0 })
 function sendcom(pa: number) {
     cominp.value.parent_id = pa
     cominp.value.post_id = pid
@@ -110,7 +132,7 @@ function sendcom(pa: number) {
         return
     }
     Service.newComment(cominp.value).then(() => {
-        message.success('发表成功')
+        message.success('发表成功,等待审核')
         cominp.value.content = ''
         Service.postComm(pid).then((c: CommentPostOut[]) => {
             comlist.value = c

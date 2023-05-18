@@ -124,6 +124,8 @@ async def change_user_passwd(session: AsyncSession, user_old: Userbase, password
         try:
             r = await session.execute(select(User).where(User.username == user_old.username))
             user = r.scalar_one_or_none()
+            if verify_password(password_new, user.password):
+                return UpdateSuccess.from_User(user, "和原密码一致，不用修改")
             if user:
                 user.password = hash_password(password_new)
                 user.updated_at = func.now()
@@ -506,17 +508,19 @@ async def add_tag_to_post_authorized(session: AsyncSession, post_id: int, tag_na
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='更新失败' + str(e))
 
 
-async def get_posts_ByTagPage(session: AsyncSession, tag_name: str, page: int, pagesize: int) -> list[PostOut]:
+async def get_posts_ByTagPage(session: AsyncSession, tag_name: str, page: int, pagesize: int) -> PostOutPage:
     offset = (page - 1) * pagesize
     posts = await session.execute(select(Post).join(PostTag).join(Tag)
                                   .filter(Tag.name == tag_name).offset(offset).limit(pagesize))
     posts = posts.scalars()
+    count = (await session.execute(select(Post).join(PostTag).join(Tag)
+                                   .filter(Tag.name == tag_name))).all().__len__()
     post_out_list = []
     for post in posts:
         po = await get_post_ById(session, post_id=post.id)
         po.content = str(po.content)[:200]
         post_out_list.append(po)
-    return post_out_list
+    return PostOutPage(page=page, pagesize=pagesize, total=count, posts=post_out_list)
 
 
 async def newComment(session: AsyncSession, cin: CommentIn) -> str:

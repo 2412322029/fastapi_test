@@ -15,6 +15,10 @@
                             <td><n-switch v-model:value="isl"></n-switch> </td>
                             <td> <button @click="tj2">提交</button></td>
                         </tr>
+                        <tr>
+                            <td> 下载excel </td>
+                            <td> <button @click="download()">download</button></td>
+                        </tr>
                     </tbody>
                 </n-table>
             </n-tab-pane>
@@ -91,7 +95,8 @@ import Headers from '@/components/header.vue';
 import CPU from '@/components/cpu.vue';
 import { useMessage, NTable, NSwitch, NTabs, NTabPane, TabsInst } from 'naive-ui'
 import { imgbase } from '@/main';
-
+import axios from 'axios';
+document.title = '管理'
 const message = useMessage()
 const userinfo = ref<UserOut>()
 const api_path_count = ref()
@@ -179,7 +184,26 @@ watch(tabnow, (newv) => {
     }
     document.querySelector('#hua>.n-scrollbar-container')?.scrollTo(0, 0);
 })
-
+function download() {
+    axios({
+        url: OpenAPI.BASE + '/api/other/download_excel',
+        method: 'get',
+        responseType: 'blob',
+        headers: { 'Authorization': `Bearer ${OpenAPI.TOKEN}` }
+    }).then((res) => { 
+        const fileName = res.headers["content-disposition"]?.split(';')[1]?.split('filename=')[1];
+        const filestream = res.data;
+        const blob = new Blob([filestream], { type:  res.headers['content-type']?.toString()});
+        const a = document.createElement('a');
+        const href = window.URL.createObjectURL(blob);
+        a.href = href;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(href);
+    })
+}
 </script>
 
 <style>

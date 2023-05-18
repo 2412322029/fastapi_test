@@ -30,9 +30,11 @@ import { useRouter } from 'vue-router';
 import online from '@/components/online.vue'
 import { loading, usews, theme, followos } from '@/main'
 import { watchEffect } from 'vue';
+import { OpenAPI } from './client';
 const router = useRouter()
 
 onMounted(() => {
+    OpenAPI.TOKEN = localStorage.getItem("token") as string
     let t = localStorage.getItem('ribbon-times')
     let _followos = localStorage.getItem('follow-os')
     if (_followos == 'true') {

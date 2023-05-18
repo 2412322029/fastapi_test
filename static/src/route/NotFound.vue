@@ -14,3 +14,6 @@
         </div>
     </main>
 </template>
+<script setup lang="ts">
+document.title = '404'
+</script>

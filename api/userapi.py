@@ -33,7 +33,7 @@ async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequ
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    if user.group_id == 3 :
+    if user.group_id == 3:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='账号被封禁,无法登录')
     access_token_expires = timedelta(minutes=Config['ACCESS_TOKEN_EXPIRE_MINUTES'])
     access_token = await create_access_token(
@@ -89,28 +89,26 @@ async def userinfo(session: AsyncSession = Depends(get_session), current_user: T
 @userapp.put("/update_username",
              response_model=UpdateSuccess,
              summary='更新用户名')
-async def update_username(old_password: str, username_new: str,
+async def update_username(old_password: str = Query(min_length=8, max_length=200),
+                          username_new: str = Query(min_length=5, max_length=30, regex=r'^[a-zA-Z0-9_ -]+$'),
                           session: AsyncSession = Depends(get_session),
                           current_user: TokenData = Depends(get_current_user)):
-    try:
-        user_old = Userbase(username=current_user.username, password=old_password)
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=str(e))
-    r = await crud.change_user_name(session, user_old=user_old, username_new=username_new)
+    r = await crud.change_user_name(session, user_old=Userbase(
+        username=current_user.username,
+        password=old_password), username_new=username_new)
     return r
 
 
 @userapp.put("/update_password",
              response_model=UpdateSuccess,
              summary='更新密码')
-async def update_password(old_password: str, password_new: str,
+async def update_password(old_password: str = Query(min_length=8, max_length=200),
+                          password_new: str = Query(min_length=8, max_length=200),
                           session: AsyncSession = Depends(get_session),
                           current_user: TokenData = Depends(get_current_user)):
-    try:
-        user_old = Userbase(username=current_user.username, password=old_password)
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=str(e))
-    r = await crud.change_user_passwd(session, user_old=user_old, password_new=password_new)
+    r = await crud.change_user_passwd(session, user_old=Userbase(
+        username=current_user.username,
+        password=old_password), password_new=password_new)
     return r
 
 

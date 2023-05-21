@@ -69,6 +69,20 @@ docker部署nginx,mysql,python3.10,nginx反向代理/api路径(api都以/api开�
 pip install -r requirements.txt
 ```
 
+导出
+
+```bash
+pip download -d packages/ -r requirements.txt
+```
+
+ 离线安装导入
+
+```bash
+pip install --no-index --find-links=./packages -r requirements.txt
+```
+
+
+
 2. 配置
 
 修改`config.yaml`

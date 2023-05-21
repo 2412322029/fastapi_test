@@ -5,15 +5,15 @@ import os.path
 import sys
 import tempfile
 from pprint import pprint
+
 import xlwt
 import yaml
 from sqlalchemy import create_engine, select
 from sqlalchemy import text
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from api.password import hash_password, verify_password
-from sql.dbModels import User
+from sql.dbModels import User, Base
 
 ppath = os.path.dirname(__file__).replace('config', '')
 with open(os.path.join(ppath, 'config.yaml'), 'r', encoding='utf8') as f:
@@ -29,12 +29,17 @@ if 'MYSQL_HOST' in os.environ:
 
 class sync_session:
     d = Config["databases"]
+    _engine = create_engine(f'mysql+pymysql://{d["username"]}:{d["password"]}@{d["host"]}:{d["port"]}')
+    _conn = _engine.connect()
+    _conn.execute(text(f'CREATE DATABASE IF NOT EXISTS {d["dbname"]};'))
+    _conn.close()
+    _engine.dispose()
+
     engine = create_engine(
         f'mysql+pymysql://{d["username"]}:{d["password"]}@{d["host"]}:{d["port"]}/{d["dbname"]}',
         echo=False,
         connect_args={'charset': 'utf8mb4'}
     )
-    Base = declarative_base()
     Base.metadata.create_all(engine)
     DbSession = sessionmaker(bind=engine)
 
@@ -64,6 +69,12 @@ class sql_tool:
                 session.commit()
             else:
                 print(f'管理员[{username}]已经存在')
+            admin = session.query(User).where(User.username == username and User.group_id == 1).first()
+            if verify_password(Config['Default_Passwd'], admin.password):
+                print(f'请修改默认管理员[{admin.username}]的密码')
+            else:
+                print(
+                    f'\t默认管理员[{admin.username}]密码已修改\t创建于:[{admin.created_at}]\t更新于:[{admin.updated_at}]\n')
         return admin
 
     @staticmethod
@@ -181,9 +192,4 @@ if args.show_config:
     pprint(Config, indent=4, depth=3)
     sys.exit()
 
-admin_ = sql_tool.new_admin(Config['Default_Administrator'], Config['Default_Passwd'])
-if verify_password(Config['Default_Passwd'], admin_.password):
-    print(f'请修改默认管理员[{admin_.username}]的密码')
-else:
-    print(
-        f'\t默认管理员[{admin_.username}]密码已修改\t创建于:[{admin_.created_at}]\t更新于:[{admin_.updated_at}]\n')
+sql_tool.new_admin(Config['Default_Administrator'], Config['Default_Passwd'])

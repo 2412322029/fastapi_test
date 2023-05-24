@@ -1,0 +1,1 @@
+7z a -xr!".venv" -xr!data -xr!static\node_modules -xr!*\__pycache__ d:/desktop/pack.7z *

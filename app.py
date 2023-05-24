@@ -6,7 +6,7 @@ from starlette.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, StreamingResponse
 from api.index import api
 from config import Config
 from sql.database import engine
@@ -42,6 +42,9 @@ async def custom_http_exception_handler(request: Request, exc):
         return JSONResponse(
             status_code=exc.status_code,
             content={'detail': str(exc.detail)})
+    elif path.startswith('uploads/'):
+        file_like = open('uploads/default.jpg', mode="rb")
+        return StreamingResponse(file_like, media_type="image/jpg")
     else:
         html_file = open("static/dist/index.html", 'r').read()
         return HTMLResponse(html_file)

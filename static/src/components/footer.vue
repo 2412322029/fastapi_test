@@ -2,7 +2,7 @@
     <div style="height: 300px;"></div>
     <footer class="w-full text-gray-500 border" style="border-color: var(--bg-bo);">
         <div class=" flex justify-center h-20 items-center">
-            <p class=" text-sm p-6"> Made by Simple</p>
+            <p class=" text-sm p-6"> Made by <a href="https://github.com/2412322029" target="_blank">Lolik</a></p>
             <a href="https://github.com/2412322029/fastapi_test" target="_blank">
                 <img src="../assets/github.svg" 
                     class="inline-flex hover:scale-110 transition-transform ease align-middle mr-2 sm:mr-5 cursor-pointer w-5"

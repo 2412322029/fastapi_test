@@ -1,17 +1,15 @@
-![image-20230506225558239](README.assets/image-20230506225558239.png)
+快速开始 [https://github.com/2412322029/fastapi_test/releases/tag/bulid](https://github.com/2412322029/fastapi_test/releases/tag/bulid)
 
-![image-20230506225922997](README.assets/image-20230506225922997.png)
+```bash
+pip install --no-index --find-links=packages -r requirements.txt
 
-![image-20230506225902139](README.assets/image-20230517165410545.png)
+python app.py
+```
 
-![image-20230517165643460](README.assets/image-20230517165643460.png)
 
-![image-20230517165217549](README.assets/image-20230517165217549.png)
 
-![image-20230517165507761](README.assets/image-20230517165507761.png)
-
+ + 
  + server
-
    + fastapi sqlalchemy aiomysql实现 RESTful API与api文档自动生成，pydantic数据校验
    + 前后端鉴权使用[OAuth2 实现 Bearer JWT 令牌](https://fastapi.tiangolo.com/zh/tutorial/security/oauth2-jwt/)
    + slowapi限制api速率
@@ -78,7 +76,7 @@ pip download -d packages/ -r requirements.txt
  离线安装导入
 
 ```bash
-pip install --no-index --find-links=./packages -r requirements.txt
+pip install --no-index --find-links=packages -r requirements.txt
 ```
 
 
@@ -162,3 +160,15 @@ location /{
 
 - tag  -添加-删除 -（修改）
 - 用户管理
+
+![image-20230506225558239](README.assets/image-20230506225558239.png)
+
+![image-20230506225922997](README.assets/image-20230506225922997.png)
+
+![image-20230506225902139](README.assets/image-20230517165410545.png)
+
+![image-20230517165643460](README.assets/image-20230517165643460.png)
+
+![image-20230517165217549](README.assets/image-20230517165217549.png)
+
+![image-20230517165507761](README.assets/image-20230517165507761.png)

@@ -25,7 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )  # 跨域中间件
 app.add_middleware(GZipMiddleware, minimum_size=1000)  # gzip压缩中间件
-app.add_middleware(PathMiddleware, fastAPI_app=app)  # 自定义的回退路由等功能
+app.add_middleware(PathMiddleware, fastAPI_app=app)  # 访问统计
 
 app.include_router(api, prefix='/api')
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")  # 文件上传目录

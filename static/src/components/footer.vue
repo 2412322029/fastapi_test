@@ -4,8 +4,8 @@
         <div class=" flex justify-center h-20 items-center">
             <p class=" text-sm p-6"> Made by Simple</p>
             <a href="https://github.com/2412322029/fastapi_test" target="_blank">
-                <img src="../assets/github.svg" width="20px"
-                    class="inline-flex hover:scale-110 transition-transform ease align-middle mr-2 sm:mr-5 cursor-pointer"
+                <img src="../assets/github.svg" 
+                    class="inline-flex hover:scale-110 transition-transform ease align-middle mr-2 sm:mr-5 cursor-pointer w-5"
                     alt=""></a>
             <n-checkbox v-model:checked="followos">
                 跟随系统

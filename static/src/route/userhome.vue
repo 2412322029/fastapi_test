@@ -1,7 +1,7 @@
 <template>
     <Headers :user="myself" :headinfo="isme ? { title: '个人中心' } : { title: '用户:' + route.params.username.toString() }"
         @me="isme = true; needshow = myself" />
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 relative mb-20"
+    <section class="mx-auto flex max-w-7xl justify-between lg:px-4 relative mb-20"
         style="top:56px;min-height: calc(100vh - 100px);">
         <n-tabs ref="tabsInstRef" type="line" animated size="large" justify-content="center" v-model:value="tabnow"
             class="mt-3">
@@ -222,7 +222,7 @@
 
         </n-tabs>
 
-    </div>
+    </section>
     <Footer />
 </template>
 <script setup lang="ts">

@@ -1,6 +1,6 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mb-20 relative" style="min-height: calc(100vh - 100px);">
+    <section class="mx-auto flex max-w-7xl justify-between lg:px-4 mb-20 relative" style="min-height: calc(100vh - 100px);">
         <div class="lg:w-2/3 max-lg:w-full mt-20">
             <n-layout style="background-color: transparent;">
                 <n-layout-content content-style="padding:15px;background-color: transparent;">
@@ -38,7 +38,7 @@
                     class=" flex justify-center" />
             </n-layout>
         </div>
-        <div class="lg:w-1/3 max-lg:hidden m-2">
+        <aside class="lg:w-1/3 max-lg:hidden m-2">
             <n-affix :trigger-top="95" class="absolute w-1/3 shadow-md ">
                 <n-card v-if="usews">
                     <div v-for="m in msgs">
@@ -55,8 +55,8 @@
 
                 <Tags :tags="tags" />
             </n-affix>
-        </div>
-    </div>
+        </aside>
+    </section>
     <n-back-top :right="40" :bottom="60"/>
     <Footer />
 </template>

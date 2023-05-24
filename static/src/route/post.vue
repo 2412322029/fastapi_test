@@ -1,7 +1,7 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: 'home' }" />
     <hr>
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20 mb-20" style="min-height: calc(100vh - 170px);">
+    <article class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20 mb-20" style="min-height: calc(100vh - 170px);">
         <div class="lg:w-2/3 max-lg:w-full" v-if="post !== undefined">
             <p v-text="post?.title" class=" text-2xl flex justify-center m-5"></p>
             <div class=" flex items-center m-3 ml-6 flex-col justify-center">
@@ -56,12 +56,12 @@
             </div>
 
         </div>
-        <div class="lg:w-1/3 max-lg:hidden">
+        <aside class="lg:w-1/3 max-lg:hidden">
             <n-tag type="info" round v-text="t" @click="$router.push({ name: 'tag', params: { name: t } })"
                 class="m-2 cursor-pointer" v-for="t in post?.tags">
             </n-tag>
-        </div>
-    </div>
+        </aside>
+    </article>
     <n-back-top :right="40" />
     <Footer />
 </template>

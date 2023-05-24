@@ -1,6 +1,6 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: 'Tag:' + $route.params.name }" />
-    <div class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20" style="min-height: calc(100vh - 170px);">
+    <section class="mx-auto flex max-w-7xl justify-between lg:px-4 mt-20" style="min-height: calc(100vh - 170px);">
         <div class="lg:w-2/3 max-lg:w-full">
             <n-layout v-if="posts !== undefined && posts.posts[0] !== undefined" style="background-color: transparent;">
                 <n-layout-content content-style="padding:15px;background-color: transparent;">
@@ -41,7 +41,7 @@
         <div class="lg:w-1/3 max-lg:hidden">
 
         </div>
-    </div>
+    </section>
     <n-back-top :right="40" :bottom="60"/>
     <Footer />
 </template>

@@ -1,6 +1,6 @@
 <template>
     <Headers :user="userinfo" :headinfo="{ title: '管理' }" />
-    <div v-if="userinfo" class="mx-auto flex max-w-7xl items-center flex-col px-4 top-20 relative">
+    <section v-if="userinfo" class="mx-auto flex max-w-7xl items-center flex-col px-4 top-20 relative">
         <n-tabs ref="tabsInstRef" type="line" animated size="large" justify-content="center" v-model:value="tabnow">
             <n-tab-pane name="setting" tab="设置" display-directive="show:lazy">
                 <n-table striped>
@@ -85,7 +85,7 @@
 
         <div style="width: 100%;height: 30vh;"></div>
 
-    </div>
+    </section>
     <!-- <Footer /> -->
 </template>
 <script setup lang="ts">

@@ -9,3 +9,4 @@ test
 static
 uploads
 !./uploads/default.jpg
+build

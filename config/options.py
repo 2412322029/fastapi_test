@@ -15,9 +15,16 @@ from sqlalchemy.orm import sessionmaker
 from api.password import hash_password, verify_password
 from sql.dbModels import User, Base
 
-ppath = os.path.dirname(__file__).replace('config', '')
-with open(os.path.join(ppath, 'config.yaml'), 'r', encoding='utf8') as f:
-    Config = yaml.safe_load(f)
+ppath = os.path.dirname(__file__)
+Config = None
+try:
+    with open(os.path.join(ppath, 'config.yaml'), 'r', encoding='utf8') as f:
+        Config = yaml.safe_load(f)
+except FileNotFoundError as e:
+    print(e)
+    p = input('input config.yaml path:')
+    with open(p, 'r', encoding='utf8') as f:
+        Config = yaml.safe_load(f)
 
 if 'MYSQL_HOST' in os.environ:
     print("use env mysql config")
@@ -30,11 +37,17 @@ if 'MYSQL_HOST' in os.environ:
 class sync_session:
     d = Config["databases"]
     _engine = create_engine(f'mysql+pymysql://{d["username"]}:{d["password"]}@{d["host"]}:{d["port"]}')
-    _conn = _engine.connect()
-    _conn.execute(text(f'CREATE DATABASE IF NOT EXISTS {d["dbname"]};'))
-    _conn.close()
-    _engine.dispose()
-
+    try: 
+        print(f'尝试连接mysql {d["host"]}:{d["port"]}')
+        _conn = _engine.connect()
+        print(f'execute CREATE DATABASE IF NOT EXISTS {d["dbname"]}')
+        _conn.execute(text(f'CREATE DATABASE IF NOT EXISTS {d["dbname"]};'))
+        _conn.close()
+        _engine.dispose()
+    except Exception as e:
+        print('数据库连接失败\n',e)
+        sys.exit()
+    print(f'mysql连接成功')
     engine = create_engine(
         f'mysql+pymysql://{d["username"]}:{d["password"]}@{d["host"]}:{d["port"]}/{d["dbname"]}',
         echo=False,

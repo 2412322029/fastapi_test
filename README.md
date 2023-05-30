@@ -50,8 +50,8 @@ docker部署nginx,mysql,python3.10,nginx反向代理/api路径(api都以/api开�
 ├─api //fastapi子路由，数据校验模型
 ├─sql //数据库连接，crud代码，orm模型
 ├─config //读取配置文件，环境变量
+|   ├─config.yaml //主要是mysql信息，fasapi配置
 ├─app.py //fastapi主文件
-├─config.yaml //主要是mysql信息，fasapi配置
 ├─...如其名
 
 ```
@@ -60,35 +60,34 @@ docker部署nginx,mysql,python3.10,nginx反向代理/api路径(api都以/api开�
 
 ## 后端
 
-1. python>3.10 pip安装依赖 
-
-2. 最好使用虚拟环境
-```bash
-pip install -r requirements.txt
-```
-
-导出
+1. 安装pdm
 
 ```bash
-pip download -d packages/ -r requirements.txt
+pip install --user pdm
 ```
 
- 离线安装导入
+2. 创建虚拟环境
 
 ```bash
-pip install --no-index --find-links=packages -r requirements.txt
+pdm venv create 3.11
 ```
 
+ 3. 安装依赖库
 
+```bash
+pdm install --prod --no-lock --no-editable
+```
 
-2. 配置
+3. 配置
 
 修改`config.yaml`
 > 修改数据库用户名密码，创建数据库,数据库名填入dbname
-> 
-> 修改默认用户名密码
+>
+> 修改默认用户名密码，
+>
+> 环境变量的mysql 数据库信息优先级更高
 
-3. 启动
+4. 启动
 
 ```bash
 python app.py

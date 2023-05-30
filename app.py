@@ -54,8 +54,7 @@ async def custom_http_exception_handler(request: Request, exc):
 async def shutdown():
     await engine.dispose()
 
-
-if __name__ == '__main__':
+def main():
     uvicorn.run(app='app:app',
                 host=Config["uvicorn"]["host"],
                 port=Config["uvicorn"]["port"],
@@ -64,3 +63,7 @@ if __name__ == '__main__':
                 headers=[("server", "fastapi")],
                 proxy_headers=False
                 )
+
+if __name__ == '__main__':
+    main()
+

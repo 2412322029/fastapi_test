@@ -41,4 +41,6 @@ static/openapi.json
 
 data
 nginx/log
-packages
+packages.pdm-python
+.pdm-python
+build

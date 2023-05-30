@@ -1,39 +1,36 @@
-
 Development: false
 
 Access_statistics: true #API访问统计
 # 跨域规则
 allow_origins:
-    - ''
-
-# 匹配一个字符串, 允许本机所有端口
-allow_origin_regex: 'http://127\.0\.0\.1:.*'
+- 
+allow_origin_regex: http://127\.0\.0\.1:.*
 
 # mysql数据库信息
 databases:
-    host: 127.0.0.1
-    username: root
-    password: 123456
-    port: 3306
-    dbname: blog
+  host: 127.0.0.1
+  username: admin
+  password: '123456'
+  port: '3306'
+  dbname: blog
 
 # fastapi
 uvicorn:
-    host: 0.0.0.0
-    port: 8000
-    workers: 1
+  host: 0.0.0.0
+  port: 8000
+  workers: 1
 
 
 # token密钥
-SECRET_KEY: "b7a9563b93f709f4caa6cf63be75e094faa9d288e8d36ca259f6f056c818166"
+SECRET_KEY: b7a9563b93f709f4caa6cf63be75e094faa9d288e8d36ca259f6f056c818166
 
-ALGORITHM: "HS256"
+ALGORITHM: HS256
 
 # token过期时间
-ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+ACCESS_TOKEN_EXPIRE_MINUTES: '1440'
 
 # 默认管理员
-Default_Administrator: 'admin'
+Default_Administrator: admin
 
 # 默认密码
 Default_Passwd: '12345678'

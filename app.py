@@ -54,16 +54,17 @@ async def custom_http_exception_handler(request: Request, exc):
 async def shutdown():
     await engine.dispose()
 
+
 def main():
     uvicorn.run(app='app:app',
                 host=Config["uvicorn"]["host"],
                 port=Config["uvicorn"]["port"],
                 reload=Config['Development'],
-                workers=Config["uvicorn"]['workers'],
+                workers=int(Config["uvicorn"]['workers']),
                 headers=[("server", "fastapi")],
                 proxy_headers=False
                 )
 
+
 if __name__ == '__main__':
     main()
-

@@ -25,6 +25,7 @@ dependencies = [
     "python-multipart>=0.0.6",
     "websockets>=11.0.3",
     "ruamel-yaml>=0.17.28",
+    "cryptography>=40.0.2",
 ]
 requires-python = ">=3.11"
 license = {text = "MIT"}
@@ -34,3 +35,7 @@ requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 
+[tool.pdm.dev-dependencies]
+test = [
+    "bandit>=1.7.5",
+]

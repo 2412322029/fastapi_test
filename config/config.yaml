@@ -9,7 +9,7 @@ allow_origin_regex: http://127\.0\.0\.1:.*
 # mysql数据库信息
 databases:
   host: 127.0.0.1
-  username: admin
+  username: root
   password: '123456'
   port: '3306'
   dbname: blog

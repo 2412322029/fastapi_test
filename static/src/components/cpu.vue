@@ -69,7 +69,7 @@ const start = () => {
     })
 }
 onMounted(() => {
-    
+    start()
 })
 
 

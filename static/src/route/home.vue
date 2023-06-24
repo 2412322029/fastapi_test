@@ -59,6 +59,7 @@
     </section>
     <n-back-top :right="40" :bottom="60"/>
     <Footer />
+    <!-- <CPU/> -->
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -66,6 +67,7 @@ import { OpenAPI, Service, UserOut, ApiError, PostOutPage, PostOut, TagInDB } fr
 import Headers from '@/components/header.vue';
 import Footer from '@/components/footer.vue';
 import Tags from '@/components/tags.vue';
+import CPU from '@/components/cpu.vue'
 import { NTag, NLayout, NLayoutContent, NCard, NPagination, NAvatar, NEllipsis, NAffix, NBackTop } from 'naive-ui'
 import { watchEffect } from 'vue';
 import { imgbase, loading } from '@/main';

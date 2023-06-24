@@ -16,7 +16,7 @@ if (process.env.NODE_ENV == "development") {
   OpenAPI.BASE = location.origin
 }
 export const imgbase: string = OpenAPI.BASE + '/uploads/'
-export const usews: boolean = false
+export const usews: boolean = true
 export const msgs = ref<[{ username: string, path: string }]>([{ username: '', path: '' }])
 export const loading = ref(false)
 export const theme = ref<typeof darkTheme | null>()

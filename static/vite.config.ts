@@ -16,26 +16,32 @@ export default defineConfig({
   },
 
   build: {
+    chunkSizeWarningLimit: 1500,
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
     rollupOptions: {
-      manualChunks(id) {
-        if (id.includes('naive-ui')) {
-          return 'naive-ui'
-        }
-        if (id.includes('components') || id.includes('route')) {
-          return 'components-route'
-        }
-        if (id.includes('client')) {
-          return 'client'
-        }
-        if (id.includes('@kangc')) {
-          return '@kangc'
-        }
-        if (id.includes('highlight')) {
-          return 'highlight'
-        }
-
-      },
       output: {
+        manualChunks(id) {
+          if (id.includes('naive-ui')) {
+            return 'naive-ui'
+          }
+          if (id.includes('components') || id.includes('route')) {
+            return 'components-route'
+          }
+          if (id.includes('client')) {
+            return 'client'
+          }
+          if (id.includes('@kangc')) {
+            return '@kangc'
+          }
+          if (id.includes('highlight')) {
+            return 'highlight'
+          }
+        },
         entryFileNames: 'js/[name]-[hash].js',
         chunkFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'

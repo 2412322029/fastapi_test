@@ -44,3 +44,4 @@ nginx/log
 packages.pdm-python
 .pdm-python
 build
+.pdm-build

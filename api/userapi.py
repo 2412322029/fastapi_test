@@ -35,7 +35,7 @@ async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequ
         )
     if user.group_id == 3:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='账号被封禁,无法登录')
-    access_token_expires = timedelta(minutes=Config['ACCESS_TOKEN_EXPIRE_MINUTES'])
+    access_token_expires = timedelta(minutes=int(Config['ACCESS_TOKEN_EXPIRE_MINUTES']))
     access_token = await create_access_token(
         data={"sub": user.username, "id": user.id_, 'gid': user.group_id},
         expires_delta=access_token_expires
@@ -138,7 +138,7 @@ async def upload(file: UploadFile):
         raise HTTPException(status_code=400, detail="Invalid file extension.")
 
     data = await file.read()
-    if len(data) > Config['MAX_FILE_SIZE_MB'] * 1048576:
+    if len(data) > int(Config['MAX_FILE_SIZE_MB']) * 1048576:
         raise HTTPException(status_code=400, detail=f"File size = {round(len(data) / 1048576, 2)}MB exceeds the limit.")
 
     md5 = hashlib.md5(data).hexdigest()
